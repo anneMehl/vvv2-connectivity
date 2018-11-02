@@ -1,0 +1,105 @@
+<<<<<<< HEAD
+---
+title: "plots"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+ggplot(data = datrsf7, aes(publ_road_dist))+
+         geom_histogram(aes(fill=factor(use)),alpha=0.5)+
+        facet_wrap(~publ_road_type,scales="free")
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=======
+---
+title: "plots"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+ggplot(data = datrsf7, aes(publ_road_dist))+
+         geom_histogram(aes(fill=factor(use)),alpha=0.5)+
+        facet_wrap(~publ_road_type,scales="free")
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> 33073c58e577f151a44cf063f78edd1b3c2e3689

@@ -1,0 +1,63 @@
+---
+title: "studyarea_rsf"
+author: "anneMehl"
+date: "9 april 2018"
+output: word_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Creating a study area for the rsf
+
+#### Make a home range for each animal based on the used points (whole data set)
+This analysis Christer has been doing for the project.
+ 
+```{r}
+  load("processdata/gpsdata2.rda")
+  head(gpsdata2)
+  points <- gpsdata2[gpsdata2$use==1, ]
+  head(points)
+
+  # yearly homerange
+  attributes <- as.data.frame(points$id)
+  xy <- cbind(points$x,points$y)
+  locationsDD <- SpatialPointsDataFrame(xy, attributes)
+  # proj4string(locationsDD) <- CRS("+proj=utm +zone=32")
+  unique(locationsDD$attributes)
+  plot(locationsDD)
+
+  cp <- mcp(locationsDD[,1], percent=100, unin = c("m"), unout=c("km2"))
+  cp_area <- as.data.frame(cp)
+  plot(cp)
+  class(cp)
+  
+  mcp100year <- writeOGR(cp, dsn = '.', layer = 'poly1', driver = "ESRI Shapefile")
+```
+  
+#### Kernel home range for each animal used in the study
+```{r}
+  kernel1 <- kernelUD(locationsDD[,1], h=2000, grid=100, extent=2)
+  save(kernel1, file="kernel1.rda")
+  load("kernel1.rda")
+  image(kernel1)
+
+  class(kernel1)
+  kernel1[[3]]@h
+  kernel1@h
+
+
+  # homerange <- getverticeshr(kernel1,percent=99, unin = c("m"), unout=c("km2"))
+  # class(homerange)
+  # save(homerange, file="homerange.rda")
+  load("homerange.rda")
+  # nrow(homerange)
+  plot(homerange, col=1) # col=1:71 gir 71 ulike farger, mens col=1 gir farge med kode 1 p? at
+  points(locationsDD, col=2)
+  head(homerange)
+  
+```
+  

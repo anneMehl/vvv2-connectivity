@@ -1,0 +1,101 @@
+<<<<<<< HEAD
+---
+title: "Reduce ssf-data"
+author: "anneMehl"
+date: "5 april 2018"
+output:
+  word_document: default
+  pdf_document: default
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##### load data from Christers gardermoen analysis
+```{r}
+ load("processdata/gpsdata2.rda")
+
+```
+
+  
+##### split data on "strat" with function "split" to get a list as long as "strat"
+```{r}
+  dvvvsplit <- split(gpsdata2, f = as.factor(gpsdata2$strat))
+```
+  
+  
+##### half the size of the data 
+```{r}
+  dvvvsample <- sample(dvvvsplit, 155767)
+```
+  
+  
+##### half the amount of random steps, by keeping only the last 5 rows (tail) of ech list element 
+```{r}
+  dvvv <- lapply(dvvvsample, tail, 5)
+  save(dvvv, file="dvvv.rda")
+  load("output/dvvv.rda")
+```
+For some reason (probably because this list is super large) the upper chunk is not processing well.
+  
+##### convert the list back into a datframe to use it in the ssf model
+```{r}
+    dvvv1 <- do.call(rbind, dvvv)
+    save(dvvv1, file="dvvv1.rda")
+    load("output/dvvv1.rda")
+```
+
+
+
+
+=======
+---
+title: "Reduce ssf-data"
+author: "anneMehl"
+date: "5 april 2018"
+output:
+  word_document: default
+  pdf_document: default
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##### load data from Christers gardermoen analysis
+```{r}
+ load("processdata/gpsdata2.rda")
+
+```
+
+  
+##### split data on "strat" with function "split" to get a list as long as "strat"
+```{r}
+  dvvvsplit <- split(gpsdata2, f = as.factor(gpsdata2$strat))
+```
+  
+  
+##### half the size of the data 
+```{r}
+  dvvvsample <- sample(dvvvsplit, 155767)
+```
+  
+  
+##### half the amount of random steps, by keeping only the last 5 rows (tail) of ech list element 
+```{r}
+  dvvv <- lapply(dvvvsample, tail, 5)
+  save(dvvv, file="dvvv.rda")
+  load("output/dvvv.rda")
+```
+For some reason (probably because this list is super large) the upper chunk is not processing well.
+  
+##### convert the list back into a datframe to use it in the ssf model
+```{r}
+    dvvv1 <- do.call(rbind, dvvv)
+    save(dvvv1, file="dvvv1.rda")
+    load("output/dvvv1.rda")
+```
+
+
+
+
+>>>>>>> 33073c58e577f151a44cf063f78edd1b3c2e3689

@@ -1,0 +1,65 @@
+<<<<<<< HEAD
+---
+title: "Help"
+author: "anneMehl"
+date: "10 april 2018"
+output: word_document
+---
+
+It is also possible to use sth like this:
+##### Load package and set knitr root.dir to the right folder
+```{r setup, include=FALSE}
+require("knitr")
+knitr::opts_chunk$set(echo = TRUE)
+opts_knit$set(root.dir = "~/vei-veggi-vilt/Paper_1/Analysis/vvvp1")
+```
+
+Instead of this:
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+setwd("C:/Users/anne.mehlhoop/OneDrive - NINA/vei-veggi-vilt/Paper_2_connectivity/Analysis/vvvp1")
+
+If there is a problem with the working directory.
+
+
+
+#### FOR mixed models which fail to converge
+* look in help -> optimize[G]lmer
+
+
+
+=======
+---
+title: "Help"
+author: "anneMehl"
+date: "10 april 2018"
+output: word_document
+---
+
+It is also possible to use sth like this:
+##### Load package and set knitr root.dir to the right folder
+```{r setup, include=FALSE}
+require("knitr")
+knitr::opts_chunk$set(echo = TRUE)
+opts_knit$set(root.dir = "~/vei-veggi-vilt/Paper_1/Analysis/vvvp1")
+```
+
+Instead of this:
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+setwd("C:/Users/anne.mehlhoop/OneDrive - NINA/vei-veggi-vilt/Paper_2_connectivity/Analysis/vvvp1")
+
+If there is a problem with the working directory.
+
+
+
+#### FOR mixed models which fail to converge
+* look in help -> optimize[G]lmer
+
+
+
+>>>>>>> 33073c58e577f151a44cf063f78edd1b3c2e3689

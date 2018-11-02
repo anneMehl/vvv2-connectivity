@@ -1,0 +1,362 @@
+---
+title: "Rsf cleaning data"
+author: "anneMehl"
+date: "9 april 2018"
+output: word_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+#### LOAD DATA FOR RSF AND EXPLORE IT
+
+```{r}
+  # load(file = "dat_rsf.rda")
+  # datrsf <-  dat
+  # load(file = "dat_rsfV2.rda") # Merged road data
+  # datrsf2 <-  dat
+  # load("processdata/dat_rsfV3.rda") # Merged road data, but smaller dataset
+  # datrsf3 <-  dat
+  
+  # load("processdata/dat_rsfV3_density.rda")
+  # datrsf3_den <- dat
+  # save(datrsf3_den, file = "datrsf3_den.rda")
+  # load("processdata/datrsf3_den.rda")
+
+load("processdata/dat_rsfV4.rda")
+datrsfv4 <- dat
+
+  
+  # str(datrsf3_den)
+  head(datrsfv4)
+  # tail(datrsf3_den)
+```
+
+
+#### Subset data set to get rid of many columns not needed
+```{r}
+# datrsfv4_sub <- datrsfv4[c(1:4, 12:16, 21:23, 28, 30)]
+# save(datrsfv4_sub, file = "datrsfv4_sub.rda")
+load("processdata/datrsfv4_sub.rda")
+```
+
+
+
+
+##### Extract month from acquisition time and create new dataset for the "summer-year" (month 4-12)
+
+```{r}
+library("lubridate", lib.loc="~/R/win-library/3.4")
+datrsfv4_sub$month <- month(datrsfv4_sub$acquisition_time)
+
+datrsfv4_summer <- datrsfv4_sub[which(datrsfv4_sub$month > 3 | is.na(datrsfv4_sub$month)), ]
+save(datrsfv4_summer, file = "datrsfv4_summer.rda")
+
+datrsfv4_winter <- datrsfv4_sub[which(datrsfv4_sub$month < 4 | is.na(datrsfv4_sub$month)), ]
+save(datrsfv4_winter, file = "datrsfv4_winter.rda")
+
+```
+
+
+
+
+##### Check & adjust data structure 
+
+```{r}
+  str(datrsfv4_winter$pt_id) # int
+  str(datrsfv4_winter$use) # int
+  str(datrsfv4_winter$dist_building) # int
+  # str(datrsfv4_winter$dem) # num
+  str(datrsfv4_winter$forest_age) # int
+  # str(datrsfv4_winter$road_dist) # int
+  # str(datrsfv4_winter$road_type_public) # int
+  # str(datrsfv4_winter$road_type) # chr
+  # str(datrsfv4_winter$road_traffic) # int
+  str(datrsfv4_winter$building_250)
+  str(datrsfv4_winter$building_500)
+  str(datrsfv4_winter$building_1000)
+  str(datrsfv4_winter$building_2500)
+  str(datrsfv4_winter$publ_road_dist)
+  str(datrsfv4_winter$publ_road_type)
+  str(datrsfv4_winter$publ_road_aadt)
+  str(datrsfv4_winter$acquisition_time)
+  str(datrsfv4_winter$month)
+  
+```
+<!-- **Important note for the previous chunk (only when road-traffic is used):** We have a traffic variable, however we don't have traffic data for all road types. So the missing values are now coded ZERO, but are not really a ZERO! -->
+
+
+
+##### Explore NAs
+
+```{r}
+  nrow((datrsfv4_winter))
+  nrow(na.omit(datrsfv4_winter))
+  
+  anyNA(datrsfv4_winter$pt_id)
+  anyNA(datrsfv4_winter$id)
+  anyNA(datrsfv4_winter$use) 
+  anyNA(datrsfv4_winter$dist_building)
+  anyNA(datrsfv4_winter$building_250)
+  anyNA(datrsfv4_winter$building_500)
+  anyNA(datrsfv4_winter$building_1000)
+  anyNA(datrsfv4_winter$building_2500)
+  # anyNA(datrsfv4_winter$dem)
+  anyNA(datrsfv4_winter$ar5_recoded)
+  anyNA(datrsfv4_winter$forest_age)
+  # anyNA(datrsfv4_winter$road_dist) 
+  # anyNA(datrsfv4_winter$road_type) 
+  # anyNA(datrsfv4_winter$road_traffic)
+  # anyNA(datrsfv4_winter$road_type_public)
+  anyNA(datrsfv4_winter$publ_road_type)
+  anyNA(datrsfv4_winter$publ_road_dist)
+  anyNA(datrsfv4_winter$publ_road_aadt)
+  anyNA(datrsfv4_winter$acquisition_time) 
+  anyNA(datrsfv4_winter$month) 
+  
+```
+
+```{r}
+# mean(is.na(datrsf3den_sub$road_traffic))
+# sum(is.infinite(datrsf3den_sub$road_traffic))
+  
+  sum(is.na(datrsfv4_winter$forest_age)) 
+  sum(is.na(datrsfv4_winter$publ_road_dist))
+  sum(is.na(datrsfv4_winter$publ_road_type))
+  sum(is.na(datrsfv4_winter$publ_road_aadt))
+  
+  table(is.na(datrsfv4_winter$publ_road_type),is.na(datrsfv4_winter$publ_road_dist))
+  table(is.na(datrsfv4_winter$publ_road_type),is.na(datrsfv4_winter$publ_road_aadt))
+  tapply(datrsfv4_winter$publ_road_aadt, datrsfv4_winter$publ_road_type, function(x){sum(is.na(x))})
+  
+```
+  
+##### Explore distribution of covariates
+
+```{r}
+  hist(datrsfv4_winter$use) 
+  hist(datrsfv4_winter$dist_building) 
+  hist(log10(datrsfv4_winter$dist_building))
+  # hist(datrsfv4_winter$dem)
+  hist(datrsfv4_winter$forest_age)
+  hist(log10(datrsfv4_winter$forest_age))
+  # hist(datrsfv4_winter$road_dist)
+  # hist(log10(datrsfv4_winter$road_dist + 1))
+  # hist(datrsfv4_winter$road_traffic) 
+  # hist(log10(datrsfv4_winter$road_traffic + 1))
+  hist(datrsfv4_winter$building_250)
+  hist(log10(datrsfv4_winter$building_250))
+  hist(datrsfv4_winter$building_500)
+  hist(log10(datrsfv4_winter$building_500))
+  hist(datrsfv4_winter$building_1000)
+  hist(log10(datrsfv4_winter$building_1000))
+  hist(datrsfv4_winter$building_2500)
+  hist(datrsfv4_winter$publ_road_dist)
+  hist(log10(datrsfv4_winter$publ_road_dist))
+  hist(datrsfv4_winter$publ_road_aadt)
+  # hist(log10(datrsfv4_winter$publ_road_aadt))
+  hist(datrsfv4_winter$month)
+
+  # hist(log10(datrsf3den_sub$building_2500))
+```
+
+
+
+##### Correct for NAs in traffic, forest age and public_road_dist
+
+**Check how many forest_age values are non-forest (but another landuse type) and how many forest_age are really without a value?**
+```{r}
+tapply(datrsfv4_winter$forest_age, datrsfv4_winter$ar5_recoded, function(x){mean(is.na(x))})
+tapply(datrsfv4_winter$forest_age, datrsfv4_winter$ar5_recoded, function(x){mean((x))})
+```
+
+** Set all NAs in traffic to 0, althought they are actual NAs. We will account for that later in the models, by only using the variable in an interaction with another variabel that has to do with road type.**
+```{r}
+  
+  # sum(is.infinite(datrsfv4_winter$road_traffic))
+  # datrsfv4_winter$road_traffic[is.na(datrsfv4_winter$road_traffic)] <- 0
+  
+  datrsfv4_winter$publ_road_aadt[is.na(datrsfv4_winter$publ_road_aadt)] <- 0
+```
+
+** Make a new column with no_aadt **
+```{r}
+datrsfv4_winter$no_aadt <- 0
+datrsfv4_winter$no_aadt[datrsfv4_winter$publ_road_aadt == 0] <- 1
+
+```
+
+
+** Set all NAs in forest_age to 0 where there is no forest (AR5_recoded categories <7) and set forest_age to the average where there are real NAs where we do not have data about the forest age. Also set all forest_age values to 0 when there actually is no forest**
+```{r}
+  datrsfv4_winter$forest_age[is.na(datrsfv4_winter$forest_age) & datrsfv4_winter$ar5_recoded < 7] <- 0
+  datrsfv4_winter$forest_age[(datrsfv4_winter$forest_age) & datrsfv4_winter$ar5_recoded < 7] <- 0
+  mean(datrsfv4_winter$forest_age, na.rm = TRUE)
+```
+
+```{r}
+  datrsfv4_winter$forest_age[is.na(datrsfv4_winter$forest_age) & datrsfv4_winter$ar5_recoded > 7] <- 29
+```
+
+**Check for how many public roads we don't have a distance**
+```{r}
+table(is.na(datrsfv4_winter$publ_road_type),is.na(datrsfv4_winter$publ_road_dist))
+sum(is.na(datrsfv4_winter$publ_road_dist))
+```
+
+```{r}
+datrsfv4_winter$publ_road_dist[is.na(datrsfv4_winter$publ_road_dist)] <- 2000
+sum(is.na(datrsfv4_winter$publ_road_dist))
+
+```
+
+** Distribution of public roads types **
+```{r}
+ggplot(data = datrsfv4_winter, aes(publ_road_type)) +
+  geom_bar()+
+  theme_classic()
+```
+**Check for and change NAs in publ_road_type**
+```{r}
+sum(is.na(datrsfv4_winter$publ_road_type))
+
+datrsfv4_winter$publ_road_type[is.na(datrsfv4_winter$publ_road_type)] <-"F"
+sum(is.na(datrsfv4_winter$publ_road_type))
+
+```
+
+##### Transform variables
+In the last row of the following chunk, I use plus one to avoid NAs
+
+** log transform variables that have a skrewed distribution**
+```{r}
+datrsfv4_winter$log_dist_building <- log10(datrsfv4_winter$dist_building)
+# datrsfv4_winter$log_road_traffic <- log10(datrsfv4_winter$road_traffic + 1)
+# datrsfv4_winter$log_road_dist <- log10(datrsfv4_winter$road_dist + 1)
+datrsfv4_winter$log_forest_age <- log10(datrsfv4_winter$forest_age + 1)
+datrsfv4_winter$log_building_250 <- log10(datrsfv4_winter$building_250 + 1)
+datrsfv4_winter$log_building_500 <- log10(datrsfv4_winter$building_500 + 1)
+datrsfv4_winter$log_building_1000 <- log10(datrsfv4_winter$building_1000 + 1)
+datrsfv4_winter$log_publ_road_dist <- log10(datrsfv4_winter$publ_road_dist + 1)
+# datrsfv4_winter$log_publ_road_aadt <- log10(datrsfv4_winter$publ_road_aadt + 1)
+
+
+anyNA(datrsfv4_winter$log_dist_building)
+anyNA(datrsfv4_winter$log_road_traffic)
+anyNA(datrsfv4_winter$log_road_dist) 
+anyNA(datrsfv4_winter$log_forest_age)
+anyNA(datrsfv4_winter$log_building_250)
+anyNA(datrsfv4_winter$log_building_500)
+anyNA(datrsfv4_winter$log_building_1000)
+anyNA(datrsfv4_winter$log_publ_road_dist)
+
+```
+
+
+
+##### Explore correlations among variables
+
+```{r}
+# summary(datrsf3den_sub) 
+# datrsf3den_sub$ar5_recoded <- as.numeric(datrsf3den_sub$ar5_recoded2)
+
+ cor((as.matrix(datrsfv4_winter[datrsfv4_winter$use==1,c("log_dist_building", "log_forest_age", "log_publ_road_dist")])),
+      use = "complete")
+  cor((as.matrix(datrsfv4_winter[datrsfv4_winter$use==0,c("log_dist_building", "log_forest_age", "log_publ_road_dist")])),
+      use = "complete")
+```
+Maybe the correlation between dist_building and dem/log_road_dist is too strong? (0.57/0.50). Do I need to select one?
+--> Bram said this is on the border, up to 0,7 is ok, so I could include both.
+Correlation between log_forest_age and ar5_recoded2 (0.92)
+
+With the new dataset with building density, building density and distance to roads is slightly correlated, and the correlation is stonger when the density buffer is smaller. But it is never above 0.5.
+
+With the datrsf4_den dataset and the public roads variables, the dist_building and publ_road_dist are quite correlated (0.54).
+
+
+
+
+
+
+### further data cleaning after trying a bit in the model selection
+
+
+##### Changing order in the factor ar5_recoded, so that the most dominant, most used class is in the intercept
+** Distribution of ar5 classes **
+```{r}
+ggplot(data = datrsfv4_winter, aes(ar5_recoded)) +
+  geom_bar()+
+  theme_classic()
+```
+
+```{r}
+
+levels(datrsfv4_winter$ar5_recoded)
+datrsfv4_winter$ar5_recoded <- as.factor(datrsfv4_winter$ar5_recoded)
+datrsfv4_winter$ar5_recoded <- factor(datrsfv4_winter$ar5_recoded, levels = c("8", "0",  "1",  "2",  "3",  "5",  "6",  "9",  "10", "11", "12"))
+levels(datrsfv4_winter$ar5_recoded)
+```
+
+
+
+##### Changing order in the factor road_type, so that the most dominant, most used class is in the intercept (all roads)
+
+```{r}
+
+# levels(datrsfv4_winter$road_type)
+# datrsfv4_winter$road_type <- as.factor(datrsfv4_winter$road_type)
+# datrsfv4_winter$road_type <- factor(datrsfv4_winter$road_type, levels = c("P", "E", "F", "K", "R", "S"))
+# levels(datrsfv4_winter$road_type)
+```
+
+
+##### Changing order in the factor publ_road_type, so that the most dominant, most used class is in the intercept (only public roads)
+** Distribution of public roads types **
+```{r}
+ggplot(data = datrsfv4_winter, aes(publ_road_type)) +
+  geom_bar()+
+  theme_classic()
+```
+```{r}
+
+levels(datrsfv4_winter$publ_road_type)
+str(datrsfv4_winter$publ_road_type)
+datrsfv4_winter$publ_road_type <- as.factor(datrsfv4_winter$publ_road_type)
+datrsfv4_winter$publ_road_type <- factor(datrsfv4_winter$publ_road_type, levels = c("F", "E", "K", "R"))
+levels(datrsfv4_winter$publ_road_type)
+```
+
+
+
+
+
+### Creating new data set with all recent changes
+
+```{r}
+# datrsf4 <- datrsf3
+# save(datrsf4, file = "datrsf4.rda")
+# load("processdata/datrsf4.rda")
+
+# datrsf4_den <- datrsf3den_sub
+# save(datrsf4_den, file = "datrsf4_den.rda")
+# load("processdata/datrsf4_den.rda")
+
+# datrsf5 <- datrsf3den_sub
+# save(datrsf5, file = "datrsf5.rda")
+# load("processdata/datrsf5.rda")
+
+# datrsf6 <- datrsfv4_winter
+# save(datrsf6, file = "datrsf6.rda")
+# load("processdata/datrsf6.rda")
+
+datrsf6_winter <- datrsfv4_winter
+save(datrsf6_winter, file = "datrsf6_winter.rda")
+load("processdata/datrsf6_winter.rda")
+
+```
+

@@ -1,0 +1,34 @@
+---
+title: "Lorading libraries"
+author: "anneMehl"
+date: "9 april 2018"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#### Just lorading all the required libraries.
+
+```{r}
+
+library("knitr", lib.loc="~/R/win-library/3.4")
+library("sp", lib.loc="~/R/win-library/3.4")
+library("survival", lib.loc="~/R/win-library/3.4")
+library("raster", lib.loc="~/R/win-library/3.4")
+library("ResourceSelection", lib.loc="~/R/win-library/3.4")
+library("ggplot2", lib.loc="~/R/win-library/3.4")
+library("adehabitatHR", lib.loc="~/R/win-library/3.4")
+library("rgdal", lib.loc="~/R/win-library/3.4")
+library("lme4", lib.loc="~/R/win-library/3.4")
+library ("Hmisc", lib.loc="~/R/win-library/3.4")
+library("sjPlot", lib.loc="~/R/win-library/3.4")
+library("sjstats", lib.loc="~/R/win-library/3.4")
+library("sjmisc", lib.loc="~/R/win-library/3.4")
+library("sjlabelled", lib.loc="~/R/win-library/3.4")
+
+```

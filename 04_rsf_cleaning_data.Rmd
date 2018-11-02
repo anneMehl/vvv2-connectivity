@@ -1,0 +1,315 @@
+
+---
+title: "Rsf cleaning data"
+author: "anneMehl"
+date: "9 april 2018"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#### LOAD DATA FOR RSF AND EXPLORE IT
+
+```{r}
+  # load(file = "processdata/dat_rsf.rda")
+  # datrsf <-  dat
+  # load("rawdata/dat_rsfV2.rda") # Merged road data
+  # datrsf2 <-  dat
+  # load("processdata/dat_rsfV3.rda") # Merged road data, but smaller dataset
+  # datrsf3 <-  dat
+  
+  # load("processdata/dat_rsfV3_density.rda")
+  # datrsf3_den <- dat
+  
+  # load("rawdata/dat_rsfV4.rda") 
+  # datrsf4 <-  dat
+  
+  load("processdata/dat_rsfV5.rda")
+  datrsf5 <-  dat
+  
+  # str(datrsf3_den)
+  # head(datrsf3_den)
+  # tail(datrsf3_den)
+```
+
+
+
+
+##### Recoding the ar5_recoded variable
+
+```{r}
+# datrsf3_den$ar5_recoded2 <- NA
+# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 21 | datrsf3_den$ar5_artype == 22 | datrsf3_den$ar5_artype == 23, 1, datrsf3_den$ar5_recoded2)
+# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 50, 2, datrsf3_den$ar5_recoded2)
+# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 60, 3, datrsf3_den$ar5_recoded2)
+# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 70 | datrsf3_den$ar5_artype == 80 | datrsf3_den$ar5_artype == 81 | datrsf3_den$ar5_artype == 82, 4, datrsf3_den$ar5_recoded2)
+# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 11, 5, datrsf3_den$ar5_recoded2)
+# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 12, 6, datrsf3_den$ar5_recoded2)
+# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 99, 7, datrsf3_den$ar5_recoded2)
+# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 30 & datrsf3_den$ar5_artreslag == 31 & (datrsf3_den$ar5_arskogbon == 14 | datrsf3_den$ar5_arskogbon == 15), 8, datrsf3_den$ar5_recoded2)
+# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 30 & datrsf3_den$ar5_artreslag == 31 & datrsf3_den$ar5_arskogbon == 13, 9, datrsf3_den$ar5_recoded2)
+# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 30 & datrsf3_den$ar5_artreslag == 31 & (datrsf3_den$ar5_arskogbon == 11 | datrsf3_den$ar5_arskogbon == 12), 10, datrsf3_den$ar5_recoded2)
+# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 30 & datrsf3_den$ar5_artreslag == 32, 11, datrsf3_den$ar5_recoded2)
+# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 30 & datrsf3_den$ar5_artreslag == 33, 12, datrsf3_den$ar5_recoded2)
+```
+
+
+
+
+
+##### Check & adjust data structure 
+
+```{r}
+  str(datrsf5$pt_id) # int
+  str(datrsf5$use) # int
+  str(datrsf5$dist_building) # int
+  str(datrsf5$dem) # num
+  str(datrsf5$forest_age) # int
+  str(datrsf5$ar5_recoded2) # num
+  str(datrsf5$road_dist) # int
+  str(datrsf5$road_type_public) # int
+  str(datrsf5$road_type) # chr
+  str(datrsf5$road_traffic) # int
+  str(datrsf5$building_250)
+  str(datrsf5$building_500)
+  str(datrsf5$building_1000)
+  str(datrsf5$building_2500)
+```
+**Important note or the previous chunk:** We have a traffic variable, however we don't have traffic data for all road types. So the missing values are now coded ZERO, but are not really a ZERO!
+
+
+
+##### Explore NAs
+
+```{r}
+  nrow((datrsf5))
+  nrow(na.omit(datrsf5))
+  
+  anyNA(datrsf5$pt_id)
+  anyNA(datrsf5$id)
+  anyNA(datrsf5$use) 
+  anyNA(datrsf5$dist_building)
+  anyNA(datrsf5$building_250)
+  anyNA(datrsf5$building_500)
+  anyNA(datrsf5$building_1000)
+  anyNA(datrsf5$building_2500)
+  anyNA(datrsf5$dem)
+  anyNA(datrsf5$ar5_recoded)
+  anyNA(datrsf5$forest_age)
+  anyNA(datrsf5$road_dist) 
+  anyNA(datrsf5$road_type) 
+  anyNA(datrsf5$road_traffic)
+  anyNA(datrsf5$road_type_public)
+  
+  mean(is.na(datrsf5$road_traffic))
+  sum(is.infinite(datrsf5$road_traffic))
+  
+  mean(is.na(datrsf5$forest_age)) 
+  
+  
+```
+
+
+  
+##### Explore distribution of covariates
+
+```{r}
+  hist(datrsf5$use) 
+  hist(datrsf5$dist_building) 
+  hist(log10(datrsf5$dist_building))
+  hist(datrsf5$dem)
+  hist(datrsf5$forest_age)
+  hist(log10(datrsf5$forest_age))
+  hist(datrsf5$road_dist)
+  hist(log10(datrsf5$road_dist + 1))
+  hist(datrsf5$road_traffic) 
+  hist(log10(datrsf5$road_traffic + 1))
+  hist(datrsf5$building_250)
+  hist(log10(datrsf5$building_250))
+  hist(datrsf5$building_500)
+  hist(log10(datrsf5$building_500))
+  hist(datrsf5$building_1000)
+  hist(log10(datrsf5$building_1000))
+  hist(datrsf5$building_2500)
+  # hist(log10(datrsf5$building_2500))
+```
+
+
+
+##### Correct for NAs in traffic and forest age
+
+**Check how many forest_age values are non-forest (but another landuse type) and how many forest_age are really without a value?**
+```{r}
+tapply(datrsf5$forest_age, datrsf5$ar5_recoded, function(x){mean(is.na(x))})
+tapply(datrsf5$forest_age, datrsf5$ar5_recoded, function(x){mean((x))})
+```
+
+** Set all NAs in traffic to 0, althought they are actual NAs. We will account for that later in the models, by only using the variable in an interaction with another variabel that has to do with road type.**
+```{r}
+  
+  sum(is.infinite(datrsf5$road_traffic))
+  datrsf5$road_traffic[is.na(datrsf5$road_traffic)] <- 0
+```
+
+** Set all NAs in forest_age to 0 where there is no forest (AR5_recoded categories <7) and set forest_age to the average where there are real NAs where we do not have data about the forest age. Also set all forest_age values to 0 when there actually is no forest**
+```{r}
+  datrsf5$forest_age[is.na(datrsf5$forest_age) & datrsf5$ar5_recoded < 7] <- 0
+  datrsf5$forest_age[(datrsf5$forest_age) & datrsf5$ar5_recoded < 7] <- 0
+  mean(datrsf5$forest_age, na.rm = TRUE)
+  datrsf5$forest_age[is.na(datrsf5$forest_age) & datrsf5$ar5_recoded > 7] <- 30
+  
+```
+
+
+
+##### Transform variables
+In the last row of the following chunk, I use plus one to avoid NAs
+
+** log transform variables that have a skrewed distribution**
+```{r}
+datrsf5$log_dist_building <- log10(datrsf5$dist_building)
+datrsf5$log_road_traffic <- log10(datrsf5$road_traffic + 1)
+datrsf5$log_road_dist <- log10(datrsf5$road_dist + 1)
+datrsf5$log_forest_age <- log10(datrsf5$forest_age + 1)
+datrsf5$log_building_250 <- log10(datrsf5$building_250 + 1)
+datrsf5$log_building_500 <- log10(datrsf5$building_500 + 1)
+datrsf5$log_building_1000 <- log10(datrsf5$building_1000 + 1)
+
+anyNA(datrsf5$log_dist_building)
+anyNA(datrsf5$log_road_traffic)
+anyNA(datrsf5$log_road_dist) 
+anyNA(datrsf5$log_forest_age)
+anyNA(datrsf5$log_building_250)
+anyNA(datrsf5$log_building_500)
+anyNA(datrsf5$log_building_1000)
+
+```
+
+** Maybe scale some variables, so they get a more similar distribution/numbers**
+```{r}
+# datrsf3_den$road_traffic_std <- scale(datrsf3_den$road_traffic)
+# datrsf3_den$forest_age_std <- scale(datrsf3_den$forest_age)
+```
+
+
+
+##### Explore correlations among variables
+
+```{r}
+# summary(datrsf3_den) 
+# datrsf3_den$ar5_recoded <- as.numeric(datrsf3_den$ar5_recoded2)
+
+ cor((as.matrix(datrsf5[datrsf5$use==1,c("building_2500", "log_forest_age", "log_road_dist")])),
+      use = "complete")
+  cor((as.matrix(datrsf5[datrsf5$use==0,c("building_2500", "log_forest_age", "log_road_dist")])),
+      use = "complete")
+```
+Maybe the correlation between dist_building and dem/log_road_dist is too strong? (0.57/0.50). Do I need to select one?
+--> Bram said this is on the border, up to 0,7 is ok, so I could include both.
+Correlation between log_forest_age and ar5_recoded2 (0.92)
+
+With the new dataset with building density, building density and distance to roads is slightly correlated, and the correlation is stonger when the density buffer is smaller. But it is never above 0.5.
+
+
+
+
+### further data cleaning after trying a bit in the model selection
+
+
+##### Check ID coefficients of the glm to see if they are normally distributed.
+
+```{r}
+load("output/mod4.rda")
+hist(mod4$coefficients[2:55])
+```
+
+
+
+##### Changing order in the factor ar5_recoded, so that the most dominant, most used class is in the intercept
+
+```{r}
+
+levels(datrsf5$ar5_recoded)
+datrsf5$ar5_recoded <- as.factor(datrsf5$ar5_recoded)
+datrsf5$ar5_recoded <- factor(datrsf5$ar5_recoded, levels = c("8", "0",  "1",  "2",  "3",  "5",  "6",  "9",  "10", "11", "12"))
+levels(datrsf5$ar5_recoded)
+```
+
+
+
+
+##### Explore the distribution of ar5_recoded to check for the lack in some levels/ classes
+
+```{r}
+# Before
+# levels(datrsf3_den$ar5_recoded)
+# # After
+# datrsf3_den$ar5_recoded2 <- as.factor(datrsf3_den$ar5_recoded2)
+# str(datrsf3_den$ar5_recoded2)
+# levels(datrsf3_den$ar5_recoded2)
+# anyNA(datrsf3_den$ar5_recoded)
+# table(datrsf3_den$ar5_recoded2)
+
+```
+
+
+
+```{r}
+# ar5_recoded distribution of classes
+ggplot(data = datrsf5, aes(ar5_recoded)) +
+  geom_bar()+
+  theme_classic()
+
+# road type distribution of classes
+ggplot(data = datrsf5, aes(road_type)) +
+  geom_bar()+
+  theme_classic()
+```
+
+
+##### Changing order in the factor road_type, so that the most dominant, most used class is in the intercept
+
+```{r}
+
+levels(datrsf5$road_type)
+datrsf5$road_type <- as.factor(datrsf5$road_type)
+datrsf5$road_type <- factor(datrsf5$road_type, levels = c("P", "E", "F", "K", "R", "S"))
+levels(datrsf5$road_type)
+```
+
+
+### Grouping F and R
+
+```{r}
+library(forcats)
+datrsf5$road_type <- fct_collapse(datrsf5$road_type,
+                                  F = c("F","R"))
+
+table(datrsf5$road_type)
+
+```
+
+
+
+
+
+### Creating new data set with all recent changes
+
+```{r}
+datrsf8 <- datrsf5
+save(datrsf8, file = "datrsf8_new.rda")
+load("processdata/datrsf8.rda")
+
+# datrsf4_den <- datrsf3_den
+# save(datrsf4_den, file = "datrsf4_den.rda")
+# load("processdata/datrsf4_den.rda")
+
+```
+
+
+
+
+

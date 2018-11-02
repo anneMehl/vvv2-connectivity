@@ -1,0 +1,1275 @@
+<<<<<<< HEAD
+---
+title: "RSF model selection and analysis"
+author: "anneMehl"
+date: "9 april 2018"
+output: word_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+getwd()
+```
+
+
+For the model selection I can either use mixed models or glm. In both models "use"" is the response.
+In the glmer model the random intercept is on ID.
+I want to check which variables are more important, starting with a full model (backward selection)
+If the mixed model has a long computation time, I can try with glm with ID as factor, also bachward selection.
+
+
+```{r}
+load("processdata/datrsf8_new.rda")
+str(datrsf8)
+```
+
+  
+##### Set "ar5_recoded2" as factor, if needed
+
+```{r}
+  datrsf4$ar5_recoded <- as.factor(datrsf4$ar5_recoded)
+```
+
+
+##### This is just to test if there is a difference in the realtionship between road distance and road type, when all distances above 500 are set constant.
+```{r}
+datrsf4_sub <- datrsf4
+datrsf4_sub$road_dist[datrsf4_sub$road_dist > 500] <- 500
+datrsf4_sub$log_road_dist2 <- log10(datrsf4_sub$road_dist + 1)
+
+datrsf4_sub50 <- datrsf4_den
+datrsf4_sub50$road_dist[datrsf4_sub50$road_dist > 50] <- 50
+datrsf4_sub50$log_road_dist2 <- log10(datrsf4_sub50$road_dist + 1)
+
+str(datrsf4_sub50)
+
+starttime <- Sys.time()
+mod6sub_rspf <- rspf(use ~ log_dist_building + log_road_dist2 + ar5_recoded + road_type + log_forest_age + log_road_dist2:road_type, data = datrsf4_sub, m = datrsf4_sub$id, B = 0, link = "logit")
+endtime <- Sys.time()
+endtime-starttime
+
+starttime <- Sys.time()
+mod6sub_rspf50 <- rspf(use ~ building_2500 + log_road_dist2 + ar5_recoded + road_type + log_forest_age, data = datrsf4_sub50, m = datrsf4_sub50$id, B = 0, link = "logit")
+endtime <- Sys.time()
+endtime-starttime
+
+save(mod6sub_rspf50, file = "mod6sub_rspf50.rda")
+
+save(mod5sub_rspf, file = "mod5sub_rspf.rda")
+save(mod6sub_rspf, file = "mod6sub_rspf.rda")
+
+
+load("output/mod6sub_rspf.rda")
+
+summary(mod6sub_rspf50)
+
+```
+
+
+
+#### Run the rsf as rspf
+
+```{r}
+  starttime <- Sys.time()
+  mod1_rspf <- rspf(use ~ log_dist_building + log_road_dist + ar5_recoded + log_road_traffic +
+                log_forest_age + log_road_dist:road_type_public, 
+                    data = datrsf8, m = datrsf8$id, B = 0, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  # starttime <- Sys.time()
+  # mod2_rspf <- rspf(use ~ log_dist_building + log_road_dist + ar5_recoded +  
+  #               log_forest_age + log_road_dist:road_type_public, 
+  #                   data = datrsf4, m = datrsf4$id, B = 0, link = "logit")
+  # endtime <- Sys.time()
+  # endtime-starttime
+  
+  # datrsf4$road_type <- as.factor(datrsf4$road_type)
+  starttime <- Sys.time()
+  mod5_rspf <- rspf(use ~ log_dist_building + log_road_dist + ar5_recoded + road_type + 
+                log_forest_age + log_road_dist:road_type, 
+                    data = datrsf8, m = datrsf8$id, B = 0, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  starttime <- Sys.time()
+  mod6_rspf <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + road_type + 
+                log_forest_age + log_road_dist:road_type, 
+                    data = datrsf8, m = datrsf8$id, B = 0, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  starttime <- Sys.time()
+  mod6_rspf_boot <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + road_type + 
+                log_forest_age + log_road_dist:road_type, 
+                    data = datrsf8, m = datrsf8$id, B = 49, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  starttime <- Sys.time()
+  mod6_rspf_99boot <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + road_type + 
+                log_forest_age + log_road_dist:road_type, 
+                    data = datrsf8, m = datrsf8$id, B = 99, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  starttime <- Sys.time()
+  mod7_rspf <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + log_forest_age, 
+                    data = datrsf8, m = datrsf8$id, B = 0, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  # starttime <- Sys.time()
+  # mod8_rspf <- rspf(use ~ log_building_1000 + log_road_dist + ar5_recoded + log_forest_age, 
+  #                   data = datrsf8, m = datrsf8$id, B = 0, link = "logit")
+  # endtime <- Sys.time()
+  # endtime-starttime
+  
+  starttime <- Sys.time()
+  mod9_rspf <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + road_type + 
+                log_forest_age, 
+                    data = datrsf8, m = datrsf8$id, B = 0, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  starttime <- Sys.time()
+  mod10_rspf <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + road_type + 
+                log_forest_age + log_road_dist:road_type, 
+                    data = datrsf8, m = datrsf8$id, B = 0, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  starttime <- Sys.time()
+  mod10_rspf_99boot <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + road_type + 
+                              log_forest_age + log_road_dist:road_type, 
+                            data = datrsf8, m = datrsf8$id, B = 99, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  save(mod1_rspf, file = "mod1_rspf_new.rda")
+  save(mod2_rspf, file = "mod2_rspf.rda")
+  save(mod3_rspf, file = "mod3_rspf.rda")
+  save(mod4_rspf, file = "mod4_rspf.rda") # Same as 3, but road_type is in different order, so that the most used is in the intercept.
+  save(mod5_rspf, file = "mod5_rspf_new.rda") # Same as 4, but road_type is in different order, so that the most used is in the intercept. And without interaction dist:road_type_public
+  save(mod6_rspf, file = "mod6_rspf_new.rda") # Like 5 but with building density instead of distance to buildings
+  save(mod7_rspf, file = "mod7_rspf_new.rda") # "best model" from glm model selection, without traffic or road type
+  save(mod8_rspf, file = "mod8_rspf.rda") # like model 7 but with building density 1000, because I thought maybe that makes more sence ecologycally in terms of that it fits more with the road distance, which is mostly not over 1000
+  save(mod9_rspf, file = "mod9_rspf.rda") # like 6, but without interaction
+  save(mod6_rspf_boot, file = "mod6_rspf_49boot.rda")
+  save(mod6_rspf_99boot, file = "mod6_rspf_99boot.rda")
+  save(mod10_rspf, file = "mod10_rspf.rda") # like mod6, but with road_type R and F gruoped
+  save(mod10_rspf_99boot, file = "mod10_rspf_99boot.rda") 
+  
+  load("output/mod1_rspf.rda")
+  load("output/mod1_rspf_new.rda")
+  load("output/mod2_rspf.rda")
+  # load("output/mod3_rspf.rda")
+  load("output/mod4_rspf.rda")
+  load("output/mod5_rspf.rda")
+  load("output/mod5_rspf_new.rda")
+  load("output/mod6_rspf.rda")
+  load("output/mod6_rspf_new.rda")
+  load("output/mod7_rspf.rda")
+  load("output/mod7_rspf_new.rda")
+  load("output/mod6_rspf_99boot.rda")
+  load("output/mod8_rspf.rda")
+  
+  summary(mod1_rspf)
+  summary(mod3_rspf)
+  summary(mod4_rspf)
+  summary(mod5_rspf)
+  summary(mod6_rspf)
+  summary(mod7_rspf)
+  summary(mod6_rspf_49boot)
+  summary(mod6_rspf_99boot)
+  summary(mod10_rspf)
+  summary(mod10_rspf_99boot)
+  
+  mep(mod6_rspf_boot)
+```
+Time difference
+mod1: 12.31 min
+mod5: 22.23 min
+mod6: 34.37 min
+mod7:  9.52 min
+mod9: 15.74 min
+mod10: 22.12 min
+mod6_boot: 11.46 hours (49 bootstraps)
+mod6_boot: 23.68 hours (99 bootstraps)
+mod10_99boot: 16.46 hours (99 bootstraps)
+
+```{r}
+AIC(mod1_rspf, mod5_rspf, mod6_rspf, mod7_rspf, mod9_rspf)
+CAIC(mod1_rspf, mod5_rspf, mod6_rspf, mod7_rspf, mod9_rspf)
+
+```
+(C)AIC ranking: mod6, mod9, mod5, mod7, mod1
+
+
+#### Run the rsf as glmer
+
+```{r}
+
+  starttime <- Sys.time()
+  mod4_rsf <- glmer(use ~ log_dist_building + log_road_dist + ar5_recoded + log_road_traffic + 
+                log_forest_age + log_road_dist:log_road_traffic + log_road_dist:road_type_public +
+                      (1|id), 
+                    data = datrsf4, family=binomial(link = "logit"), glmerControl(calc.derivs = FALSE))
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  starttime <- Sys.time()
+  mod5_rsf <- glmer(use ~ log_dist_building + log_road_dist + ar5_recoded + road_type + 
+                log_forest_age + log_road_dist:road_type + log_road_dist:road_type_public +
+                  (1|id), 
+                data = datrsf4, family=binomial(link = "logit"), glmerControl(calc.derivs = FALSE))
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  save(mod4_rsf, file = "mod4_rsf.rda")
+  save(mod5_rsf, file = "mod5_rsf.rda")
+  
+  load("output/mod4_rsf.rda")
+  load("output/mod5_rsf.rda")
+  load("output/mod3.rda")
+  
+  summary(mod3)
+  summary(mod4_rsf)
+  summary(datrsf4)
+  mep(mod4_rsf)
+```
+
+mod4_rsf: Model run with "glmerControl(calc.derivs = FALSE)" (see: Help: optimize[G]lmer  or https://cran.r-project.org/web/packages/lme4/vignettes/lmerperf.html) 
+needs 27.20532 mins and no error: But has a less accurate computation of std error of the fixed effects.
+
+mod5_rsf: Warning fixed-effect model matrix is rank deficient so dropping 1 column / coefficient
+Time difference of 1.679772 hours
+
+
+  
+  
+#### Run the rsf as glm
+
+```{r}
+  
+  # full model 
+  # mod4 <- glm(use ~ id + log_dist_building + log_road_dist + ar5_recoded + log_road_traffic + 
+  #               log_forest_age + log_road_dist:log_road_traffic + log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # 
+  # # -log_dist_building
+  # mod5 <- glm(use ~ id + log_road_dist + ar5_recoded + log_road_traffic + 
+  #               log_forest_age + log_road_dist:log_road_traffic + log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # # save(mod5, file = "mod5.rda")
+  # # summary(mod5)
+  
+  # # -dem
+  # mod6 <- glm(use ~ id + log_dist_building + log_road_dist + ar5_recoded2 + log_road_traffic + 
+  #               log_forest_age + log_road_dist:log_road_traffic + log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # # save(mod6, file = "mod6.rda")
+  
+  
+  # # -log_dist_building, -log_road_dist
+  # mod7 <- glm(use ~ id + ar5_recoded + log_road_traffic + 
+  #               log_forest_age + log_road_dist:log_road_traffic + log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # # save(mod7, file = "mod7.rda")
+  
+  # # -log_dist_building, -dem
+  # mod8 <- glm(use ~ id + log_road_dist + ar5_recoded + log_road_traffic + 
+  #               log_forest_age + log_road_dist:log_road_traffic + log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # # save(mod8, file = "mod8.rda")
+  # # summary(mod8)
+  
+  # # -log_dist_building, -log_road_dist
+  # mod9 <- glm(use ~ id + ar5_recoded + log_road_traffic + 
+  #               log_forest_age + log_road_dist:log_road_traffic + log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # # save(mod9, file = "mod9.rda")
+  
+  # # - road_traffic
+  # mod10 <- glm(use ~ id + log_dist_building + log_road_dist + ar5_recoded + 
+  #               log_forest_age + log_road_dist:log_road_traffic + log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # 
+  # # - forest_age
+  # mod11 <- glm(use ~ id + log_dist_building + log_road_dist + ar5_recoded + log_road_traffic + 
+  #               log_road_dist:log_road_traffic + log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # 
+  # # - log_road_dist:log_road_traffic
+  # mod12 <- glm(use ~ id + log_dist_building + log_road_dist + ar5_recoded + log_road_traffic + 
+  #               log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # 
+  # # - log_road_dist:road_type_public
+  # mod13 <- glm(use ~ id + log_dist_building + log_road_dist + ar5_recoded + log_road_traffic + 
+  #               log_road_dist:log_road_traffic, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+```
+```{r}
+  
+  # very simple model
+  mod14 <- glm(use ~ id + log_road_dist + ar5_recoded, 
+              data = datrsf4_den, family = binomial(link = "logit"))
+  
+# - road_traffic, road_type instead 
+  # mod15 <- glm(use ~ id + log_dist_building + log_road_dist + ar5_recoded + road_type +
+  #               log_forest_age + log_road_dist:road_type + log_road_dist:road_type_public, <---- here we don't need to have road type public
+  #             data = datrsf4_den, family = binomial(link = "logit"))  
+
+  
+  mod16 <- glm(use ~ id + log_dist_building + log_road_dist + ar5_recoded + road_type +
+                log_forest_age + log_road_dist:road_type, 
+              data = datrsf4_den, family = binomial(link = "logit")) 
+  
+  mod17 <- glm(use ~ id + log_building_250 + log_road_dist + ar5_recoded + road_type +
+                log_forest_age + log_road_dist:road_type, 
+              data = datrsf4_den, family = binomial(link = "logit"))
+ 
+  mod18 <- glm(use ~ id + log_building_500 + log_road_dist + ar5_recoded + road_type +
+                log_forest_age + log_road_dist:road_type, 
+              data = datrsf4_den, family = binomial(link = "logit"))
+  
+  mod19 <- glm(use ~ id + log_building_1000 + log_road_dist + ar5_recoded + road_type +
+                log_forest_age + log_road_dist:road_type, 
+              data = datrsf4_den, family = binomial(link = "logit"))
+  
+  mod20 <- glm(use ~ id + building_2500 + log_road_dist + ar5_recoded + road_type +
+                log_forest_age + log_road_dist:road_type, 
+              data = datrsf4_den, family = binomial(link = "logit"))
+  
+  mod21 <- glm(use ~ id + building_2500 + log_road_dist + ar5_recoded + log_forest_age, 
+              data = datrsf4_den, family = binomial(link = "logit"))
+```
+
+  
+  
+#### AICc model selection
+
+```{r}
+AIC(mod4, mod5, mod7, mod10, mod11, mod12, mod13, mod14, mod15, mod16, mod17, mod18, mod19, mod20)
+AIC(mod16, mod17, mod18, mod19, mod20)
+AIC(mod16, mod21)
+AIC(mod21, mod14)
+  
+```
+
+
+
+
+ 
+
+
+
+#### change memory size  
+Maybe it is necessary to extend the memory limit, because the models are quite large.
+This is how it is done. It re-sets itself when the R-session is terminated.
+```{r}
+# To check the current memory limit
+memory.limit() #[1] 8062 -----> default
+# To check the current size (only when not changed) and to change the memory limit
+memory.size(10000) # Put the new memory size into the bracktes, e.g. 9000
+```
+  
+
+
+
+
+
+
+
+
+#### Looking at the model results in a plot
+
+```{r}
+mod4glm <- data.frame(Variable = rownames(summary(mod4_glm)$coef),
+                            Coefficient = summary(mod4_glm)$coef[, 1],
+                            SE = summary(mod4_glm)$coef[, 2],
+                            modelname = "mod_glm")
+
+mod4glmer <- data.frame(Variable = rownames(summary(mod4_rsf)$coef),
+                            Coefficient = summary(mod4_rsf)$coef[, 1],
+                            SE = summary(mod4_rsf)$coef[, 2],
+                            modelname = "mod_glmer")
+
+mod3glmer <- data.frame(Variable = rownames(summary(mod3)$coef),
+                            Coefficient = summary(mod3)$coef[, 1],
+                            SE = summary(mod3)$coef[, 2],
+                            modelname = "mod3_AR5_rec2")
+
+mod1_rspfframe <- data.frame(Variable = rownames(summary(mod1_rspf)$coef),
+                            Coefficient = summary(mod1_rspf)$coef[, 1],
+                            SE = summary(mod1_rspf)$coef[, 2],
+                            modelname = "mod1_rspf_new")
+
+# mod3_rspfframe <- data.frame(Variable = rownames(summary(mod3_rspf)$coef),
+#                             Coefficient = summary(mod3_rspf)$coef[, 1],
+#                             SE = summary(mod3_rspf)$coef[, 2],
+#                             modelname = "mod3_rspf")
+
+mod4_rspfframe <- data.frame(Variable = rownames(summary(mod4_rspf)$coef),
+                            Coefficient = summary(mod4_rspf)$coef[, 1],
+                            SE = summary(mod4_rspf)$coef[, 2],
+                            modelname = "mod4_rspf")
+
+mod5_rspfframe <- data.frame(Variable = rownames(summary(mod5_rspf)$coef),
+                            Coefficient = summary(mod5_rspf)$coef[, 1],
+                            SE = summary(mod5_rspf)$coef[, 2],
+                            modelname = "mod5_rspf_new")
+
+mod6_rspfframe <- data.frame(Variable = rownames(summary(mod6_rspf)$coef),
+                            Coefficient = summary(mod6_rspf)$coef[, 1],
+                            SE = summary(mod6_rspf)$coef[, 2],
+                            modelname = "mod6_rspf_new")
+
+mod7_rspfframe <- data.frame(Variable = rownames(summary(mod7_rspf)$coef),
+                            Coefficient = summary(mod7_rspf)$coef[, 1],
+                            SE = summary(mod7_rspf)$coef[, 2],
+                            modelname = "mod7_rspf_new")
+
+mod8_rspfframe <- data.frame(Variable = rownames(summary(mod8_rspf)$coef),
+                            Coefficient = summary(mod8_rspf)$coef[, 1],
+                            SE = summary(mod8_rspf)$coef[, 2],
+                            modelname = "mod8_rspf")
+
+mod6_boot_rspfframe <- data.frame(Variable = rownames(summary(mod6_rspf_49boot)$coef),
+                            Coefficient = summary(mod6_rspf_49boot)$coef[, 1],
+                            SE = summary(mod6_rspf_49boot)$coef[, 2],
+                            modelname = "mod6_rspf_49boot")
+
+mod6_99boot_rspfframe <- data.frame(Variable = rownames(summary(mod6_rspf_99boot)$coef),
+                            Coefficient = summary(mod6_rspf_99boot)$coef[, 1],
+                            SE = summary(mod6_rspf_99boot)$coef[, 2],
+                            modelname = "mod6_rspf_99boot")
+
+mod10_rspfframe <- data.frame(Variable = rownames(summary(mod10_rspf)$coef),
+                            Coefficient = summary(mod10_rspf)$coef[, 1],
+                            SE = summary(mod10_rspf)$coef[, 2],
+                            modelname = "mod10_rspf")
+
+mod10_99boot_rspfframe <- data.frame(Variable = rownames(summary(mod10_rspf_99boot)$coef),
+                            Coefficient = summary(mod10_rspf_99boot)$coef[, 1],
+                            SE = summary(mod10_rspf_99boot)$coef[, 2],
+                            modelname = "mod10_rspf_99boot")
+
+# mod3_rspfframe$SE <- "0"
+#   mod3_rspfframe$SE <- as.numeric(mod3_rspfframe$SE)
+mod1_rspfframe$SE <- "0"
+  mod1_rspfframe$SE <- as.numeric(mod1_rspfframe$SE)
+mod4_rspfframe$SE <- "0"
+  mod4_rspfframe$SE <- as.numeric(mod4_rspfframe$SE)
+mod5_rspfframe$SE <- "0"
+  mod5_rspfframe$SE <- as.numeric(mod5_rspfframe$SE)
+mod6_rspfframe$SE <- "0"
+  mod6_rspfframe$SE <- as.numeric(mod6_rspfframe$SE)
+mod7_rspfframe$SE <- "0"
+  mod7_rspfframe$SE <- as.numeric(mod7_rspfframe$SE)
+mod8_rspfframe$SE <- "0"
+  mod8_rspfframe$SE <- as.numeric(mod8_rspfframe$SE)
+mod10_rspfframe$SE <- "0"
+  mod10_rspfframe$SE <- as.numeric(mod10_rspfframe$SE)
+  
+```
+
+Then I combine these data.frames:
+```{r}
+  allmodelframe_rspf <- data.frame(rbind(mod6_99boot_rspfframe, mod10_99boot_rspfframe))
+```
+
+```{r}
+  interval1 <- -qnorm((1-0.95)/2)  # 95% multiplier
+  interval2 <- -qnorm((1-0.95)/2)  # 95% multiplier
+```
+
+```{r figure-setup, echo = FALSE, include = FALSE}
+knitr::opts_chunk$set(fig.path = "figs/", fig.width = 6.5,
+                      fig.height = 4, fig.align = "center")
+```
+
+```{r comparing different ssf-models, fig.cap='Comparing different ssf-models'}
+  ggplot(allmodelframe_rspf, aes(colour = modelname)) + 
+    geom_hline(yintercept = 0, colour = gray(1/2), lty = 2) + 
+    geom_linerange(aes(x = Variable, ymin = Coefficient - SE*interval1,
+                                  ymax = Coefficient + SE*interval1),
+                              lwd = 1, position = position_dodge(width = 1/2)) + 
+    geom_pointrange(aes(x = Variable, y = Coefficient, ymin = Coefficient - SE*interval2,
+                                   ymax = Coefficient + SE*interval2),
+                               lwd = 1/2, position = position_dodge(width = 1/2),
+                               shape = 21, fill = "WHITE") + coord_flip() + theme_bw()+
+  ggtitle("Resource selection: comparing models")
+```
+
+```{r comparing different ssf-models, fig.cap='Comparing different ssf-models'}
+  ggplot(allmodelframe_rspf, aes(colour = modelname)) + 
+    geom_hline(yintercept = 0, colour = gray(1/2), lty = 2) + 
+    geom_linerange(aes(x = Variable, ymin = Coefficient - SE,
+                                  ymax = Coefficient + SE),
+                              lwd = 1, position = position_dodge(width = 1/2)) + 
+    geom_pointrange(aes(x = Variable, y = Coefficient, ymin = Coefficient - SE,
+                                   ymax = Coefficient + SE),
+                               lwd = 1/2, position = position_dodge(width = 1/2),
+                               shape = 21, fill = "WHITE") + coord_flip() + theme_bw()+
+  ggtitle("Resource selection: comparing models")
+```
+
+
+
+
+Plot of selection against road variables.
+Change "d" to d2 and "m" to m2 and so on when changing the input model.
+```{r}
+load("output/mod1_rspf.rda")
+load("processdata/datrsf4.rda")
+tmp <- datrsf4
+          newdat <- tmp[rep(1, 2000),] 
+          newdat$road_dist <- c(c(0,0:498)*2, c(0,0:498)*2, c(0,0:498)*2, c(0,0:498)*2) #x axis (0=crossing, then from (0=no crossing) to 996 m in steps of 2 - the whole thing repeated 4 times
+          newdat$log_road_dist <- log10(newdat$road_dist+1)  
+          hist(datrsf4$road_traffic[datrsf4$road_traffic>0])
+          quantile(datrsf4$road_traffic[datrsf4$road_traffic>0], 0.25)
+          quantile(datrsf4$road_traffic[datrsf4$road_traffic>0], 0.95)
+          newdat$road_traffic <- rep(c(0,0,1500,20000), each=500) # we don't predcit traffic in a continuous way - we use cross; no traffic, low, med and high traffic
+          newdat$log_road_traffic <- log10(newdat$road_traffic+1)
+          newdat$road_type_public <- 0
+          newdat$road_type_public[c(1:500)] <- 1
+          newdat$road_type_public <- as.factor(newdat$road_type_public)
+          
+library("boot", lib.loc="~/R/win-library/3.4")
+d3 <- newdat
+m3 <- mod3_rspf
+
+#  I think that model.matrix will generate automatically the columns that you need, give it a try:
+
+# d <- na.omit(d)
+
+x3 <- model.matrix(m3$formula, data=d3)
+    
+coefs <- coef(m3)
+names(coefs)[15] <- "log_road_dist:road_type_public1"
+coefs
+predvals <- (X %*% coefs[match(colnames(X), names(coefs))])[,1]
+     
+d2$linpred <- predvals
+d2$predprob <- inv.logit(d2$linpred)
+head(d2)
+
+```
+
+
+For the model with "road_type" instead of "road_traffic".
+```{r}
+# load("output/mod3_rspf.rda")
+# load("processdata/datrsf4.rda")
+tmp <- datrsf8
+          newdat <- tmp[rep(1, 500*5),] 
+          newdat$road_dist <- rep(c(1:500)*2, 5)
+          newdat$log_road_dist <- log10(newdat$road_dist+1)
+          newdat$road_type <- rep(levels(datrsf8$road_type), each=500)
+          newdat$road_type <- as.factor(newdat$road_type)
+          newdat$road_type <- factor(newdat$road_type, levels = c("P", "E", "F", "K", "S"))
+
+library("boot", lib.loc="~/R/win-library/3.4")
+d8 <- newdat
+m6 <- mod10_rspf_99boot
+
+
+# d <- na.omit(d)
+
+x6 <- model.matrix(m6$formula, data=d8)
+
+# coefs <- coef(m5)
+# names(coefs)[15] <- "log_road_dist:road_type_public1"
+# coefs
+# predvals <- (X %*% coefs[match(colnames(X), names(coefs))])[,1]
+
+predvals <- (x6 %*% coef(m6)[match(colnames(x6), names(coef(m6)))])[,1]
+
+d8$linpred <- predvals
+d8$predprob <- inv.logit(d8$linpred)
+head(d8)
+
+```
+
+
+
+
+```{r}
+
+plot(newdat$road_dist[newdat$road_type=="E"], d8$predprob[newdat$road_type=="E"], type="l", col="red", ylim=c(), xlim = c(),
+xlab="Avstand til veg (meter)", ylab="valg", cex.lab=1.5, cex.axis=1.1, lty=1, lwd=2) #
+lines(newdat$road_dist[newdat$road_type=="F"], d8$predprob[newdat$road_type=="F"], type="l", col="blue", lty=1.5, lwd=2) #
+
+lines(newdat$road_dist[newdat$road_type=="K"], d8$predprob[newdat$road_type=="K"], type="l", col="grey", lty=1.5, lwd=2)
+          
+lines(newdat$road_dist[newdat$road_type=="P"], d8$predprob[newdat$road_type=="P"], type="l", col="brown", lty=1.5, lwd=2) 
+
+lines(newdat$road_dist[newdat$road_type=="S"], d8$predprob[newdat$road_type=="S"], type="l", col="green", lty=1.5, lwd=2)
+
+# lines(newdat$road_dist[newdat$road_type=="R"], d8$predprob[newdat$road_type=="R"], type="l", col="yellow", lty=1.5, lwd=2)
+ 
+
+
+
+# points(newdat$road_dist[newdat$road_traffic==0 & newdat$road_type_public==1], d$predprob[newdat$road_traffic==0 & newdat$road_type_public==1], pch=8, col="black") 
+#           
+# points(newdat$road_dist[newdat$road_traffic==20000 & newdat$road_dist==0], d$predprob[newdat$road_traffic==20000 & newdat$road_dist==0], pch=16, col="red") 
+# points(newdat$road_dist[newdat$road_traffic==1500 & newdat$road_dist==0], d$predprob[newdat$road_traffic==1500 & newdat$road_dist==0], pch=16, col="blue") 
+# 
+# points(newdat$road_dist[newdat$road_traffic==0 & newdat$road_type_public==1  & newdat$road_dist==0], d$predprob[newdat$road_traffic==0 & newdat$road_type_public==1  & newdat$road_dist==0], pch=16, col="black") 
+
+```
+
+
+
+
+
+```{r}
+ggplot(data = datrsf4_sub, aes(road_dist)) +
+  geom_bar()+
+  theme_classic()
+```
+
+
+
+=======
+---
+title: "RSF model selection and analysis"
+author: "anneMehl"
+date: "9 april 2018"
+output: word_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+getwd()
+```
+
+
+For the model selection I can either use mixed models or glm. In both models "use"" is the response.
+In the glmer model the random intercept is on ID.
+I want to check which variables are more important, starting with a full model (backward selection)
+If the mixed model has a long computation time, I can try with glm with ID as factor, also bachward selection.
+
+
+```{r}
+load("processdata/datrsf8_new.rda")
+str(datrsf8)
+```
+
+  
+##### Set "ar5_recoded2" as factor, if needed
+
+```{r}
+  datrsf4$ar5_recoded <- as.factor(datrsf4$ar5_recoded)
+```
+
+
+##### This is just to test if there is a difference in the realtionship between road distance and road type, when all distances above 500 are set constant.
+```{r}
+datrsf4_sub <- datrsf4
+datrsf4_sub$road_dist[datrsf4_sub$road_dist > 500] <- 500
+datrsf4_sub$log_road_dist2 <- log10(datrsf4_sub$road_dist + 1)
+
+datrsf4_sub50 <- datrsf4_den
+datrsf4_sub50$road_dist[datrsf4_sub50$road_dist > 50] <- 50
+datrsf4_sub50$log_road_dist2 <- log10(datrsf4_sub50$road_dist + 1)
+
+str(datrsf4_sub50)
+
+starttime <- Sys.time()
+mod6sub_rspf <- rspf(use ~ log_dist_building + log_road_dist2 + ar5_recoded + road_type + log_forest_age + log_road_dist2:road_type, data = datrsf4_sub, m = datrsf4_sub$id, B = 0, link = "logit")
+endtime <- Sys.time()
+endtime-starttime
+
+starttime <- Sys.time()
+mod6sub_rspf50 <- rspf(use ~ building_2500 + log_road_dist2 + ar5_recoded + road_type + log_forest_age, data = datrsf4_sub50, m = datrsf4_sub50$id, B = 0, link = "logit")
+endtime <- Sys.time()
+endtime-starttime
+
+save(mod6sub_rspf50, file = "mod6sub_rspf50.rda")
+
+save(mod5sub_rspf, file = "mod5sub_rspf.rda")
+save(mod6sub_rspf, file = "mod6sub_rspf.rda")
+
+
+load("output/mod6sub_rspf.rda")
+
+summary(mod6sub_rspf50)
+
+```
+
+
+
+#### Run the rsf as rspf
+
+```{r}
+  starttime <- Sys.time()
+  mod1_rspf <- rspf(use ~ log_dist_building + log_road_dist + ar5_recoded + log_road_traffic +
+                log_forest_age + log_road_dist:road_type_public, 
+                    data = datrsf8, m = datrsf8$id, B = 0, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  # starttime <- Sys.time()
+  # mod2_rspf <- rspf(use ~ log_dist_building + log_road_dist + ar5_recoded +  
+  #               log_forest_age + log_road_dist:road_type_public, 
+  #                   data = datrsf4, m = datrsf4$id, B = 0, link = "logit")
+  # endtime <- Sys.time()
+  # endtime-starttime
+  
+  # datrsf4$road_type <- as.factor(datrsf4$road_type)
+  starttime <- Sys.time()
+  mod5_rspf <- rspf(use ~ log_dist_building + log_road_dist + ar5_recoded + road_type + 
+                log_forest_age + log_road_dist:road_type, 
+                    data = datrsf8, m = datrsf8$id, B = 0, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  starttime <- Sys.time()
+  mod6_rspf <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + road_type + 
+                log_forest_age + log_road_dist:road_type, 
+                    data = datrsf8, m = datrsf8$id, B = 0, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  starttime <- Sys.time()
+  mod6_rspf_boot <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + road_type + 
+                log_forest_age + log_road_dist:road_type, 
+                    data = datrsf8, m = datrsf8$id, B = 49, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  starttime <- Sys.time()
+  mod6_rspf_99boot <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + road_type + 
+                log_forest_age + log_road_dist:road_type, 
+                    data = datrsf8, m = datrsf8$id, B = 99, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  starttime <- Sys.time()
+  mod7_rspf <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + log_forest_age, 
+                    data = datrsf8, m = datrsf8$id, B = 0, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  # starttime <- Sys.time()
+  # mod8_rspf <- rspf(use ~ log_building_1000 + log_road_dist + ar5_recoded + log_forest_age, 
+  #                   data = datrsf8, m = datrsf8$id, B = 0, link = "logit")
+  # endtime <- Sys.time()
+  # endtime-starttime
+  
+  starttime <- Sys.time()
+  mod9_rspf <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + road_type + 
+                log_forest_age, 
+                    data = datrsf8, m = datrsf8$id, B = 0, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  starttime <- Sys.time()
+  mod10_rspf <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + road_type + 
+                log_forest_age + log_road_dist:road_type, 
+                    data = datrsf8, m = datrsf8$id, B = 0, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  starttime <- Sys.time()
+  mod10_rspf_99boot <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + road_type + 
+                              log_forest_age + log_road_dist:road_type, 
+                            data = datrsf8, m = datrsf8$id, B = 99, link = "logit")
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  save(mod1_rspf, file = "mod1_rspf_new.rda")
+  save(mod2_rspf, file = "mod2_rspf.rda")
+  save(mod3_rspf, file = "mod3_rspf.rda")
+  save(mod4_rspf, file = "mod4_rspf.rda") # Same as 3, but road_type is in different order, so that the most used is in the intercept.
+  save(mod5_rspf, file = "mod5_rspf_new.rda") # Same as 4, but road_type is in different order, so that the most used is in the intercept. And without interaction dist:road_type_public
+  save(mod6_rspf, file = "mod6_rspf_new.rda") # Like 5 but with building density instead of distance to buildings
+  save(mod7_rspf, file = "mod7_rspf_new.rda") # "best model" from glm model selection, without traffic or road type
+  save(mod8_rspf, file = "mod8_rspf.rda") # like model 7 but with building density 1000, because I thought maybe that makes more sence ecologycally in terms of that it fits more with the road distance, which is mostly not over 1000
+  save(mod9_rspf, file = "mod9_rspf.rda") # like 6, but without interaction
+  save(mod6_rspf_boot, file = "mod6_rspf_49boot.rda")
+  save(mod6_rspf_99boot, file = "mod6_rspf_99boot.rda")
+  save(mod10_rspf, file = "mod10_rspf.rda") # like mod6, but with road_type R and F gruoped
+  save(mod10_rspf_99boot, file = "mod10_rspf_99boot.rda") 
+  
+  load("output/mod1_rspf.rda")
+  load("output/mod1_rspf_new.rda")
+  load("output/mod2_rspf.rda")
+  # load("output/mod3_rspf.rda")
+  load("output/mod4_rspf.rda")
+  load("output/mod5_rspf.rda")
+  load("output/mod5_rspf_new.rda")
+  load("output/mod6_rspf.rda")
+  load("output/mod6_rspf_new.rda")
+  load("output/mod7_rspf.rda")
+  load("output/mod7_rspf_new.rda")
+  load("output/mod6_rspf_99boot.rda")
+  load("output/mod8_rspf.rda")
+  
+  summary(mod1_rspf)
+  summary(mod3_rspf)
+  summary(mod4_rspf)
+  summary(mod5_rspf)
+  summary(mod6_rspf)
+  summary(mod7_rspf)
+  summary(mod6_rspf_49boot)
+  summary(mod6_rspf_99boot)
+  summary(mod10_rspf)
+  summary(mod10_rspf_99boot)
+  
+  mep(mod6_rspf_boot)
+```
+Time difference
+mod1: 12.31 min
+mod5: 22.23 min
+mod6: 34.37 min
+mod7:  9.52 min
+mod9: 15.74 min
+mod10: 22.12 min
+mod6_boot: 11.46 hours (49 bootstraps)
+mod6_boot: 23.68 hours (99 bootstraps)
+mod10_99boot: 16.46 hours (99 bootstraps)
+
+```{r}
+AIC(mod1_rspf, mod5_rspf, mod6_rspf, mod7_rspf, mod9_rspf)
+CAIC(mod1_rspf, mod5_rspf, mod6_rspf, mod7_rspf, mod9_rspf)
+
+```
+(C)AIC ranking: mod6, mod9, mod5, mod7, mod1
+
+
+#### Run the rsf as glmer
+
+```{r}
+
+  starttime <- Sys.time()
+  mod4_rsf <- glmer(use ~ log_dist_building + log_road_dist + ar5_recoded + log_road_traffic + 
+                log_forest_age + log_road_dist:log_road_traffic + log_road_dist:road_type_public +
+                      (1|id), 
+                    data = datrsf4, family=binomial(link = "logit"), glmerControl(calc.derivs = FALSE))
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  starttime <- Sys.time()
+  mod5_rsf <- glmer(use ~ log_dist_building + log_road_dist + ar5_recoded + road_type + 
+                log_forest_age + log_road_dist:road_type + log_road_dist:road_type_public +
+                  (1|id), 
+                data = datrsf4, family=binomial(link = "logit"), glmerControl(calc.derivs = FALSE))
+  endtime <- Sys.time()
+  endtime-starttime
+  
+  save(mod4_rsf, file = "mod4_rsf.rda")
+  save(mod5_rsf, file = "mod5_rsf.rda")
+  
+  load("output/mod4_rsf.rda")
+  load("output/mod5_rsf.rda")
+  load("output/mod3.rda")
+  
+  summary(mod3)
+  summary(mod4_rsf)
+  summary(datrsf4)
+  mep(mod4_rsf)
+```
+
+mod4_rsf: Model run with "glmerControl(calc.derivs = FALSE)" (see: Help: optimize[G]lmer  or https://cran.r-project.org/web/packages/lme4/vignettes/lmerperf.html) 
+needs 27.20532 mins and no error: But has a less accurate computation of std error of the fixed effects.
+
+mod5_rsf: Warning fixed-effect model matrix is rank deficient so dropping 1 column / coefficient
+Time difference of 1.679772 hours
+
+
+  
+  
+#### Run the rsf as glm
+
+```{r}
+  
+  # full model 
+  # mod4 <- glm(use ~ id + log_dist_building + log_road_dist + ar5_recoded + log_road_traffic + 
+  #               log_forest_age + log_road_dist:log_road_traffic + log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # 
+  # # -log_dist_building
+  # mod5 <- glm(use ~ id + log_road_dist + ar5_recoded + log_road_traffic + 
+  #               log_forest_age + log_road_dist:log_road_traffic + log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # # save(mod5, file = "mod5.rda")
+  # # summary(mod5)
+  
+  # # -dem
+  # mod6 <- glm(use ~ id + log_dist_building + log_road_dist + ar5_recoded2 + log_road_traffic + 
+  #               log_forest_age + log_road_dist:log_road_traffic + log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # # save(mod6, file = "mod6.rda")
+  
+  
+  # # -log_dist_building, -log_road_dist
+  # mod7 <- glm(use ~ id + ar5_recoded + log_road_traffic + 
+  #               log_forest_age + log_road_dist:log_road_traffic + log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # # save(mod7, file = "mod7.rda")
+  
+  # # -log_dist_building, -dem
+  # mod8 <- glm(use ~ id + log_road_dist + ar5_recoded + log_road_traffic + 
+  #               log_forest_age + log_road_dist:log_road_traffic + log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # # save(mod8, file = "mod8.rda")
+  # # summary(mod8)
+  
+  # # -log_dist_building, -log_road_dist
+  # mod9 <- glm(use ~ id + ar5_recoded + log_road_traffic + 
+  #               log_forest_age + log_road_dist:log_road_traffic + log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # # save(mod9, file = "mod9.rda")
+  
+  # # - road_traffic
+  # mod10 <- glm(use ~ id + log_dist_building + log_road_dist + ar5_recoded + 
+  #               log_forest_age + log_road_dist:log_road_traffic + log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # 
+  # # - forest_age
+  # mod11 <- glm(use ~ id + log_dist_building + log_road_dist + ar5_recoded + log_road_traffic + 
+  #               log_road_dist:log_road_traffic + log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # 
+  # # - log_road_dist:log_road_traffic
+  # mod12 <- glm(use ~ id + log_dist_building + log_road_dist + ar5_recoded + log_road_traffic + 
+  #               log_road_dist:road_type_public, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+  # 
+  # # - log_road_dist:road_type_public
+  # mod13 <- glm(use ~ id + log_dist_building + log_road_dist + ar5_recoded + log_road_traffic + 
+  #               log_road_dist:log_road_traffic, 
+  #             data = datrsf4_den, family = binomial(link = "logit"))
+```
+```{r}
+  
+  # very simple model
+  mod14 <- glm(use ~ id + log_road_dist + ar5_recoded, 
+              data = datrsf4_den, family = binomial(link = "logit"))
+  
+# - road_traffic, road_type instead 
+  # mod15 <- glm(use ~ id + log_dist_building + log_road_dist + ar5_recoded + road_type +
+  #               log_forest_age + log_road_dist:road_type + log_road_dist:road_type_public, <---- here we don't need to have road type public
+  #             data = datrsf4_den, family = binomial(link = "logit"))  
+
+  
+  mod16 <- glm(use ~ id + log_dist_building + log_road_dist + ar5_recoded + road_type +
+                log_forest_age + log_road_dist:road_type, 
+              data = datrsf4_den, family = binomial(link = "logit")) 
+  
+  mod17 <- glm(use ~ id + log_building_250 + log_road_dist + ar5_recoded + road_type +
+                log_forest_age + log_road_dist:road_type, 
+              data = datrsf4_den, family = binomial(link = "logit"))
+ 
+  mod18 <- glm(use ~ id + log_building_500 + log_road_dist + ar5_recoded + road_type +
+                log_forest_age + log_road_dist:road_type, 
+              data = datrsf4_den, family = binomial(link = "logit"))
+  
+  mod19 <- glm(use ~ id + log_building_1000 + log_road_dist + ar5_recoded + road_type +
+                log_forest_age + log_road_dist:road_type, 
+              data = datrsf4_den, family = binomial(link = "logit"))
+  
+  mod20 <- glm(use ~ id + building_2500 + log_road_dist + ar5_recoded + road_type +
+                log_forest_age + log_road_dist:road_type, 
+              data = datrsf4_den, family = binomial(link = "logit"))
+  
+  mod21 <- glm(use ~ id + building_2500 + log_road_dist + ar5_recoded + log_forest_age, 
+              data = datrsf4_den, family = binomial(link = "logit"))
+```
+
+  
+  
+#### AICc model selection
+
+```{r}
+AIC(mod4, mod5, mod7, mod10, mod11, mod12, mod13, mod14, mod15, mod16, mod17, mod18, mod19, mod20)
+AIC(mod16, mod17, mod18, mod19, mod20)
+AIC(mod16, mod21)
+AIC(mod21, mod14)
+  
+```
+
+
+
+
+ 
+
+
+
+#### change memory size  
+Maybe it is necessary to extend the memory limit, because the models are quite large.
+This is how it is done. It re-sets itself when the R-session is terminated.
+```{r}
+# To check the current memory limit
+memory.limit() #[1] 8062 -----> default
+# To check the current size (only when not changed) and to change the memory limit
+memory.size(10000) # Put the new memory size into the bracktes, e.g. 9000
+```
+  
+
+
+
+
+
+
+
+
+#### Looking at the model results in a plot
+
+```{r}
+mod4glm <- data.frame(Variable = rownames(summary(mod4_glm)$coef),
+                            Coefficient = summary(mod4_glm)$coef[, 1],
+                            SE = summary(mod4_glm)$coef[, 2],
+                            modelname = "mod_glm")
+
+mod4glmer <- data.frame(Variable = rownames(summary(mod4_rsf)$coef),
+                            Coefficient = summary(mod4_rsf)$coef[, 1],
+                            SE = summary(mod4_rsf)$coef[, 2],
+                            modelname = "mod_glmer")
+
+mod3glmer <- data.frame(Variable = rownames(summary(mod3)$coef),
+                            Coefficient = summary(mod3)$coef[, 1],
+                            SE = summary(mod3)$coef[, 2],
+                            modelname = "mod3_AR5_rec2")
+
+mod1_rspfframe <- data.frame(Variable = rownames(summary(mod1_rspf)$coef),
+                            Coefficient = summary(mod1_rspf)$coef[, 1],
+                            SE = summary(mod1_rspf)$coef[, 2],
+                            modelname = "mod1_rspf_new")
+
+# mod3_rspfframe <- data.frame(Variable = rownames(summary(mod3_rspf)$coef),
+#                             Coefficient = summary(mod3_rspf)$coef[, 1],
+#                             SE = summary(mod3_rspf)$coef[, 2],
+#                             modelname = "mod3_rspf")
+
+mod4_rspfframe <- data.frame(Variable = rownames(summary(mod4_rspf)$coef),
+                            Coefficient = summary(mod4_rspf)$coef[, 1],
+                            SE = summary(mod4_rspf)$coef[, 2],
+                            modelname = "mod4_rspf")
+
+mod5_rspfframe <- data.frame(Variable = rownames(summary(mod5_rspf)$coef),
+                            Coefficient = summary(mod5_rspf)$coef[, 1],
+                            SE = summary(mod5_rspf)$coef[, 2],
+                            modelname = "mod5_rspf_new")
+
+mod6_rspfframe <- data.frame(Variable = rownames(summary(mod6_rspf)$coef),
+                            Coefficient = summary(mod6_rspf)$coef[, 1],
+                            SE = summary(mod6_rspf)$coef[, 2],
+                            modelname = "mod6_rspf_new")
+
+mod7_rspfframe <- data.frame(Variable = rownames(summary(mod7_rspf)$coef),
+                            Coefficient = summary(mod7_rspf)$coef[, 1],
+                            SE = summary(mod7_rspf)$coef[, 2],
+                            modelname = "mod7_rspf_new")
+
+mod8_rspfframe <- data.frame(Variable = rownames(summary(mod8_rspf)$coef),
+                            Coefficient = summary(mod8_rspf)$coef[, 1],
+                            SE = summary(mod8_rspf)$coef[, 2],
+                            modelname = "mod8_rspf")
+
+mod6_boot_rspfframe <- data.frame(Variable = rownames(summary(mod6_rspf_49boot)$coef),
+                            Coefficient = summary(mod6_rspf_49boot)$coef[, 1],
+                            SE = summary(mod6_rspf_49boot)$coef[, 2],
+                            modelname = "mod6_rspf_49boot")
+
+mod6_99boot_rspfframe <- data.frame(Variable = rownames(summary(mod6_rspf_99boot)$coef),
+                            Coefficient = summary(mod6_rspf_99boot)$coef[, 1],
+                            SE = summary(mod6_rspf_99boot)$coef[, 2],
+                            modelname = "mod6_rspf_99boot")
+
+mod10_rspfframe <- data.frame(Variable = rownames(summary(mod10_rspf)$coef),
+                            Coefficient = summary(mod10_rspf)$coef[, 1],
+                            SE = summary(mod10_rspf)$coef[, 2],
+                            modelname = "mod10_rspf")
+
+mod10_99boot_rspfframe <- data.frame(Variable = rownames(summary(mod10_rspf_99boot)$coef),
+                            Coefficient = summary(mod10_rspf_99boot)$coef[, 1],
+                            SE = summary(mod10_rspf_99boot)$coef[, 2],
+                            modelname = "mod10_rspf_99boot")
+
+# mod3_rspfframe$SE <- "0"
+#   mod3_rspfframe$SE <- as.numeric(mod3_rspfframe$SE)
+mod1_rspfframe$SE <- "0"
+  mod1_rspfframe$SE <- as.numeric(mod1_rspfframe$SE)
+mod4_rspfframe$SE <- "0"
+  mod4_rspfframe$SE <- as.numeric(mod4_rspfframe$SE)
+mod5_rspfframe$SE <- "0"
+  mod5_rspfframe$SE <- as.numeric(mod5_rspfframe$SE)
+mod6_rspfframe$SE <- "0"
+  mod6_rspfframe$SE <- as.numeric(mod6_rspfframe$SE)
+mod7_rspfframe$SE <- "0"
+  mod7_rspfframe$SE <- as.numeric(mod7_rspfframe$SE)
+mod8_rspfframe$SE <- "0"
+  mod8_rspfframe$SE <- as.numeric(mod8_rspfframe$SE)
+mod10_rspfframe$SE <- "0"
+  mod10_rspfframe$SE <- as.numeric(mod10_rspfframe$SE)
+  
+```
+
+Then I combine these data.frames:
+```{r}
+  allmodelframe_rspf <- data.frame(rbind(mod6_99boot_rspfframe, mod10_99boot_rspfframe))
+```
+
+```{r}
+  interval1 <- -qnorm((1-0.95)/2)  # 95% multiplier
+  interval2 <- -qnorm((1-0.95)/2)  # 95% multiplier
+```
+
+```{r figure-setup, echo = FALSE, include = FALSE}
+knitr::opts_chunk$set(fig.path = "figs/", fig.width = 6.5,
+                      fig.height = 4, fig.align = "center")
+```
+
+```{r comparing different ssf-models, fig.cap='Comparing different ssf-models'}
+  ggplot(allmodelframe_rspf, aes(colour = modelname)) + 
+    geom_hline(yintercept = 0, colour = gray(1/2), lty = 2) + 
+    geom_linerange(aes(x = Variable, ymin = Coefficient - SE*interval1,
+                                  ymax = Coefficient + SE*interval1),
+                              lwd = 1, position = position_dodge(width = 1/2)) + 
+    geom_pointrange(aes(x = Variable, y = Coefficient, ymin = Coefficient - SE*interval2,
+                                   ymax = Coefficient + SE*interval2),
+                               lwd = 1/2, position = position_dodge(width = 1/2),
+                               shape = 21, fill = "WHITE") + coord_flip() + theme_bw()+
+  ggtitle("Resource selection: comparing models")
+```
+
+```{r comparing different ssf-models, fig.cap='Comparing different ssf-models'}
+  ggplot(allmodelframe_rspf, aes(colour = modelname)) + 
+    geom_hline(yintercept = 0, colour = gray(1/2), lty = 2) + 
+    geom_linerange(aes(x = Variable, ymin = Coefficient - SE,
+                                  ymax = Coefficient + SE),
+                              lwd = 1, position = position_dodge(width = 1/2)) + 
+    geom_pointrange(aes(x = Variable, y = Coefficient, ymin = Coefficient - SE,
+                                   ymax = Coefficient + SE),
+                               lwd = 1/2, position = position_dodge(width = 1/2),
+                               shape = 21, fill = "WHITE") + coord_flip() + theme_bw()+
+  ggtitle("Resource selection: comparing models")
+```
+
+
+
+
+Plot of selection against road variables.
+Change "d" to d2 and "m" to m2 and so on when changing the input model.
+```{r}
+load("output/mod1_rspf.rda")
+load("processdata/datrsf4.rda")
+tmp <- datrsf4
+          newdat <- tmp[rep(1, 2000),] 
+          newdat$road_dist <- c(c(0,0:498)*2, c(0,0:498)*2, c(0,0:498)*2, c(0,0:498)*2) #x axis (0=crossing, then from (0=no crossing) to 996 m in steps of 2 - the whole thing repeated 4 times
+          newdat$log_road_dist <- log10(newdat$road_dist+1)  
+          hist(datrsf4$road_traffic[datrsf4$road_traffic>0])
+          quantile(datrsf4$road_traffic[datrsf4$road_traffic>0], 0.25)
+          quantile(datrsf4$road_traffic[datrsf4$road_traffic>0], 0.95)
+          newdat$road_traffic <- rep(c(0,0,1500,20000), each=500) # we don't predcit traffic in a continuous way - we use cross; no traffic, low, med and high traffic
+          newdat$log_road_traffic <- log10(newdat$road_traffic+1)
+          newdat$road_type_public <- 0
+          newdat$road_type_public[c(1:500)] <- 1
+          newdat$road_type_public <- as.factor(newdat$road_type_public)
+          
+library("boot", lib.loc="~/R/win-library/3.4")
+d3 <- newdat
+m3 <- mod3_rspf
+
+#  I think that model.matrix will generate automatically the columns that you need, give it a try:
+
+# d <- na.omit(d)
+
+x3 <- model.matrix(m3$formula, data=d3)
+    
+coefs <- coef(m3)
+names(coefs)[15] <- "log_road_dist:road_type_public1"
+coefs
+predvals <- (X %*% coefs[match(colnames(X), names(coefs))])[,1]
+     
+d2$linpred <- predvals
+d2$predprob <- inv.logit(d2$linpred)
+head(d2)
+
+```
+
+
+For the model with "road_type" instead of "road_traffic".
+```{r}
+# load("output/mod3_rspf.rda")
+# load("processdata/datrsf4.rda")
+tmp <- datrsf8
+          newdat <- tmp[rep(1, 500*5),] 
+          newdat$road_dist <- rep(c(1:500)*2, 5)
+          newdat$log_road_dist <- log10(newdat$road_dist+1)
+          newdat$road_type <- rep(levels(datrsf8$road_type), each=500)
+          newdat$road_type <- as.factor(newdat$road_type)
+          newdat$road_type <- factor(newdat$road_type, levels = c("P", "E", "F", "K", "S"))
+
+library("boot", lib.loc="~/R/win-library/3.4")
+d8 <- newdat
+m6 <- mod10_rspf_99boot
+
+
+# d <- na.omit(d)
+
+x6 <- model.matrix(m6$formula, data=d8)
+
+# coefs <- coef(m5)
+# names(coefs)[15] <- "log_road_dist:road_type_public1"
+# coefs
+# predvals <- (X %*% coefs[match(colnames(X), names(coefs))])[,1]
+
+predvals <- (x6 %*% coef(m6)[match(colnames(x6), names(coef(m6)))])[,1]
+
+d8$linpred <- predvals
+d8$predprob <- inv.logit(d8$linpred)
+head(d8)
+
+```
+
+
+
+
+```{r}
+
+plot(newdat$road_dist[newdat$road_type=="E"], d8$predprob[newdat$road_type=="E"], type="l", col="red", ylim=c(), xlim = c(),
+xlab="Avstand til veg (meter)", ylab="valg", cex.lab=1.5, cex.axis=1.1, lty=1, lwd=2) #
+lines(newdat$road_dist[newdat$road_type=="F"], d8$predprob[newdat$road_type=="F"], type="l", col="blue", lty=1.5, lwd=2) #
+
+lines(newdat$road_dist[newdat$road_type=="K"], d8$predprob[newdat$road_type=="K"], type="l", col="grey", lty=1.5, lwd=2)
+          
+lines(newdat$road_dist[newdat$road_type=="P"], d8$predprob[newdat$road_type=="P"], type="l", col="brown", lty=1.5, lwd=2) 
+
+lines(newdat$road_dist[newdat$road_type=="S"], d8$predprob[newdat$road_type=="S"], type="l", col="green", lty=1.5, lwd=2)
+
+# lines(newdat$road_dist[newdat$road_type=="R"], d8$predprob[newdat$road_type=="R"], type="l", col="yellow", lty=1.5, lwd=2)
+ 
+
+
+
+# points(newdat$road_dist[newdat$road_traffic==0 & newdat$road_type_public==1], d$predprob[newdat$road_traffic==0 & newdat$road_type_public==1], pch=8, col="black") 
+#           
+# points(newdat$road_dist[newdat$road_traffic==20000 & newdat$road_dist==0], d$predprob[newdat$road_traffic==20000 & newdat$road_dist==0], pch=16, col="red") 
+# points(newdat$road_dist[newdat$road_traffic==1500 & newdat$road_dist==0], d$predprob[newdat$road_traffic==1500 & newdat$road_dist==0], pch=16, col="blue") 
+# 
+# points(newdat$road_dist[newdat$road_traffic==0 & newdat$road_type_public==1  & newdat$road_dist==0], d$predprob[newdat$road_traffic==0 & newdat$road_type_public==1  & newdat$road_dist==0], pch=16, col="black") 
+
+```
+
+
+
+
+
+```{r}
+ggplot(data = datrsf4_sub, aes(road_dist)) +
+  geom_bar()+
+  theme_classic()
+```
+
+
+
+>>>>>>> 33073c58e577f151a44cf063f78edd1b3c2e3689
