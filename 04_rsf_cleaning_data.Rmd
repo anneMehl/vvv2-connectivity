@@ -78,7 +78,7 @@ knitr::opts_chunk$set(echo = TRUE)
   str(datrsf5$building_1000)
   str(datrsf5$building_2500)
 ```
-**Important note or the previous chunk:** We have a traffic variable, however we don't have traffic data for all road types. So the missing values are now coded ZERO, but are not really a ZERO!
+**Important note for the previous chunk:** We have a traffic variable, however we don't have traffic data for all road types. So the missing values are now coded ZERO, but are not really a ZERO!
 
 
 
