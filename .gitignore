@@ -9,6 +9,7 @@ rawdata/
 figs/
 output/
 reports/
+maps/
 
 # Example code in package build process
 *-Ex.R
