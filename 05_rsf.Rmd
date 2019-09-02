@@ -634,3 +634,27 @@ ggplot(data = datrsf4_sub, aes(road_dist)) +
   theme_classic()
 ```
 
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+rast <- raster("AR5RasterAO.tif")
+
+table(values(rast))
+
+```
+
+
+
+
+
+
+
