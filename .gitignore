@@ -10,6 +10,7 @@ figs/
 output/
 reports/
 maps/
+*.tif
 
 # Example code in package build process
 *-Ex.R
