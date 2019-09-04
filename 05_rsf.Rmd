@@ -5,7 +5,7 @@ author: "anneMehl"
 date: "9 april 2018"
 output: word_document
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -144,7 +144,16 @@ summary(mod6sub_rspf50)
   mod10_rspf_99boot <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + road_type + 
                               log_forest_age + log_road_dist:road_type, 
                             data = datrsf8, m = datrsf8$id, B = 99, link = "logit")
-  endtime <- Sys.time()     # BEST
+  endtime <- Sys.time()     # still BEST
+  endtime-starttime
+  
+library(ResourceSelection)
+  
+  starttime <- Sys.time()
+  mod11_rspf_99boot <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + traffic_high + 
+                              forestage_cat + log_road_dist:traffic_high, 
+                            data = datrsf8, m = datrsf8$id, B = 99, link = "logit")
+  endtime <- Sys.time()     
   endtime-starttime
   
   save(mod1_rspf, file = "mod1_rspf_new.rda")
@@ -160,6 +169,7 @@ summary(mod6sub_rspf50)
   save(mod6_rspf_99boot, file = "mod6_rspf_99boot.rda")
   save(mod10_rspf, file = "mod10_rspf.rda") # like mod6, but with road_type R and F gruoped
   save(mod10_rspf_99boot, file = "mod10_rspf_99boot.rda") 
+  save(mod11_rspf_99boot, file = "mod11_rspf_99boot.rda") 
   
   load("output/mod1_rspf.rda")
   load("output/mod1_rspf_new.rda")
@@ -175,6 +185,7 @@ summary(mod6sub_rspf50)
   load("output/mod6_rspf_99boot.rda")
   load("output/mod8_rspf.rda")
   load("output/mod10_rspf_99boot.rda")
+  load("output/mod11_rspf_99boot.rda")
   
   summary(mod1_rspf)
   summary(mod3_rspf)
@@ -186,6 +197,7 @@ summary(mod6sub_rspf50)
   summary(mod6_rspf_99boot)
   summary(mod10_rspf)
   summary(mod10_rspf_99boot)
+  summary(mod11_rspf_99boot)
   
   mep(mod6_rspf_99boot)
 ```
@@ -199,11 +211,13 @@ mod10: 22.12 min
 mod6_boot: 11.46 hours (49 bootstraps)
 mod6_boot: 23.68 hours (99 bootstraps)
 mod10_99boot: 16.46 hours (99 bootstraps)
+mod11_99boot: 12.21667 hours
 
 ```{r}
 AIC(mod1_rspf, mod5_rspf, mod6_rspf, mod7_rspf, mod9_rspf)
 CAIC(mod1_rspf, mod5_rspf, mod6_rspf, mod7_rspf, mod9_rspf)
-
+AIC(mod10_rspf_99boot, mod11_rspf_99boot)
+CAIC(mod10_rspf_99boot, mod11_rspf_99boot)
 ```
 (C)AIC ranking: mod6, mod9, mod5, mod7, mod1
 
