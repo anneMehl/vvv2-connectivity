@@ -174,7 +174,7 @@ datrsf8$forestage_cat[datrsf8$forest_age <= 40] <- "young"
 datrsf8$forestage_cat[(datrsf8$forest_age >= 41) & (datrsf8$forest_age <= 79)] <- "medium"
 datrsf8$forestage_cat[datrsf8$forest_age >= 80] <- "old"
 datrsf8$forestage_cat <- as.factor(datrsf8$forestage_cat)
-
+save(datrsf8, file = "datrsf8_new.rda")
   
 ```
 
