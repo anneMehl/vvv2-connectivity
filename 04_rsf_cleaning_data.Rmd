@@ -4,6 +4,8 @@ title: "Rsf cleaning data"
 author: "anneMehl"
 date: "9 april 2018"
 output: word_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -152,6 +154,11 @@ tapply(datrsf5$forest_age, datrsf5$ar5_recoded, function(x){mean((x))})
   
   sum(is.infinite(datrsf5$road_traffic))
   datrsf5$road_traffic[is.na(datrsf5$road_traffic)] <- 0
+  
+  
+load("processdata/datrsf8_new.rda")
+  datrsf8$traffic_high <- ifelse(datrsf8$road_traffic >= 5000, 1, 0)
+  
 ```
 
 ** Set all NAs in forest_age to 0 where there is no forest (AR5_recoded categories <7) and set forest_age to the average where there are real NAs where we do not have data about the forest age. Also set all forest_age values to 0 when there actually is no forest**
@@ -160,6 +167,14 @@ tapply(datrsf5$forest_age, datrsf5$ar5_recoded, function(x){mean((x))})
   datrsf5$forest_age[(datrsf5$forest_age) & datrsf5$ar5_recoded < 7] <- 0
   mean(datrsf5$forest_age, na.rm = TRUE)
   datrsf5$forest_age[is.na(datrsf5$forest_age) & datrsf5$ar5_recoded > 7] <- 30
+  
+load("processdata/datrsf8_new.rda")
+datrsf8$forestage_cat <- NA
+datrsf8$forestage_cat[datrsf8$forest_age <= 40] <- "young"
+datrsf8$forestage_cat[(datrsf8$forest_age >= 41) & (datrsf8$forest_age <= 79)] <- "medium"
+datrsf8$forestage_cat[datrsf8$forest_age >= 80] <- "old"
+datrsf8$forestage_cat <- as.factor(datrsf8$forestage_cat)
+
   
 ```
 
