@@ -11,6 +11,7 @@ output/
 reports/
 maps/
 *.tif
+*.rda
 
 # Example code in package build process
 *-Ex.R
