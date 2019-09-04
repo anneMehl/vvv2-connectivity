@@ -177,6 +177,7 @@ library(ResourceSelection)
   save(mod10_rspf, file = "mod10_rspf.rda") # like mod6, but with road_type R and F gruoped
   save(mod10_rspf_99boot, file = "mod10_rspf_99boot.rda") 
   save(mod11_rspf_99boot, file = "mod11_rspf_99boot.rda") 
+  save(mod11a_rspf_99boot, file = "mod11a_rspf_99boot.rda") 
   
   load("output/mod1_rspf.rda")
   load("output/mod1_rspf_new.rda")
@@ -193,6 +194,7 @@ library(ResourceSelection)
   load("output/mod8_rspf.rda")
   load("output/mod10_rspf_99boot.rda")
   load("output/mod11_rspf_99boot.rda")
+  load("output/mod11a_rspf_99boot.rda")
   
   summary(mod1_rspf)
   summary(mod3_rspf)
