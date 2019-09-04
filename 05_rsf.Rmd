@@ -163,6 +163,13 @@ library(ResourceSelection)
   endtime <- Sys.time()     
   endtime-starttime
   
+  starttime <- Sys.time()
+  mod11b_rspf_99boot <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + traffic_high + 
+                              log_forest_age + log_road_dist:traffic_high, 
+                            data = datrsf8, m = datrsf8$id, B = 99, link = "logit")
+  endtime <- Sys.time()     
+  endtime-starttime
+  
   save(mod1_rspf, file = "mod1_rspf_new.rda")
   save(mod2_rspf, file = "mod2_rspf.rda")
   save(mod3_rspf, file = "mod3_rspf.rda")
