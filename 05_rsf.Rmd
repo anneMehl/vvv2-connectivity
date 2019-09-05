@@ -150,14 +150,14 @@ summary(mod6sub_rspf50)
 library(ResourceSelection)
   
   starttime <- Sys.time()
-  mod11_rspf_99boot <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + traffic_high + 
+  mod11_rspf_99boot <- rspf(use ~ building_2500 + log_road_dist + ar5_rec_new + traffic_high + 
                               forestage_cat + log_road_dist:traffic_high, 
                             data = datrsf8, m = datrsf8$id, B = 99, link = "logit")
   endtime <- Sys.time()     
   endtime-starttime
   
   starttime <- Sys.time()
-  mod11a_rspf_99boot <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + road_type + 
+  mod11a_rspf_99boot <- rspf(use ~ building_2500 + log_road_dist + ar5_rec_new + road_type + 
                               forestage_cat + log_road_dist:road_type, 
                             data = datrsf8, m = datrsf8$id, B = 99, link = "logit")
   endtime <- Sys.time()     
