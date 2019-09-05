@@ -43,19 +43,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ##### Recoding the ar5_recoded variable
 
 ```{r}
-# datrsf3_den$ar5_recoded2 <- NA
-# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 21 | datrsf3_den$ar5_artype == 22 | datrsf3_den$ar5_artype == 23, 1, datrsf3_den$ar5_recoded2)
-# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 50, 2, datrsf3_den$ar5_recoded2)
-# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 60, 3, datrsf3_den$ar5_recoded2)
-# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 70 | datrsf3_den$ar5_artype == 80 | datrsf3_den$ar5_artype == 81 | datrsf3_den$ar5_artype == 82, 4, datrsf3_den$ar5_recoded2)
-# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 11, 5, datrsf3_den$ar5_recoded2)
-# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 12, 6, datrsf3_den$ar5_recoded2)
-# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 99, 7, datrsf3_den$ar5_recoded2)
-# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 30 & datrsf3_den$ar5_artreslag == 31 & (datrsf3_den$ar5_arskogbon == 14 | datrsf3_den$ar5_arskogbon == 15), 8, datrsf3_den$ar5_recoded2)
-# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 30 & datrsf3_den$ar5_artreslag == 31 & datrsf3_den$ar5_arskogbon == 13, 9, datrsf3_den$ar5_recoded2)
-# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 30 & datrsf3_den$ar5_artreslag == 31 & (datrsf3_den$ar5_arskogbon == 11 | datrsf3_den$ar5_arskogbon == 12), 10, datrsf3_den$ar5_recoded2)
-# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 30 & datrsf3_den$ar5_artreslag == 32, 11, datrsf3_den$ar5_recoded2)
-# datrsf3_den$ar5_recoded2 <- ifelse(datrsf3_den$ar5_artype == 30 & datrsf3_den$ar5_artreslag == 33, 12, datrsf3_den$ar5_recoded2)
+datrsf8$ar5_rec_new <- datrsf8$ar5_recoded
+datrsf8$ar5_rec_new[datrsf8$ar5_rec_new == "6"] <- "8"
+datrsf8$ar5_rec_new <- factor(datrsf8$ar5_rec_new)
+
+save(datrsf8, file = "datrsf8_new.rda")
 ```
 
 
