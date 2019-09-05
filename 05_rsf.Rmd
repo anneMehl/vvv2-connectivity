@@ -233,7 +233,7 @@ mod11_99boot: 12.21667 hours
 AIC(mod1_rspf, mod5_rspf, mod6_rspf, mod7_rspf, mod9_rspf)
 CAIC(mod1_rspf, mod5_rspf, mod6_rspf, mod7_rspf, mod9_rspf)
 AIC(mod10_rspf_99boot, mod11_rspf_99boot)
-CAIC(mod10_rspf_99boot, mod11_rspf_99boot)
+CAIC(mod10_rspf_99boot, mod11_rspf_99boot, mod11a_rspf_99boot)
 ```
 (C)AIC ranking: mod6, mod9, mod5, mod7, mod1
 
