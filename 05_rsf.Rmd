@@ -185,6 +185,7 @@ library(ResourceSelection)
   save(mod10_rspf_99boot, file = "mod10_rspf_99boot.rda") 
   save(mod11_rspf_99boot, file = "mod11_rspf_99boot.rda") 
   save(mod11a_rspf_99boot, file = "mod11a_rspf_99boot.rda") 
+  save(mod11b_rspf_99boot, file = "mod11b_rspf_99boot.rda") 
   
   load("output/mod1_rspf.rda")
   load("output/mod1_rspf_new.rda")
@@ -202,6 +203,7 @@ library(ResourceSelection)
   load("output/mod10_rspf_99boot.rda")
   load("output/mod11_rspf_99boot.rda")
   load("output/mod11a_rspf_99boot.rda")
+  load("output/mod11b_rspf_99boot.rda")
   
   summary(mod1_rspf)
   summary(mod3_rspf)
@@ -232,11 +234,17 @@ mod11_99boot: 12.21667 hours
 ```{r}
 AIC(mod1_rspf, mod5_rspf, mod6_rspf, mod7_rspf, mod9_rspf)
 CAIC(mod1_rspf, mod5_rspf, mod6_rspf, mod7_rspf, mod9_rspf)
-AIC(mod10_rspf_99boot, mod11_rspf_99boot)
-CAIC(mod10_rspf_99boot, mod11_rspf_99boot, mod11a_rspf_99boot)
+AIC(mod10_rspf_99boot, mod11_rspf_99boot, mod11a_rspf_99boot, mod11b_rspf_99boot)
+CAIC(mod10_rspf_99boot, mod11_rspf_99boot, mod11a_rspf_99boot, mod11b_rspf_99boot)
+BIC(mod10_rspf_99boot, mod11_rspf_99boot, mod11a_rspf_99boot, mod11b_rspf_99boot)
+
 ```
 (C)AIC ranking: mod6, mod9, mod5, mod7, mod1
-
+                   df     CAIC
+mod10_rspf_99boot  22 595807.0 # Still best
+mod11_rspf_99boot  16 597130.1
+mod11a_rspf_99boot 22 596570.3
+mod11b_rspf_99boot 15 597700.0
 
 #### Run the rsf as glmer
 
