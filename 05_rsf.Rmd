@@ -235,7 +235,7 @@ mod11_99boot: 12.21667 hours
 AIC(mod1_rspf, mod5_rspf, mod6_rspf, mod7_rspf, mod9_rspf)
 CAIC(mod1_rspf, mod5_rspf, mod6_rspf, mod7_rspf, mod9_rspf)
 AIC(mod10_rspf_99boot, mod11_rspf_99boot, mod11a_rspf_99boot, mod11b_rspf_99boot)
-CAIC(mod10_rspf_99boot, mod11_rspf_99boot, mod11a_rspf_99boot, mod11b_rspf_99boot)
+CAIC(mod11_rspf_99boot, mod11a_rspf_99boot, mod11b_rspf_99boot)
 BIC(mod10_rspf_99boot, mod11_rspf_99boot, mod11a_rspf_99boot, mod11b_rspf_99boot)
 
 ```
@@ -245,6 +245,18 @@ mod10_rspf_99boot  22 595807.0 # Still best
 mod11_rspf_99boot  16 597130.1
 mod11a_rspf_99boot 22 596570.3
 mod11b_rspf_99boot 15 597700.0
+
+```{r}
+library(sjPlot)
+
+plot_model(mod11_rspf_99boot, type = c("est"), transform = NULL, show.values = TRUE, value.offset = 0.5, 
+                 vline.color = "grey", colors = c("#004949", "#009292"),
+                 axis.title = "Estimates")
+p1 + theme_sjplot() + font_size(axis_title.x = 15)
+
+```
+
+
 
 #### Run the rsf as glmer
 
@@ -496,6 +508,16 @@ mod10_99boot_rspfframe <- data.frame(Variable = rownames(summary(mod10_rspf_99bo
                             SE = summary(mod10_rspf_99boot)$coef[, 2],
                             modelname = "mod10_rspf_99boot")
 
+mod11_99boot_rspfframe <- data.frame(Variable = rownames(summary(mod11_rspf_99boot)$coef),
+                            Coefficient = summary(mod11_rspf_99boot)$coef[, 1],
+                            SE = summary(mod11_rspf_99boot)$coef[, 2],
+                            modelname = "mod11_rspf_99boot")
+
+mod11a_99boot_rspfframe <- data.frame(Variable = rownames(summary(mod11a_rspf_99boot)$coef),
+                            Coefficient = summary(mod11a_rspf_99boot)$coef[, 1],
+                            SE = summary(mod11a_rspf_99boot)$coef[, 2],
+                            modelname = "mod11a_rspf_99boot")
+
 # mod3_rspfframe$SE <- "0"
 #   mod3_rspfframe$SE <- as.numeric(mod3_rspfframe$SE)
 mod1_rspfframe$SE <- "0"
@@ -517,7 +539,10 @@ mod10_rspfframe$SE <- "0"
 
 Then I combine these data.frames:
 ```{r}
-  allmodelframe_rspf <- data.frame(rbind(mod6_99boot_rspfframe, mod10_99boot_rspfframe))
+  allmodelframe_rspf <- data.frame(rbind(mod11_99boot_rspfframe, mod11a_99boot_rspfframe))
+
+  allmodelframe_rspf <- data.frame(rbind(mod11_99boot_rspfframe))
+
 ```
 
 ```{r}
