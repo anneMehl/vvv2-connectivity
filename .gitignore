@@ -6,12 +6,14 @@
 .RData
 processdata/
 rawdata/
-figs/
+figs_tabs/
 output/
 reports/
 maps/
 *.tif
 *.rda
+*.png
+*.xlsx
 
 # Example code in package build process
 *-Ex.R
