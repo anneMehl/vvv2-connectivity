@@ -144,7 +144,7 @@ summary(mod6sub_rspf50)
   mod10_rspf_99boot <- rspf(use ~ building_2500 + log_road_dist + ar5_recoded + road_type + 
                               log_forest_age + log_road_dist:road_type, 
                             data = datrsf8, m = datrsf8$id, B = 99, link = "logit")
-  endtime <- Sys.time()     # still BEST
+  endtime <- Sys.time()     # still BEST, but we go for similar variables with sspf
   endtime-starttime
   
 library(ResourceSelection)
@@ -153,7 +153,7 @@ library(ResourceSelection)
   mod11_rspf_99boot <- rspf(use ~ building_2500 + log_road_dist + ar5_rec_new + traffic_high + 
                               forestage_cat + log_road_dist:traffic_high, 
                             data = datrsf8, m = datrsf8$id, B = 99, link = "logit")
-  endtime <- Sys.time()     
+  endtime <- Sys.time()     # second BEST (although see above)
   endtime-starttime
   
   starttime <- Sys.time()
@@ -166,6 +166,13 @@ library(ResourceSelection)
   starttime <- Sys.time()
   mod11b_rspf_99boot <- rspf(use ~ building_2500 + log_road_dist + ar5_rec_new + traffic_high + 
                               log_forest_age + log_road_dist:traffic_high, 
+                            data = datrsf8, m = datrsf8$id, B = 99, link = "logit")
+  endtime <- Sys.time()     
+  endtime-starttime
+  
+    starttime <- Sys.time()
+  mod11c_rspf_99boot <- rspf(use ~ log_dist_building + log_road_dist + ar5_rec_new + traffic_high + 
+                              forestage_cat + log_road_dist:traffic_high, 
                             data = datrsf8, m = datrsf8$id, B = 99, link = "logit")
   endtime <- Sys.time()     
   endtime-starttime
@@ -636,9 +643,9 @@ tmp <- datrsf8
           newdat$road_type <- as.factor(newdat$road_type)
           newdat$road_type <- factor(newdat$road_type, levels = c("P", "E", "F", "K", "S"))
 
-library("boot", lib.loc="~/R/win-library/3.4")
+library(boot)
 d8 <- newdat
-m6 <- mod10_rspf_99boot
+m6 <- mod11a_rspf_99boot
 
 
 # d <- na.omit(d)
