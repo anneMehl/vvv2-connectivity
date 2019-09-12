@@ -5,7 +5,7 @@ author: "anneMehl"
 date: "9 april 2018"
 output: word_document
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -276,4 +276,22 @@ points(newdat$road_dist[newdat$road_traffic==0 & newdat$road_cross==0 & newdat$r
 hist(dvvv2$road_dist)
 ```
 
+
+
+
+
+
+
+```{r}
+library(ResourceSelection)
+library(ggplot2)
+# load: dat.rda
+# load: mod_sspf_allyear.rda
+
+
+summary(mod_sspf_allyear)
+
+
+
+```
 
