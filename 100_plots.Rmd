@@ -22,7 +22,12 @@ ggplot(data = datrsf8, aes(ar5_recoded))+
          geom_bar()
 
 
+hist(datrsf8$dist_building)
+hist(datrsf8$log_dist_building)
+
 ```
+
+
 
 
 
