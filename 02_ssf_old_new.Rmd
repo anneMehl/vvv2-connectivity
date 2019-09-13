@@ -284,12 +284,13 @@ hist(dvvv2$road_dist)
 
 ```{r}
 library(ResourceSelection)
-library(ggplot2)
+
 # load: dat.rda
 # load: mod_sspf_allyear.rda
 
 
 summary(mod_sspf_allyear)
+summary(mod_sspf_best)
 
 
 
