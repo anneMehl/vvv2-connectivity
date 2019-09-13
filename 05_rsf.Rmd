@@ -431,7 +431,7 @@ This is how it is done. It re-sets itself when the R-session is terminated.
 # To check the current memory limit
 memory.limit() #[1] 8062 -----> default
 # To check the current size (only when not changed) and to change the memory limit
-memory.size(10000) # Put the new memory size into the bracktes, e.g. 9000
+memory.size(30000) # Put the new memory size into the bracktes, e.g. 9000
 ```
   
 
