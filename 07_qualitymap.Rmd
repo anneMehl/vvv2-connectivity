@@ -1,0 +1,62 @@
+---
+title: "07_qualitymap"
+author: "anne"
+date: "16 september 2019"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Make raster stack 
+
+#### load libraries and rasters
+```{r}
+# Load libraries 
+library(raster)
+
+# Load rasters 
+
+
+```
+
+#### Transform layers 
+```{r}
+
+log_dist_building <- raster("maps/dist_building.tif")
+values(log_dist_building) <- log10(values(log_dist_building) + 1)
+plot(log_dist_building)
+
+rail_cross <- raster("maps/crossed_rail.tif")
+summary(values(rail_cross))
+
+road_cross <- raster("maps/dist_roads.tif")
+values(road_cross) <- ifelse(values(road_cross)==0, 1, 0)
+plot(road_cross)
+
+dist_passage <- raster("maps/fence.tif")
+values(dist_passage) <- ifelse(values(dist_passage)==0, 0, 800) #at 800 any effect of the passage seems to be gone
+crossing <- raster("maps/crossings_grey.tif")
+values(dist_passage) <- ifelse(values(crossing)==1, 0, values(dist_passage))
+crossing <- raster("maps/crossings_high_use.tif")
+values(dist_passage) <- ifelse(values(crossing)==1, 0, values(dist_passage))
+crossing <- raster("maps/crossings_low_use.tif")
+values(dist_passage) <- ifelse(values(crossing)==1, 0, values(dist_passage))
+crossing <- raster("maps/crossings_green.tif")
+values(dist_passage) <- ifelse(values(crossing)==1, 0, values(dist_passage))
+plot(dist_passage)
+writeRaster(dist_passage, filename="maps/test.tif", overwrite=T)
+
+log_road_dist <- raster("maps/dist_roads.tif")
+values(log_road_dist) <- log10(values(log_road_dist)+1)
+
+dist_roads <- raster("maps/dist_roads.tif")
+road_traffic_high <- raster("maps/dist_road_traffic_high.tif")
+values(road_traffic_high) <- ifelse(values(dist_roads) < values(road_traffic_high),0,1)
+
+interaction1 <- interaction2 <- road_traffic_high
+values(interaction1) <- values(log_road_dist)*values(road_traffic_high)
+values(interaction2) <- values(road_cross)*values(road_traffic_high)
+```
+
