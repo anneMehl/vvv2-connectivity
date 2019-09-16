@@ -1,0 +1,119 @@
+---
+title: "06_prep_stack"
+author: "anne"
+date: "16 september 2019"
+output: word_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load libraries ======
+```{r}
+
+library(raster)
+library(RPostgreSQL)
+library(rpostgis)
+```
+
+
+## Intersect each variable --------
+```{r}
+# From Bram ====
+# prop_young_forest 
+young <- raster("maps/prop_young_forest.tif")
+hist(young)
+
+# prop_old_forest 
+old <- raster("maps/prop_old_forest.tif")
+hist(old)
+
+# log_dist_building 
+drv <- dbDriver("PostgreSQL") # driver
+con <- dbConnect(drv, dbname="NINA_SPATIAL", host="ninpgsql04.nina.no",  
+                 port="5432", user='postgres', password='PsmaWT6mJ8RdkFu') # define connection
+
+buildings <- pgGetGeom(con, c("N50_Norge","N50_byggoganlegg_p"), geom = "geom", 
+                  clauses = "WHERE (byggtyp_nb > 0 AND byggtyp_nb < 161) OR 
+                                                                          (byggtyp_nb > 163 AND byggtyp_nb < 171) OR
+                                                                          (byggtyp_nb > 172 AND byggtyp_nb < 181) OR
+                                                                          (byggtyp_nb > 183 AND byggtyp_nb < 214) OR
+                                                                          (byggtyp_nb > 214 AND byggtyp_nb < 216) OR
+                                                                          (byggtyp_nb > 216 AND byggtyp_nb < 221) OR
+                                                                          (byggtyp_nb > 221 AND byggtyp_nb < 223) OR
+                                                                          (byggtyp_nb > 223 AND byggtyp_nb < 229) OR
+                                                                          (byggtyp_nb > 229 AND byggtyp_nb < 830) OR
+                                                                          (byggtyp_nb > 830 AND byggtyp_nb < 840) OR
+                                                                          (byggtyp_nb > 840 AND byggtyp_nb < 956) OR
+                                                                          byggtyp_nb > 956", boundary = NULL, query = NULL)
+
+buildings <- spTransform(buildings, crs(slope))
+plot(slope)
+plot(buildings, add=T)
+build <- rasterize(buildings, slope, 'byggtyp_nb', fun='first')
+build_dist <- distance(build)
+plot(build_dist)
+writeRaster(build_dist, "maps/dist_building.tif")
+
+# log_road_dist, road_cross, & road_traffic_high 
+# traffic_high - adt>5000 - takes > 1.5 hours #
+
+drv <- dbDriver("PostgreSQL") # driver
+con <- dbConnect(drv, dbname="env_database", host="ninpgsql04.nina.no",  
+                 port="5432", user='postgres', password='PsmaWT6mJ8RdkFu') # define connection
+
+traffic <- pgGetGeom(con, c("vegvesen","road_traffic"), geom = "geom", 
+                       clauses = "WHERE adt_total>5000", boundary = NULL, query = NULL)
+
+plot(slope)
+traffic <- spTransform(traffic, crs(slope))
+plot(traffic, lwd=2, col="red", add=T)
+
+# all roads - takes > 40 hours #
+
+roads <- pgGetGeom(con, c("vegvesen","roads_2015"), geom = "geom")
+roads <- spTransform(roads, crs(slope))
+plot(roads, col="blue", add=T)
+
+dbDisconnect(con)
+dbUnloadDriver(drv)
+
+traffic_rast <- rasterize(traffic, slope)
+plot(traffic_rast)
+traffic_dist <- distance(traffic_rast)
+plot(traffic_dist)
+writeRaster(traffic_dist, "maps/dist_road_traffic_high.tif")
+
+roads_rast <- rasterize(roads, slope)
+roads_dist <- distance(roads_rast)
+writeRaster(roads_dist, "maps/dist_roads.tif")
+
+traffic_dist <- raster("maps/dist_road_traffic_high.tif")
+roads_dist <- raster("maps/dist_roads.tif")
+plot(roads_dist)
+
+
+
+roads_dist <- raster("maps/dist_roads.tif")
+traffic_dist <- raster("maps/dist_road_traffic_high.tif")
+building_dist <- raster("maps/dist_building.tif")
+
+
+
+# AR5 maps =====
+
+water <- raster("maps/AR5_4_water.tif")
+agri <- raster("maps/AR5_1_agri.tif")
+ruderal <- raster("maps/AR5_2_fastmark.tif")
+bog <- raster("maps/AR5_3_bog.tif")
+urban <- raster("maps/AR5_5_urban.tif")
+mprodcon <- raster("maps/AR5_9_medium_value_conifer.tif")
+lprodcon <- raster("maps/AR5_10_low_value_conifer.tif")
+decforest <- raster("maps/AR5_11_deciduous.tif")
+mixforest <- raster("maps/AR5_12_mixed_forest.tif")
+
+```
+
