@@ -3,6 +3,8 @@ title: "07_qualitymap"
 author: "anne"
 date: "16 september 2019"
 output: word_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -25,38 +27,108 @@ library(raster)
 ```{r}
 
 log_dist_building <- raster("maps/dist_building.tif")
-values(log_dist_building) <- log10(values(log_dist_building) + 1)
+values(log_dist_building) <- log(values(log_dist_building) + 1)
 plot(log_dist_building)
 
-rail_cross <- raster("maps/crossed_rail.tif")
-summary(values(rail_cross))
-
-road_cross <- raster("maps/dist_roads.tif")
-values(road_cross) <- ifelse(values(road_cross)==0, 1, 0)
-plot(road_cross)
-
-dist_passage <- raster("maps/fence.tif")
-values(dist_passage) <- ifelse(values(dist_passage)==0, 0, 800) #at 800 any effect of the passage seems to be gone
-crossing <- raster("maps/crossings_grey.tif")
-values(dist_passage) <- ifelse(values(crossing)==1, 0, values(dist_passage))
-crossing <- raster("maps/crossings_high_use.tif")
-values(dist_passage) <- ifelse(values(crossing)==1, 0, values(dist_passage))
-crossing <- raster("maps/crossings_low_use.tif")
-values(dist_passage) <- ifelse(values(crossing)==1, 0, values(dist_passage))
-crossing <- raster("maps/crossings_green.tif")
-values(dist_passage) <- ifelse(values(crossing)==1, 0, values(dist_passage))
-plot(dist_passage)
-writeRaster(dist_passage, filename="maps/test.tif", overwrite=T)
 
 log_road_dist <- raster("maps/dist_roads.tif")
-values(log_road_dist) <- log10(values(log_road_dist)+1)
+values(log_road_dist) <- log(values(log_road_dist)+1)
+plot(log_road_dist)
 
 dist_roads <- raster("maps/dist_roads.tif")
 road_traffic_high <- raster("maps/dist_road_traffic_high.tif")
 values(road_traffic_high) <- ifelse(values(dist_roads) < values(road_traffic_high),0,1)
+plot(road_traffic_high)
 
-interaction1 <- interaction2 <- road_traffic_high
-values(interaction1) <- values(log_road_dist)*values(road_traffic_high)
-values(interaction2) <- values(road_cross)*values(road_traffic_high)
+interaction <- road_traffic_high
+values(interaction) <- values(log_road_dist)*values(road_traffic_high)
+plot(interaction)
+
+
+```
+
+## Make brick --> needs to be in the same order as model variables in model
+```{r}
+mybrick <- log_dist_building
+mybrick <- brick(mybrick)
+mybrick <- addLayer(mybrick, log_road_dist)
+mybrick <- addLayer(mybrick, water_rs, agri_rs, ruderal_rs, bog_rs, urban_rs,  mprodcon_rs, lprodcon_rs,  decforest_rs, mixforest_rs)
+mybrick <- addLayer(mybrick, road_traffic_high)
+mybrick <- addLayer(mybrick, old)
+mybrick <- addLayer(mybrick, young)
+mybrick <- addLayer(mybrick, interaction)
+
+airport <- raster("maps/prop_airport.tif") # for posthoc removal
+
+```
+
+
+
+## Predict
+
+#### LOad libraries
+```{r}
+library(ResourceSelection)
+library(boot)
+```
+
+#### Load model
+```{r}
+load("outputs/mod11c_rspf_99boot.rda")
+rspf_mod <- mod11c_rspf_99boot
+coefs <- rspf_mod$coefficients
+```
+
+#### Make newdat
+```{r}
+newdat <- as.data.frame(mybrick)
+newdat <- data.frame(intercept=1, newdat) # makes an intercept column
+str(newdat)
+# newdat[,3] <- as.numeric(newdat[,3])
+# table(newdat[,3])
+# newdat[,3] <- ifelse(newdat[,3]==1, 0, 1)
+# str(newdat)
+# 
+# tmp <- newdat[,15]
+# sum(is.na(tmp)) #I don't get it, but it seems to correspond with the values of 800
+# newdat[,15] <- as.numeric(newdat[,15])
+# newdat[,15] <- ifelse(is.na(tmp), 800, 0)
+# table(newdat[,15])
+# str(newdat)
+
+newdat <- as.matrix(newdat)
+head(newdat)
+
+```
+
+#### change memory size  
+Maybe it is necessary to extend the memory limit, because the models are quite large.
+This is how it is done. It re-sets itself when the R-session is terminated.
+```{r}
+# To check the current memory limit
+memory.limit() #[1] 8062 -----> default
+# To check the current size (only when not changed) and to change the memory limit
+memory.size(30000) # Put the new memory size into the bracktes, e.g. 9000
+```
+  
+
+#### Predict
+```{r}
+predvals <- (newdat %*% coefs)
+
+linpred <- predvals[,1]
+predprob <- inv.logit(linpred)
+
+```
+
+#### Make and write raster
+```{r}
+young <- young # just use any layer
+
+permeability <- young
+values(permeability) <- predprob
+plot(permeability)
+
+writeRaster(permeability, "maps/permeability.tif", overwrite = T)
 ```
 
