@@ -11,7 +11,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Load libraries ======
+## Load libraries 
 ```{r}
 
 library(raster)
@@ -20,16 +20,10 @@ library(rpostgis)
 ```
 
 
-## Intersect each variable --------
+## Intersect each variable 
 ```{r}
 # From Bram ====
-# prop_young_forest 
-young <- raster("maps/prop_young_forest.tif")
-hist(young)
 
-# prop_old_forest 
-old <- raster("maps/prop_old_forest.tif")
-hist(old)
 
 # log_dist_building 
 drv <- dbDriver("PostgreSQL") # driver
@@ -96,10 +90,18 @@ roads_dist <- raster("maps/dist_roads.tif")
 plot(roads_dist)
 
 
-
+# building and roads, traffic
 roads_dist <- raster("maps/dist_roads.tif")
 traffic_dist <- raster("maps/dist_road_traffic_high.tif")
 building_dist <- raster("maps/dist_building.tif")
+
+# prop_young_forest 
+young <- raster("maps/prop_young_forest.tif")
+hist(young)
+
+# prop_old_forest 
+old <- raster("maps/prop_old_forest.tif")
+hist(old)
 
 
 
@@ -114,6 +116,69 @@ mprodcon <- raster("maps/AR5_9_medium_value_conifer.tif")
 lprodcon <- raster("maps/AR5_10_low_value_conifer.tif")
 decforest <- raster("maps/AR5_11_deciduous.tif")
 mixforest <- raster("maps/AR5_12_mixed_forest.tif")
+
+```
+
+## look at the resolution of the layers
+```{r}
+res(roads_dist)
+res(building_dist)
+res(traffic_dist)
+res(young)
+res(old)
+res(water)
+res(agri)
+res(ruderal)
+res(bog)
+res(urban)
+res(mprodcon)
+res(lprodcon)
+res(decforest)
+res(mixforest)
+
+# resampled map layers  
+res(water_rs)
+res(agri_rs)
+res(ruderal_rs)
+res(bog_rs)
+res(urban_rs)
+res(mprodcon_rs)
+res(lprodcon_rs)
+res(decforest_rs)
+res(mixforest_rs)
+
+```
+
+Resample map layers, so that they have same resolution
+```{r}
+water_rs <- resample(water, young, method = "ngb")
+agri_rs <- resample(agri, young, method = "ngb")
+ruderal_rs <- resample(ruderal, young, method = "ngb")
+bog_rs <- resample(bog, young, method = "ngb")
+urban_rs <- resample(urban, young, method = "ngb")
+mprodcon_rs <- resample(mprodcon, young, method = "ngb")
+lprodcon_rs <- resample(lprodcon, young, method = "ngb")
+decforest_rs <- resample(decforest, young, method = "ngb")
+mixforest_rs <- resample(mixforest, young, method = "ngb")
+
+```
+
+
+
+## plot the layers
+```{r}
+plot(roads_dist)
+plot(building_dist)
+plot(traffic_dist)
+plot(water)
+plot(agri)
+plot(ruderal)
+plot(bog)
+plot(urban)
+plot(mprodcon)
+plot(lprodcon)
+plot(decforest)
+plot(mixforest)
 
 ```
 
