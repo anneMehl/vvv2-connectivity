@@ -15,14 +15,14 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 
 library(raster)
-library(RPostgreSQL)
-library(rpostgis)
+# library(RPostgreSQL)
+# library(rpostgis)
 ```
 
 
 ## Intersect each variable 
 ```{r}
-# From Bram ====
+# From Bram (code) ====
 
 
 # log_dist_building 
@@ -89,6 +89,7 @@ traffic_dist <- raster("maps/dist_road_traffic_high.tif")
 roads_dist <- raster("maps/dist_roads.tif")
 plot(roads_dist)
 
+# From Bram (maps) ====
 
 # building and roads, traffic
 roads_dist <- raster("maps/dist_roads.tif")
@@ -107,25 +108,22 @@ hist(old)
 
 # AR5 maps =====
 
-water <- raster("maps/AR5_4_water.tif")
-agri <- raster("maps/AR5_1_agri.tif")
-ruderal <- raster("maps/AR5_2_fastmark.tif")
-bog <- raster("maps/AR5_3_bog.tif")
-urban <- raster("maps/AR5_5_urban.tif")
-mprodcon <- raster("maps/AR5_9_medium_value_conifer.tif")
-lprodcon <- raster("maps/AR5_10_low_value_conifer.tif")
-decforest <- raster("maps/AR5_11_deciduous.tif")
-mixforest <- raster("maps/AR5_12_mixed_forest.tif")
+water <- raster("maps/ar5_4_water.tif")
+agri <- raster("maps/ar5_1_agri.tif")
+ruderal <- raster("maps/ar5_2_ruderal.tif")
+bog <- raster("maps/ar5_3_bog.tif")
+urban <- raster("maps/ar5_5_urban.tif")
+mprodcon <- raster("maps/ar5_9_mprod_conifer.tif")
+lprodcon <- raster("maps/ar5_10_lprod_conifer.tif")
+decforest <- raster("maps/ar5_11_dec_forest.tif")
+mixforest <- raster("maps/ar5_12_mix_forest.tif")
 
 ```
 
 ## look at the resolution of the layers
 ```{r}
-res(roads_dist)
 res(building_dist)
-res(traffic_dist)
-res(young)
-res(old)
+res(roads_dist)
 res(water)
 res(agri)
 res(ruderal)
@@ -135,33 +133,37 @@ res(mprodcon)
 res(lprodcon)
 res(decforest)
 res(mixforest)
+res(traffic_dist)
+res(young)
+res(old)
 
-# resampled map layers  
-res(water_rs)
-res(agri_rs)
-res(ruderal_rs)
-res(bog_rs)
-res(urban_rs)
-res(mprodcon_rs)
-res(lprodcon_rs)
-res(decforest_rs)
-res(mixforest_rs)
 
-```
-
-Resample map layers, so that they have same resolution
-```{r}
-water_rs <- resample(water, young, method = "ngb")
-agri_rs <- resample(agri, young, method = "ngb")
-ruderal_rs <- resample(ruderal, young, method = "ngb")
-bog_rs <- resample(bog, young, method = "ngb")
-urban_rs <- resample(urban, young, method = "ngb")
-mprodcon_rs <- resample(mprodcon, young, method = "ngb")
-lprodcon_rs <- resample(lprodcon, young, method = "ngb")
-decforest_rs <- resample(decforest, young, method = "ngb")
-mixforest_rs <- resample(mixforest, young, method = "ngb")
+# resampled map layers --> Don't need this anymore, since I made the new RasterLayers for AR5
+# res(water_rs)
+# res(agri_rs)
+# res(ruderal_rs)
+# res(bog_rs)
+# res(urban_rs)
+# res(mprodcon_rs)
+# res(lprodcon_rs)
+# res(decforest_rs)
+# res(mixforest_rs)
 
 ```
+
+<!-- Resample map layers, so that they have same resolution -->
+<!-- ```{r} -->
+<!-- water_rs <- resample(water, young, method = "ngb") -->
+<!-- agri_rs <- resample(agri, young, method = "ngb") -->
+<!-- ruderal_rs <- resample(ruderal, young, method = "ngb") -->
+<!-- bog_rs <- resample(bog, young, method = "ngb") -->
+<!-- urban_rs <- resample(urban, young, method = "ngb") -->
+<!-- mprodcon_rs <- resample(mprodcon, young, method = "ngb") -->
+<!-- lprodcon_rs <- resample(lprodcon, young, method = "ngb") -->
+<!-- decforest_rs <- resample(decforest, young, method = "ngb") -->
+<!-- mixforest_rs <- resample(mixforest, young, method = "ngb") -->
+
+<!-- ``` -->
 
 
 
@@ -170,6 +172,9 @@ mixforest_rs <- resample(mixforest, young, method = "ngb")
 plot(roads_dist)
 plot(building_dist)
 plot(traffic_dist)
+plot(young)
+plot(old)
+
 plot(water)
 plot(agri)
 plot(ruderal)
@@ -182,3 +187,123 @@ plot(mixforest)
 
 ```
 
+
+## Re-classify AR5 map, so it includes all counties needed
+reclassify ar5clip from Bram -> use Christers script for guidance
+
+```{r}
+AR5 <- raster("maps/AR5clip.tif")
+res(AR5)
+str(AR5)
+
+
+m <- c(1,1,  2,1,  3,1,  4,8,  5,11,  6,12,  7,3,  8,3,  9,3,  10,8,  11,11,  12,12,  13,3,  14,3,  15,3,  16,9,  17,11,  18,12,  19,3,  20,3,  21,3,  22,10,  23,11,  24,12,  25,3,  26,3,  27,10,  28,11,  29,12,  30,3,  31,3,  32,3,  33,3,  34,2,  35,5,  36,6,  37,13,  38,4,  39,7)
+
+rclmat <- matrix(m, ncol = 2, byrow = TRUE)
+
+ar5_rc <- reclassify(AR5, rclmat)
+writeRaster(ar5_rc, "maps/ar5_rc.tif", overwrite = T)
+
+ar5_rc <- raster("maps/ar5_rc.tif")
+plot(ar5_rc)
+print(ar5_rc)
+
+
+```
+
+## Write rasters for each value (AR5 class)
+
+#### change memory size  
+Maybe it is necessary to extend the memory limit, because the models are quite large.
+This is how it is done. It re-sets itself when the R-session is terminated.
+```{r}
+# To check the current memory limit
+memory.limit() #[1] 8062 -----> default
+# To check the current size (only when not changed) and to change the memory limit
+memory.size(20000) # Put the new memory size into the bracktes, e.g. 9000
+```
+
+#### write rasters
+```{r}
+
+rast1 <- ar5_rc
+rast2 <- rast1
+rast3 <- rast1
+rast4 <- rast1
+rast5 <- rast1
+rast6 <- rast1
+rast7 <- rast1
+rast8 <- rast1
+rast9 <- rast1
+rast10 <- rast1
+rast11 <- rast1
+rast12 <- rast1
+rast13 <- rast1
+
+values(rast1) <- ifelse(values(rast1)==1, 1, 0)
+writeRaster(rast1, "ar5_1_agri.tif", overwrite=TRUE)
+
+values(rast2) <- ifelse(values(rast2)==2, 1, 0)
+writeRaster(rast2, "ar5_2_ruderal.tif", overwrite=TRUE)
+
+values(rast3) <- ifelse(values(rast3)==3, 1, 0)
+writeRaster(rast3, "ar5_3_bog.tif", overwrite=TRUE)
+
+values(rast4) <- ifelse(values(rast4)==4, 1, 0)
+writeRaster(rast4, "ar5_4_water.tif", overwrite=TRUE)
+
+values(rast5) <- ifelse(values(rast5)==5, 1, 0)
+writeRaster(rast5, "ar5_5_urban.tif", overwrite=TRUE)
+
+values(rast6) <- ifelse(values(rast6)==6, 1, 0)
+writeRaster(rast6, "ar5_6_samferdsel.tif", overwrite=TRUE)
+
+values(rast7) <- ifelse(values(rast7)==7, 1, 0)
+writeRaster(rast7, "ar5_7_not_mapped.tif", overwrite=TRUE)
+
+values(rast8) <- ifelse(values(rast8)==8, 1, 0)
+writeRaster(rast8, "ar5_8_hprod_conifer.tif", overwrite=TRUE)
+
+values(rast9) <- ifelse(values(rast9)==9, 1, 0)
+writeRaster(rast9, "ar5_9_mprod_conifer.tif", overwrite=TRUE)
+
+values(rast10) <- ifelse(values(rast10)==10, 1, 0)
+writeRaster(rast10, "ar5_10_lprod_conifer.tif", overwrite=TRUE)
+
+values(rast11) <- ifelse(values(rast11)==11, 1, 0)
+writeRaster(rast11, "ar5_11_dec_forest.tif", overwrite=TRUE)
+
+values(rast12) <- ifelse(values(rast12)==12, 1, 0)
+writeRaster(rast12, "ar5_12_mix_forest.tif", overwrite=TRUE)
+
+values(rast13) <- ifelse(values(rast13)==13, 1, 0)
+writeRaster(rast13, "ar5_13_glacier.tif", overwrite=TRUE)
+
+
+```
+
+
+## Check if the maps have the same projection and extend
+```{r}
+projection(old)
+projection(water)
+
+extend(young)
+extend(agri)
+
+xmin(young)
+xmin(agri)
+ymin(young)
+ymin(agri)
+
+
+```
+
+#### Crop new ar5 raster layers to the same extend as the ones from Brams sspf
+```{r}
+agricrop <- crop(agri, young)
+writeRaster(agricrop, "maps/new/ar5_1_agri.tif", overwrite=TRUE)
+
+
+
+```
