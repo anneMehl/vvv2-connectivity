@@ -47,18 +47,20 @@ plot(interaction)
 
 ```
 
+
+
 ## Make brick --> needs to be in the same order as model variables in model
 ```{r}
 mybrick <- log_dist_building
 mybrick <- brick(mybrick)
 mybrick <- addLayer(mybrick, log_road_dist)
-mybrick <- addLayer(mybrick, water_rs, agri_rs, ruderal_rs, bog_rs, urban_rs,  mprodcon_rs, lprodcon_rs,  decforest_rs, mixforest_rs)
+mybrick <- addLayer(mybrick, water, agri, ruderal, bog, urban,  mprodcon, lprodcon,  decforest, mixforest)
 mybrick <- addLayer(mybrick, road_traffic_high)
 mybrick <- addLayer(mybrick, old)
 mybrick <- addLayer(mybrick, young)
 mybrick <- addLayer(mybrick, interaction)
 
-airport <- raster("maps/prop_airport.tif") # for posthoc removal
+# airport <- raster("maps/prop_airport.tif") # for posthoc removal
 
 ```
 
