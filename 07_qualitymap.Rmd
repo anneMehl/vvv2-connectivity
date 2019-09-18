@@ -19,7 +19,20 @@ knitr::opts_chunk$set(echo = TRUE)
 library(raster)
 
 # Load rasters 
+roads_dist <- raster("maps/dist_roads.tif")
+traffic_dist <- raster("maps/dist_road_traffic_high.tif")
+building_dist <- raster("maps/dist_building.tif")
+young <- raster("maps/prop_young_forest.tif")
+old <- raster("maps/prop_old_forest.tif")
 
+agri_rs <- raster("maps/ar5_resampled/ar5_1_agri.tif")
+ruderal_rs <- raster("maps/ar5_resampled/ar5_2_ruderal.tif")
+bog_rs <- raster("maps/ar5_resampled/ar5_3_bog.tif")
+urban_rs <- raster("maps/ar5_resampled/ar5_5_urban.tif")
+mprodcon_rs <- raster("maps/ar5_resampled/ar5_9_mprod_conifer.tif")
+lprodcon_rs <- raster("maps/ar5_resampled/ar5_10_lprod_conifer.tif")
+decforest_rs <- raster("maps/ar5_resampled/ar5_11_dec_forest.tif")
+mixforest_rs <- raster("maps/ar5_resampled/ar5_12_mix_forest.tif")
 
 ```
 
@@ -54,13 +67,15 @@ plot(interaction)
 mybrick <- log_dist_building
 mybrick <- brick(mybrick)
 mybrick <- addLayer(mybrick, log_road_dist)
-mybrick <- addLayer(mybrick, water, agri, ruderal, bog, urban,  mprodcon, lprodcon,  decforest, mixforest)
+mybrick <- addLayer(mybrick, water_rs, agri_rs, ruderal_rs, bog_rs, urban_rs,  mprodcon_rs, lprodcon_rs,  decforest_rs, mixforest_rs)
 mybrick <- addLayer(mybrick, road_traffic_high)
 mybrick <- addLayer(mybrick, old)
 mybrick <- addLayer(mybrick, young)
 mybrick <- addLayer(mybrick, interaction)
 
 # airport <- raster("maps/prop_airport.tif") # for posthoc removal
+
+
 
 ```
 
@@ -76,7 +91,7 @@ library(boot)
 
 #### Load model
 ```{r}
-load("outputs/mod11c_rspf_99boot.rda")
+load("output/mod11c_rspf_99boot.rda")
 rspf_mod <- mod11c_rspf_99boot
 coefs <- rspf_mod$coefficients
 ```
@@ -125,12 +140,16 @@ predprob <- inv.logit(linpred)
 
 #### Make and write raster
 ```{r}
-young <- young # just use any layer
+young <- young # just use any layer, raster("maps/prop_young_forest.tif")
 
-permeability <- young
-values(permeability) <- predprob
+quality <- young
+values(quality) <- predprob
+plot(quality)
+
+writeRaster(quality, "maps/quality.tif", overwrite = T)
+
+permeability <- raster("maps/permeability.tif")
 plot(permeability)
 
-writeRaster(permeability, "maps/permeability.tif", overwrite = T)
 ```
 
