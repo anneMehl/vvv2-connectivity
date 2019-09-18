@@ -151,22 +151,6 @@ res(old)
 
 ```
 
-<!-- Resample map layers, so that they have same resolution -->
-<!-- ```{r} -->
-<!-- water_rs <- resample(water, young, method = "ngb") -->
-<!-- agri_rs <- resample(agri, young, method = "ngb") -->
-<!-- ruderal_rs <- resample(ruderal, young, method = "ngb") -->
-<!-- bog_rs <- resample(bog, young, method = "ngb") -->
-<!-- urban_rs <- resample(urban, young, method = "ngb") -->
-<!-- mprodcon_rs <- resample(mprodcon, young, method = "ngb") -->
-<!-- lprodcon_rs <- resample(lprodcon, young, method = "ngb") -->
-<!-- decforest_rs <- resample(decforest, young, method = "ngb") -->
-<!-- mixforest_rs <- resample(mixforest, young, method = "ngb") -->
-
-<!-- ``` -->
-
-
-
 ## plot the layers
 ```{r}
 plot(roads_dist)
@@ -220,7 +204,7 @@ This is how it is done. It re-sets itself when the R-session is terminated.
 # To check the current memory limit
 memory.limit() #[1] 8062 -----> default
 # To check the current size (only when not changed) and to change the memory limit
-memory.size(20000) # Put the new memory size into the bracktes, e.g. 9000
+memory.size(30000) # Put the new memory size into the bracktes, e.g. 9000
 ```
 
 #### write rasters
@@ -299,36 +283,81 @@ ymin(agri)
 
 ```
 
-#### Crop new ar5 raster layers to the same extend as the ones from Brams sspf
+
+#### Resample map layers, so that they have same resolution, extend and so on as sspf rasters
 ```{r}
-agricrop <- crop(x = agri, y = young)
-writeRaster(agricrop, "maps/new/ar5_1_agri.tif", overwrite=TRUE)
+water <- raster("maps/ar5_4_water.tif")
+agri <- raster("maps/ar5_1_agri.tif")
+ruderal <- raster("maps/ar5_2_ruderal.tif")
+bog <- raster("maps/ar5_3_bog.tif")
+urban <- raster("maps/ar5_5_urban.tif")
+mprodcon <- raster("maps/ar5_9_mprod_conifer.tif")
+lprodcon <- raster("maps/ar5_10_lprod_conifer.tif")
+decforest <- raster("maps/ar5_11_dec_forest.tif")
+mixforest <- raster("maps/ar5_12_mix_forest.tif")
 
-ruderalcrop <- crop(ruderal, young)
-writeRaster(ruderalcrop, "maps/new/ar5_2_ruderal.tif", overwrite=TRUE)
 
-bogcrop <- crop(bog, young)
-writeRaster(bogcrop, "maps/new/ar5_3_bog.tif", overwrite=TRUE)
 
-watercrop <- crop(water, young)
-writeRaster(watercrop, "maps/new/ar5_4_water.tif", overwrite=TRUE)
+agri_rs <- resample(agri, young, method = "ngb")
+writeRaster(agri_rs, "maps/ar5_resampled/ar5_1_agri.tif", overwrite=TRUE)
 
-urbancrop <- crop(urban, young)
-writeRaster(urbancrop, "maps/new/ar5_5_urban.tif", overwrite=TRUE)
+ruderal_rs <- resample(ruderal, young, method = "ngb")
+writeRaster(ruderal_rs, "maps/ar5_resampled/ar5_2_ruderal.tif", overwrite=TRUE)
 
-mprodconcrop <- crop(mprodcon, young)
-writeRaster(mprodconcrop, "maps/new/ar5_9_mprod_conifer.tif", overwrite=TRUE)
+bog_rs <- resample(bog, young, method = "ngb")
+writeRaster(bog_rs, "maps/ar5_resampled/ar5_3_bog.tif", overwrite=TRUE)
 
-lprodconcrop <- crop(lprodcon, young)
-writeRaster(lprodconcrop, "maps/new/ar5_10_lprod_conifer.tif", overwrite=TRUE)
+water_rs <- resample(water, young, method = "ngb")
+writeRaster(water_rs, "maps/ar5_resampled/ar5_4_water.tif", overwrite=TRUE)
 
-decforestcrop <- crop(decforest, young)
-writeRaster(decforestcrop, "maps/new/ar5_11_dec_forest.tif", overwrite=TRUE)
+urban_rs <- resample(urban, young, method = "ngb")
+writeRaster(urban_rs, "maps/ar5_resampled/ar5_5_urban.tif", overwrite=TRUE)
 
-mixforestcrop <- crop(mixforest, young)
-writeRaster(mixforestcrop, "maps/new/ar5_12_mix_forest.tif", overwrite=TRUE)
+mprodcon_rs <- resample(mprodcon, young, method = "ngb")
+writeRaster(mprodcon_rs, "maps/ar5_resampled/ar5_9_mprod_conifer.tif", overwrite=TRUE)
+
+lprodcon_rs <- resample(lprodcon, young, method = "ngb")
+writeRaster(lprodcon_rs, "maps/ar5_resampled/ar5_10_lprod_conifer.tif", overwrite=TRUE)
+
+decforest_rs <- resample(decforest, young, method = "ngb")
+writeRaster(decforest_rs, "maps/ar5_resampled/ar5_11_dec_forest.tif", overwrite=TRUE)
+
+mixforest_rs <- resample(mixforest, young, method = "ngb")
+writeRaster(mixforest_rs, "maps/ar5_resampled/ar5_12_mix_forest.tif", overwrite=TRUE)
 
 ```
+
+
+<!-- #### Crop new ar5 raster layers to the same extend as the ones from Brams sspf -->
+<!-- ```{r} -->
+<!-- agricrop <- crop(x = agri, y = young) -->
+<!-- writeRaster(agricrop, "maps/new/ar5_1_agri.tif", overwrite=TRUE) -->
+
+<!-- ruderalcrop <- crop(ruderal, young) -->
+<!-- writeRaster(ruderalcrop, "maps/new/ar5_2_ruderal.tif", overwrite=TRUE) -->
+
+<!-- bogcrop <- crop(bog, young) -->
+<!-- writeRaster(bogcrop, "maps/new/ar5_3_bog.tif", overwrite=TRUE) -->
+
+<!-- watercrop <- crop(water, young) -->
+<!-- writeRaster(watercrop, "maps/new/ar5_4_water.tif", overwrite=TRUE) -->
+
+<!-- urbancrop <- crop(urban, young) -->
+<!-- writeRaster(urbancrop, "maps/new/ar5_5_urban.tif", overwrite=TRUE) -->
+
+<!-- mprodconcrop <- crop(mprodcon, young) -->
+<!-- writeRaster(mprodconcrop, "maps/new/ar5_9_mprod_conifer.tif", overwrite=TRUE) -->
+
+<!-- lprodconcrop <- crop(lprodcon, young) -->
+<!-- writeRaster(lprodconcrop, "maps/new/ar5_10_lprod_conifer.tif", overwrite=TRUE) -->
+
+<!-- decforestcrop <- crop(decforest, young) -->
+<!-- writeRaster(decforestcrop, "maps/new/ar5_11_dec_forest.tif", overwrite=TRUE) -->
+
+<!-- mixforestcrop <- crop(mixforest, young) -->
+<!-- writeRaster(mixforestcrop, "maps/new/ar5_12_mix_forest.tif", overwrite=TRUE) -->
+
+<!-- ``` -->
 
 
 ```{r}
