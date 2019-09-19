@@ -25,6 +25,7 @@ building_dist <- raster("maps/dist_building.tif")
 young <- raster("maps/prop_young_forest.tif")
 old <- raster("maps/prop_old_forest.tif")
 
+water_rs <- raster("maps/ar5_resampled/ar5_4_water.tif")
 agri_rs <- raster("maps/ar5_resampled/ar5_1_agri.tif")
 ruderal_rs <- raster("maps/ar5_resampled/ar5_2_ruderal.tif")
 bog_rs <- raster("maps/ar5_resampled/ar5_3_bog.tif")
@@ -41,21 +42,21 @@ mixforest_rs <- raster("maps/ar5_resampled/ar5_12_mix_forest.tif")
 
 log_dist_building <- raster("maps/dist_building.tif")
 values(log_dist_building) <- log(values(log_dist_building) + 1)
-plot(log_dist_building)
+# plot(log_dist_building)
 
 
 log_road_dist <- raster("maps/dist_roads.tif")
 values(log_road_dist) <- log(values(log_road_dist)+1)
-plot(log_road_dist)
+# plot(log_road_dist)
 
 dist_roads <- raster("maps/dist_roads.tif")
 road_traffic_high <- raster("maps/dist_road_traffic_high.tif")
 values(road_traffic_high) <- ifelse(values(dist_roads) < values(road_traffic_high),0,1)
-plot(road_traffic_high)
+# plot(road_traffic_high)
 
 interaction <- road_traffic_high
 values(interaction) <- values(log_road_dist)*values(road_traffic_high)
-plot(interaction)
+# plot(interaction)
 
 
 ```
@@ -67,7 +68,15 @@ plot(interaction)
 mybrick <- log_dist_building
 mybrick <- brick(mybrick)
 mybrick <- addLayer(mybrick, log_road_dist)
-mybrick <- addLayer(mybrick, water_rs, agri_rs, ruderal_rs, bog_rs, urban_rs,  mprodcon_rs, lprodcon_rs,  decforest_rs, mixforest_rs)
+mybrick <- addLayer(mybrick, water_rs )
+mybrick <- addLayer(mybrick, agri_rs)
+mybrick <- addLayer(mybrick, ruderal_rs)
+mybrick <- addLayer(mybrick, bog_rs)
+mybrick <- addLayer(mybrick, urban_rs)
+mybrick <- addLayer(mybrick, mprodcon_rs)
+mybrick <- addLayer(mybrick, lprodcon_rs)
+mybrick <- addLayer(mybrick, decforest_rs)
+mybrick <- addLayer(mybrick, mixforest_rs)
 mybrick <- addLayer(mybrick, road_traffic_high)
 mybrick <- addLayer(mybrick, old)
 mybrick <- addLayer(mybrick, young)
