@@ -107,7 +107,7 @@ hist(old)
 
 
 # AR5 maps =====
-
+# --- now these are already reclassified with the script below ---
 water <- raster("maps/ar5_4_water.tif")
 agri <- raster("maps/ar5_1_agri.tif")
 ruderal <- raster("maps/ar5_2_ruderal.tif")
