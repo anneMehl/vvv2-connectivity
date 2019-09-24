@@ -240,12 +240,13 @@ mod6_boot: 23.68 hours (99 bootstraps)
 mod10_99boot: 16.46 hours (99 bootstraps)
 mod11_99boot: 12.21667 hours
 
+#### AIC/BIC selection rspf
 ```{r}
 AIC(mod1_rspf, mod5_rspf, mod6_rspf, mod7_rspf, mod9_rspf)
 CAIC(mod1_rspf, mod5_rspf, mod6_rspf, mod7_rspf, mod9_rspf)
 AIC(mod10_rspf_99boot, mod11_rspf_99boot, mod11a_rspf_99boot, mod11b_rspf_99boot)
 CAIC(mod10_rspf_99boot, mod11_rspf_99boot, mod11c_rspf_99boot)
-BIC(mod10_rspf_99boot, mod11_rspf_99boot, mod11a_rspf_99boot, mod11b_rspf_99boot)
+BIC(mod10_rspf_99boot, mod11_rspf_99boot, mod11a_rspf_99boot, mod11b_rspf_99boot, mod11c_rspf_99boot)
 
 ```
 (C)AIC ranking: mod6, mod9, mod5, mod7, mod1
@@ -256,6 +257,32 @@ mod11a_rspf_99boot 22 596570.3
 mod11b_rspf_99boot 15 597700.0
 mod11c_rspf_99boot 16 597722.9
 
+#### Estimating the ROC of my rspf models to see if the predictive power also differs a lot or not
+```{r}
+# load data, models and library
+load("processdata/datrsf8_new.rda")
+
+load("output/mod10_rspf_99boot.rda")
+load("output/mod11_rspf_99boot.rda")
+load("output/mod11a_rspf_99boot.rda")
+load("output/mod11b_rspf_99boot.rda")
+load("output/mod11c_rspf_99boot.rda")
+
+library(ROCR)
+
+# make a prediction object; "predictions are some predicted measure (usually continuous) for the “truth”, which are the labels. In many applications, predictions are estimated probabilities (or log odds) and the labels are binary values."
+p <- predict(mod10_rspf_99boot)
+l <- datrsf8$use
+str(p)
+str(l)
+
+pred <- prediction(predictions, labels)
+
+perf <- performance(pred, measure = "tpr", x.measure = "fpr")
+plot(perf, col = rainbow(10))
+
+
+```
 
 
 
@@ -520,6 +547,11 @@ mod11a_99boot_rspfframe <- data.frame(Variable = rownames(summary(mod11a_rspf_99
                             SE = summary(mod11a_rspf_99boot)$coef[, 2],
                             modelname = "mod11a_rspf_99boot")
 
+mod11b_99boot_rspfframe <- data.frame(Variable = rownames(summary(mod11b_rspf_99boot)$coef),
+                            Coefficient = summary(mod11b_rspf_99boot)$coef[, 1],
+                            SE = summary(mod11b_rspf_99boot)$coef[, 2],
+                            modelname = "mod11b_rspf_99boot")
+
 mod11c_99boot_rspfframe <- data.frame(Variable = rownames(summary(mod11c_rspf_99boot)$coef),
                             Coefficient = summary(mod11c_rspf_99boot)$coef[, 1],
                             SE = summary(mod11c_rspf_99boot)$coef[, 2],
@@ -546,9 +578,9 @@ mod10_rspfframe$SE <- "0"
 
 Then I combine these data.frames:
 ```{r}
-  allmodelframe_rspf <- data.frame(rbind(mod11_99boot_rspfframe, mod11a_99boot_rspfframe))
+  allmodelframe_rspf <- data.frame(rbind(mod11_99boot_rspfframe, mod11a_99boot_rspfframe, mod11b_99boot_rspfframe, mod11c_99boot_rspfframe))
 
-  allmodelframe_rspf <- data.frame(rbind(mod11c_99boot_rspfframe))
+  allmodelframe_rspf <- data.frame(rbind(mod10_99boot_rspfframe))
 
 ```
 
