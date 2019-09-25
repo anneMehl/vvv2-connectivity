@@ -271,15 +271,42 @@ load("output/mod11c_rspf_99boot.rda")
 library(ROCR)
 
 # make a prediction object; "predictions are some predicted measure (usually continuous) for the “truth”, which are the labels. In many applications, predictions are estimated probabilities (or log odds) and the labels are binary values."
-p <- predict(mod10_rspf_99boot)
+p1 <- mod10_rspf_99boot$fitted.values
+p2 <- mod11_rspf_99boot$fitted.values
+p3 <- mod11a_rspf_99boot$fitted.values
+p4 <- mod11b_rspf_99boot$fitted.values
+p5 <- mod11c_rspf_99boot$fitted.values
 l <- datrsf8$use
-str(p)
-str(l)
+# str(p)
+# str(l)
 
-pred <- prediction(predictions, labels)
+# pred <- prediction(predictions, labels)
+pred1 <- prediction(p1, l)
+pred2 <- prediction(p2, l)
+pred3 <- prediction(p3, l)
+pred4 <- prediction(p4, l)
+pred5 <- prediction(p5, l)
 
-perf <- performance(pred, measure = "tpr", x.measure = "fpr")
-plot(perf, col = rainbow(10))
+perf1 <- performance(pred1, measure = "tpr", x.measure = "fpr")
+perf2 <- performance(pred2, measure = "tpr", x.measure = "fpr")
+perf3 <- performance(pred3, measure = "tpr", x.measure = "fpr")
+perf4 <- performance(pred4, measure = "tpr", x.measure = "fpr")
+perf5 <- performance(pred5, measure = "tpr", x.measure = "fpr")
+
+par(mfrow = c(2, 3))
+plot(perf1)
+plot(perf2)
+plot(perf3)
+plot(perf4)
+plot(perf5)
+
+par(mfrow = c(1, 1))
+plot(perf1@x.values[[1]], perf1@y.values[[1]], type="l")
+lines(perf2@x.values[[1]], perf2@y.values[[1]], lty=2)
+lines(perf3@x.values[[1]], perf3@y.values[[1]], lty=3)
+lines(perf4@x.values[[1]], perf4@y.values[[1]], lty=4)
+lines(perf5@x.values[[1]], perf5@y.values[[1]], lty=5)
+
 
 
 ```
