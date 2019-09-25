@@ -157,8 +157,97 @@ plot(quality)
 
 writeRaster(quality, "maps/quality2.tif", overwrite = T)
 
+# permeability <- raster("maps/permeability.tif")
+# plot(permeability)
+
+```
+
+
+
+
+
+## Prepare smaller maps of habitat quality and landscape friction to test Habitat functionality, so it runs faster
+
+```{r}
+library(raster)
+
 permeability <- raster("maps/permeability.tif")
+permeability2 <- raster("maps/permeability.tif")
+quality <- raster("maps/quality.tif")
+
+```
+
+```{r}
+p_crop <- crop(permeability, extent(permeability, 900, 5000, 500, 5000)) # (for Raster x, row 5 to 10, column 7 to 12) 
+
+# ncols   : int 5915
+# nrows   : int 5329
+
+# > extent(permeability)
+# class       : Extent 
+# xmin        : 538228.4 
+# xmax        : 676395.8 
+# ymin        : 6624996 
+# ymax        : 6749475 
+
+plot(p_crop)
+
+```
+
+```{r}
+sf <- load("output/homerange.rda")
+
+p_crop <- crop(permeability, sf)
+plot(p_crop)
+
+# add shapefile on top of the existing raster
+plot(crop_extent, add = TRUE)
+
+```
+
+
+```{r}
+
+p1 <- aggregate(permeability)
+p2 <- aggregate(permeability, fact = 20)
+p3 <- aggregate(permeability, fact = 100)
+
+q1 <- aggregate(quality)
+q2 <- aggregate(quality, fact = 100)
+
+```
+
+```{r}
+res(permeability)
+res(p1)
+res(p2)
+res(p3)
+
+str(p2)
+str(p3)
+
+res(quality)
+res(q1)
+res(q2)
+
+str(q2)
+
+```
+
+
+```{r}
 plot(permeability)
+plot(p3)
+
+plot(quality)
+plot(q2)
+
+
+```
+
+```{r}
+writeRaster(p3, "maps/permeability_coarse.tif", overwrite = T)
+writeRaster(q2, "maps/quality_coarse.tif", overwrite = T)
 
 ```
 
