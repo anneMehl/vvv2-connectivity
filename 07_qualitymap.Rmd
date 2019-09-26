@@ -172,36 +172,22 @@ writeRaster(quality, "maps/quality2.tif", overwrite = T)
 library(raster)
 
 permeability <- raster("maps/permeability.tif")
-permeability2 <- raster("maps/permeability.tif")
+# permeability2 <- raster("maps/permeability.tif")
 quality <- raster("maps/quality.tif")
 
 ```
 
 ```{r}
-p_crop <- crop(permeability, extent(permeability, 900, 5000, 500, 5000)) # (for Raster x, row 5 to 10, column 7 to 12) 
+plot(permeability)
+plot(quality)
 
-# ncols   : int 5915
-# nrows   : int 5329
+e <- drawExtent()
 
-# > extent(permeability)
-# class       : Extent 
-# xmin        : 538228.4 
-# xmax        : 676395.8 
-# ymin        : 6624996 
-# ymax        : 6749475 
-
+p_crop <- crop(permeability, e)
 plot(p_crop)
 
-```
-
-```{r}
-sf <- load("output/homerange.rda")
-
-p_crop <- crop(permeability, sf)
-plot(p_crop)
-
-# add shapefile on top of the existing raster
-plot(crop_extent, add = TRUE)
+qu_crop <- crop(quality, e)
+plot(qu_crop)
 
 ```
 
@@ -210,36 +196,40 @@ plot(crop_extent, add = TRUE)
 
 p1 <- aggregate(permeability)
 p2 <- aggregate(permeability, fact = 20)
-p3 <- aggregate(permeability, fact = 100)
+p3 <- aggregate(p_crop, fact = 50)
 
 q1 <- aggregate(quality)
-q2 <- aggregate(quality, fact = 100)
+q2 <- aggregate(qu_crop, fact = 50)
 
 ```
 
 ```{r}
 res(permeability)
-res(p1)
-res(p2)
+res(p_crop)
+# res(p2)
 res(p3)
 
+str(p_crop)
 str(p2)
 str(p3)
 
 res(quality)
-res(q1)
+res(qu_crop)
 res(q2)
 
+str(qu_crop)
 str(q2)
 
 ```
 
 
 ```{r}
-plot(permeability)
+
+par(mfrow = c(2, 2))
+plot(p_crop)
 plot(p3)
 
-plot(quality)
+plot(qu_crop)
 plot(q2)
 
 
