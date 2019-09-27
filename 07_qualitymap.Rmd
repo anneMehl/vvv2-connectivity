@@ -241,3 +241,12 @@ writeRaster(q2, "maps/quality_coarse.tif", overwrite = T)
 
 ```
 
+```{r}
+p <- raster("maps/permeability_coarse.tif")
+q <- raster("maps/quality_coarse.tif")
+
+writeRaster(p, "maps/permeability_coarse.asc", overwrite = T)
+writeRaster(p, "maps/quality_coarse.asc", overwrite = T)
+
+```
+
