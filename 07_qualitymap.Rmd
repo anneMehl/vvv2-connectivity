@@ -242,8 +242,8 @@ writeRaster(q2, "maps/quality_coarse.tif", overwrite = T)
 ```
 
 ```{r}
-p <- raster("maps/permeability_coarse.tif")
-q <- raster("maps/quality_coarse.tif")
+p_coarse <- raster("maps/permeability_coarse.tif")
+q_coarse <- raster("maps/quality_coarse.tif")
 
 plot(p)
 plot(q)
@@ -251,5 +251,43 @@ plot(q)
 writeRaster(p, "maps/permeability_coarse.asc", overwrite = T)
 writeRaster(q, "maps/quality_coarse.asc", overwrite = T)
 
+```
+
+
+## Prepare maps in a higher resolution (for both quality and permeability)
+```{r}
+library(raster)
+
+permeability <- raster("maps/permeability.tif")
+# permeability2 <- raster("maps/permeability.tif")
+quality <- raster("maps/quality.tif")
+```
+
+```{r}
+res(permeability)
+str(permeability)
+str(p_coarse)
+
+res(quality)
+str(quality)
+str(q_coarse)
+
+```
+
+```{r}
+p1 <- aggregate(permeability, fact = 50)
+p2 <- aggregate(permeability, fact = 15)
+p460 <- aggregate(permeability, fact = 20) # too "large"
+p580 <- aggregate(permeability, fact = 25) # still too "large"
+
+q460 <- aggregate(quality, fact = 20) # too "large"
+q580 <- aggregate(quality, fact = 25) # still too "large"
+
+```
+
+
+```{r}
+writeRaster(p580, "maps/p580.asc", overwrite = T)
+writeRaster(q580, "maps/q580.asc", overwrite = T)
 ```
 
