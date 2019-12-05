@@ -196,10 +196,10 @@ plot(qu_crop)
 
 p1 <- aggregate(permeability)
 p2 <- aggregate(permeability, fact = 20)
-p3 <- aggregate(p_crop, fact = 50)
+p3 <- aggregate(p_crop, fact = 20)
 
 q1 <- aggregate(quality)
-q2 <- aggregate(qu_crop, fact = 50)
+q2 <- aggregate(qu_crop, fact = 20)
 
 ```
 
@@ -275,19 +275,44 @@ str(q_coarse)
 ```
 
 ```{r}
+plot(permeability)
+e <- drawExtent()
+
+p_crop2 <- crop(permeability, e)
+plot(p_crop2)
+
+qu_crop2 <- crop(quality, e)
+plot(qu_crop2)
+```
+
+```{r}
 p1 <- aggregate(permeability, fact = 50)
 p2 <- aggregate(permeability, fact = 15)
 p460 <- aggregate(permeability, fact = 20) # too "large"
 p580 <- aggregate(permeability, fact = 25) # still too "large"
 
+p233_s <- aggregate(p_crop2, fact = 10)
+
 q460 <- aggregate(quality, fact = 20) # too "large"
 q580 <- aggregate(quality, fact = 25) # still too "large"
+q233_s <- aggregate(qu_crop2, fact = 10)
 
 ```
 
+```{r}
+res(permeability)
+res(p350_s)
+str(p_s)
+str(permeability)
+
+res(quality)
+str(quality)
+str(q460_s)
+
+```
 
 ```{r}
-writeRaster(p580, "maps/p580.asc", overwrite = T)
-writeRaster(q580, "maps/q580.asc", overwrite = T)
+writeRaster(p233_s, "maps/p233_s.asc", overwrite = T)
+writeRaster(q233_s, "maps/q233_s.asc", overwrite = T)
 ```
 
