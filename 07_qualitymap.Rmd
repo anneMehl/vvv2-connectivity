@@ -288,8 +288,10 @@ plot(p_crop2)
 qu_crop2 <- crop(quality, e)
 plot(qu_crop2)
 
+
 writeRaster(p_crop2, "maps/p_crop2.tif", overwrite = T)
 writeRaster(qu_crop2, "maps/qu_crop2.tif", overwrite = T)
+
 ```
 
 ```{r}
@@ -298,17 +300,23 @@ p2 <- aggregate(permeability, fact = 15)
 p460 <- aggregate(permeability, fact = 20) # too "large"
 p580 <- aggregate(permeability, fact = 25) # still too "large"
 
+
 p210_s <- aggregate(p_crop2, fact = 9)
 
 q460 <- aggregate(quality, fact = 20) # too "large"
 q580 <- aggregate(quality, fact = 25) # still too "large"
 q210_s <- aggregate(qu_crop2, fact = 9)
 
+
+
+
 ```
 
 ```{r}
 res(permeability)
+
 res(p186_s)
+
 str(p_s)
 str(permeability)
 
@@ -319,7 +327,12 @@ str(q460_s)
 ```
 
 ```{r}
+
 writeRaster(p210_s, "maps/p210_s.asc", overwrite = T)
 writeRaster(q210_s, "maps/q210_s.asc", overwrite = T)
+
+writeRaster(p233_s, "maps/p233_s.asc", overwrite = T)
+writeRaster(q233_s, "maps/q233_s.asc", overwrite = T)
+
 ```
 
