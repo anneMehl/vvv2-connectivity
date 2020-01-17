@@ -259,20 +259,20 @@ writeRaster(q, "maps/quality_coarse.asc", overwrite = T)
 library(raster)
 
 permeability <- raster("maps/permeability.tif")
-# permeability2 <- raster("maps/permeability.tif")
+permeability2 <- raster("maps/p233_s.asc")
+p_courseTest <- raster("maps/permeability_coarse.tif")
+
 quality <- raster("maps/quality.tif")
-# 
-# permeability_2 <- raster("maps/p233_s.tif")
-# quality_2 <- raster("maps/q233_s.tif")
+quality_2 <- raster("maps/q233_s.asc")
 
 ```
 
 ```{r}
-res(permeability)
-str(permeability)
+res(permeability2)
+str(permeability2)
 str(p_coarse)
 
-res(quality)
+res(quality2)
 str(quality)
 str(q_coarse)
 
