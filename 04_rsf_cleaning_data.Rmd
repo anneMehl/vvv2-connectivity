@@ -150,6 +150,7 @@ tapply(datrsf5$forest_age, datrsf5$ar5_recoded, function(x){mean((x))})
   
 load("processdata/datrsf8_new.rda")
   datrsf8$traffic_high <- ifelse(datrsf8$road_traffic >= 5000, 1, 0)
+  datrsf8$traffic_high <- as.factor(datrsf8$traffic_high)
   
 ```
 
