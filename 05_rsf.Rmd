@@ -26,14 +26,14 @@ str(datrsf8)
 ```
 
   
-##### Set "ar5_recoded2" as factor, if needed
+## Set "ar5_recoded2" as factor, if needed
 
 ```{r}
   datrsf4$ar5_recoded <- as.factor(datrsf4$ar5_recoded)
 ```
 
 
-##### This is just to test if there is a difference in the realtionship between road distance and road type, when all distances above 500 are set constant.
+## This is just to test if there is a difference in the realtionship between road distance and road type, when all distances above 500 are set constant.
 ```{r}
 datrsf4_sub <- datrsf4
 datrsf4_sub$road_dist[datrsf4_sub$road_dist > 500] <- 500
@@ -69,7 +69,7 @@ summary(mod6sub_rspf50)
 
 
 
-#### Run the rsf as rspf
+## Run the rsf as rspf
 
 ```{r}
   starttime <- Sys.time()
@@ -240,12 +240,12 @@ mod6_boot: 23.68 hours (99 bootstraps)
 mod10_99boot: 16.46 hours (99 bootstraps)
 mod11_99boot: 12.21667 hours
 
-#### AIC/BIC selection rspf
+## AIC/BIC selection rspf
 ```{r}
 AIC(mod1_rspf, mod5_rspf, mod6_rspf, mod7_rspf, mod9_rspf)
 CAIC(mod1_rspf, mod5_rspf, mod6_rspf, mod7_rspf, mod9_rspf)
-AIC(mod10_rspf_99boot, mod11_rspf_99boot, mod11a_rspf_99boot, mod11b_rspf_99boot)
-CAIC(mod10_rspf_99boot, mod11_rspf_99boot, mod11c_rspf_99boot)
+AIC(mod10_rspf_99boot, mod11_rspf_99boot, mod11a_rspf_99boot, mod11b_rspf_99boot, mod11c_rspf_99boot)
+CAICtable(mod10_rspf_99boot, mod11_rspf_99boot, mod11a_rspf_99boot, mod11b_rspf_99boot, mod11c_rspf_99boot)
 BIC(mod10_rspf_99boot, mod11_rspf_99boot, mod11a_rspf_99boot, mod11b_rspf_99boot, mod11c_rspf_99boot)
 
 ```
@@ -257,7 +257,7 @@ mod11a_rspf_99boot 22 596570.3
 mod11b_rspf_99boot 15 597700.0
 mod11c_rspf_99boot 16 597722.9
 
-#### Estimating the ROC of my rspf models to see if the predictive power also differs a lot or not
+## Estimating the ROC of my rspf models to see if the predictive power also differs a lot or not
 ```{r}
 # load data, models and library
 load("processdata/datrsf8_new.rda")
@@ -607,7 +607,7 @@ Then I combine these data.frames:
 ```{r}
   allmodelframe_rspf <- data.frame(rbind(mod11_99boot_rspfframe, mod11a_99boot_rspfframe, mod11b_99boot_rspfframe, mod11c_99boot_rspfframe))
 
-  allmodelframe_rspf <- data.frame(rbind(mod10_99boot_rspfframe))
+  allmodelframe_rspf <- data.frame(rbind(mod11_99boot_rspfframe))
 
 ```
 
@@ -622,7 +622,8 @@ knitr::opts_chunk$set(fig.path = "figs/", fig.width = 6.5,
 ```
 
 ```{r comparing different rsf-models, fig.cap='Comparing different ssf-models'}
-  ggplot(allmodelframe_rspf, aes(colour = modelname)) + 
+library(ggplot2) 
+ ggplot(allmodelframe_rspf, aes(colour = modelname)) + 
     geom_hline(yintercept = 0, colour = gray(1/2), lty = 2) + 
     geom_linerange(aes(x = Variable, ymin = Coefficient - SE*interval1,
                                   ymax = Coefficient + SE*interval1),
@@ -631,7 +632,7 @@ knitr::opts_chunk$set(fig.path = "figs/", fig.width = 6.5,
                                    ymax = Coefficient + SE*interval2),
                                lwd = 1/2, position = position_dodge(width = 1/2),
                                shape = 21, fill = "WHITE") + coord_flip() + theme_bw()+
-  ggtitle("Resource selection: comparing models")
+  ggtitle("")
 ```
 
 ```{r comparing different rsf-models, fig.cap='Comparing different ssf-models'}
@@ -647,6 +648,20 @@ knitr::opts_chunk$set(fig.path = "figs/", fig.width = 6.5,
   ggtitle("Resource selection: comparing models")
 ```
 
+
+
+```{r}
+library(effects)
+plot(allEffects(mod11_rspf_99boot))
+plot(effect("log_road_dist:traffic_high", mod11_rspf_99boot))
+plot(Effect(c("log_road_dist", "traffic_high"), mod11_rspf_99boot))
+
+plot_model(mod11_rspf_99boot, type = "est")
+
+# mep(mod11_rspf_99boot)
+# kdepairs(mod11_rspf_99boot)
+
+```
 
 
 
