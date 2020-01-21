@@ -654,9 +654,8 @@ library(ggplot2)
 library(effects)
 plot(allEffects(mod11_rspf_99boot))
 plot(effect("log_road_dist:traffic_high", mod11_rspf_99boot))
-plot(Effect(c("log_road_dist", "traffic_high"), mod11_rspf_99boot))
+# plot(Effect(c("log_road_dist", "traffic_high"), mod11_rspf_99boot)) # just gives the same as the effect with interaction
 
-plot_model(mod11_rspf_99boot, type = "est")
 
 # mep(mod11_rspf_99boot)
 # kdepairs(mod11_rspf_99boot)
