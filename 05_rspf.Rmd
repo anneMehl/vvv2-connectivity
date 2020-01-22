@@ -150,10 +150,10 @@ summary(mod6sub_rspf50)
 library(ResourceSelection)
   
   starttime <- Sys.time()
-  mod11_rspf_99boot <- rspf(use ~ building_2500 + log_road_dist + ar5_rec_new + traffic_high + 
+  mod11_rspf_99boot_new <- rspf(use ~ building_2500 + log_road_dist + ar5_rec_new + traffic_high + 
                               forestage_cat + log_road_dist:traffic_high, 
                             data = datrsf8, m = datrsf8$id, B = 99, link = "logit")
-  endtime <- Sys.time()     # second BEST (although see above)
+  endtime <- Sys.time()     # second BEST (although see above); _new just run with traffic_high as factor
   endtime-starttime
   
   starttime <- Sys.time()
@@ -194,6 +194,7 @@ library(ResourceSelection)
   save(mod11a_rspf_99boot, file = "mod11a_rspf_99boot.rda") 
   save(mod11b_rspf_99boot, file = "mod11b_rspf_99boot.rda") 
   save(mod11c_rspf_99boot, file = "mod11c_rspf_99boot.rda") 
+  save(mod11_rspf_99boot_new, file = "mod11_rspf_99boot_new.rda") 
   
   load("output/mod1_rspf.rda")
   load("output/mod1_rspf_new.rda")
@@ -569,6 +570,11 @@ mod11_99boot_rspfframe <- data.frame(Variable = rownames(summary(mod11_rspf_99bo
                             SE = summary(mod11_rspf_99boot)$coef[, 2],
                             modelname = "mod11_rspf_99boot")
 
+mod11_99boot_new_rspfframe <- data.frame(Variable = rownames(summary(mod11_rspf_99boot_new)$coef),
+                            Coefficient = summary(mod11_rspf_99boot_new)$coef[, 1],
+                            SE = summary(mod11_rspf_99boot_new)$coef[, 2],
+                            modelname = "mod11_rspf_99boot_new")
+
 mod11a_99boot_rspfframe <- data.frame(Variable = rownames(summary(mod11a_rspf_99boot)$coef),
                             Coefficient = summary(mod11a_rspf_99boot)$coef[, 1],
                             SE = summary(mod11a_rspf_99boot)$coef[, 2],
@@ -607,7 +613,7 @@ Then I combine these data.frames:
 ```{r}
   allmodelframe_rspf <- data.frame(rbind(mod11_99boot_rspfframe, mod11a_99boot_rspfframe, mod11b_99boot_rspfframe, mod11c_99boot_rspfframe))
 
-  allmodelframe_rspf <- data.frame(rbind(mod11_99boot_rspfframe))
+  allmodelframe_rspf <- data.frame(rbind(mod11_99boot_new_rspfframe))
 
 ```
 
@@ -652,8 +658,8 @@ library(ggplot2)
 
 ```{r}
 library(effects)
-plot(allEffects(mod11_rspf_99boot))
-plot(effect("log_road_dist:traffic_high", mod11_rspf_99boot))
+plot(allEffects(mod11_rspf_99boot_new))
+plot(effect("log_road_dist:traffic_high", mod11_rspf_99boot_new))
 # plot(Effect(c("log_road_dist", "traffic_high"), mod11_rspf_99boot)) # just gives the same as the effect with interaction
 
 
