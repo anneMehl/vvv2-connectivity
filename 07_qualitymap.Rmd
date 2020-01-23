@@ -100,8 +100,8 @@ library(boot)
 
 #### Load model
 ```{r}
-load("output/mod11c_rspf_99boot.rda")
-rspf_mod <- mod11c_rspf_99boot
+load("output/mod11_rspf_99boot_new.rda")
+rspf_mod <- mod11_rspf_99boot_new
 coefs <- rspf_mod$coefficients
 ```
 
@@ -282,30 +282,30 @@ str(q_coarse)
 plot(permeability)
 e <- drawExtent()
 
-p_crop2 <- crop(permeability, e)
-plot(p_crop2)
+p_crop_migratory2 <- crop(permeability, e)
+plot(p_crop_migratory2)
 
-qu_crop2 <- crop(quality, e)
-plot(qu_crop2)
+qu_crop_migratory2 <- crop(quality, e)
+plot(qu_crop_migratory)
 
 
-writeRaster(p_crop2, "maps/p_crop2.tif", overwrite = T)
-writeRaster(qu_crop2, "maps/qu_crop2.tif", overwrite = T)
+writeRaster(p_crop_migratory2, "maps/p_crop_migratory2.tif", overwrite = T)
+writeRaster(qu_crop_migratory2, "maps/qu_crop_migratory2.tif", overwrite = T)
 
 ```
 
 ```{r}
 p1 <- aggregate(permeability, fact = 50)
 p2 <- aggregate(permeability, fact = 15)
-p460 <- aggregate(permeability, fact = 20) # too "large"
-p580 <- aggregate(permeability, fact = 25) # still too "large"
+p460 <- aggregate(permeability, fact = 20)
+p580 <- aggregate(permeability, fact = 25) 
 
 
-p210_s <- aggregate(p_crop2, fact = 9)
+p187_s <- aggregate(p_crop_migratory2, fact = 8)
 
-q460 <- aggregate(quality, fact = 20) # too "large"
-q580 <- aggregate(quality, fact = 25) # still too "large"
-q210_s <- aggregate(qu_crop2, fact = 9)
+q460 <- aggregate(quality, fact = 20) 
+q580 <- aggregate(quality, fact = 25) 
+q187_s <- aggregate(qu_crop_migratory2, fact = 8)
 
 
 
@@ -315,12 +315,13 @@ q210_s <- aggregate(qu_crop2, fact = 9)
 ```{r}
 res(permeability)
 
-res(p186_s)
+res(p_s)
 
 str(p_s)
-str(permeability)
+str(permeability2)
+str(p187_s)
 
-res(quality)
+res(p187_s)
 str(quality)
 str(q460_s)
 
@@ -328,8 +329,8 @@ str(q460_s)
 
 ```{r}
 
-writeRaster(p210_s, "maps/p210_s.asc", overwrite = T)
-writeRaster(q210_s, "maps/q210_s.asc", overwrite = T)
+writeRaster(p187_s, "maps/p187_migratory2.asc", overwrite = T)
+writeRaster(q187_s, "maps/q187_migratory2.asc", overwrite = T)
 
 writeRaster(p233_s, "maps/p233_s.asc", overwrite = T)
 writeRaster(q233_s, "maps/q233_s.asc", overwrite = T)
