@@ -170,8 +170,15 @@ library(ResourceSelection)
   endtime <- Sys.time()     
   endtime-starttime
   
-    starttime <- Sys.time()
+  starttime <- Sys.time()
   mod11c_rspf_99boot <- rspf(use ~ log_dist_building + log_road_dist + ar5_rec_new + traffic_high + 
+                              forestage_cat + log_road_dist:traffic_high, 
+                            data = datrsf8, m = datrsf8$id, B = 99, link = "logit")
+  endtime <- Sys.time()     
+  endtime-starttime
+  
+  starttime <- Sys.time()
+  mod11c_rspf_99boot_new <- rspf(use ~ log_dist_building + log_road_dist + ar5_rec_new + traffic_high + 
                               forestage_cat + log_road_dist:traffic_high, 
                             data = datrsf8, m = datrsf8$id, B = 99, link = "logit")
   endtime <- Sys.time()     
