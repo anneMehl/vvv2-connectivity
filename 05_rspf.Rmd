@@ -202,6 +202,7 @@ library(ResourceSelection)
   save(mod11b_rspf_99boot, file = "mod11b_rspf_99boot.rda") 
   save(mod11c_rspf_99boot, file = "mod11c_rspf_99boot.rda") 
   save(mod11_rspf_99boot_new, file = "mod11_rspf_99boot_new.rda") 
+  save(mod11c_rspf_99boot_new, file = "mod11c_rspf_99boot_new.rda") 
   
   load("output/mod1_rspf.rda")
   load("output/mod1_rspf_new.rda")
