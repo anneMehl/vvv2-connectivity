@@ -100,8 +100,8 @@ library(boot)
 
 #### Load model
 ```{r}
-load("output/mod11_rspf_99boot_new.rda")
-rspf_mod <- mod11_rspf_99boot_new
+load("output/mod11c_rspf_99boot_new.rda")
+rspf_mod <- mod11c_rspf_99boot_new
 coefs <- rspf_mod$coefficients
 ```
 
@@ -151,11 +151,11 @@ predprob <- inv.logit(linpred)
 ```{r}
 young <- young # just use any layer, raster("maps/prop_young_forest.tif")
 
-quality <- young
-values(quality) <- predprob
-plot(quality)
+quality3 <- young
+values(quality3) <- predprob
+plot(quality3)
 
-writeRaster(quality, "maps/quality2.tif", overwrite = T)
+writeRaster(quality3, "maps/quality3.tif", overwrite = T)
 
 # permeability <- raster("maps/permeability.tif")
 # plot(permeability)
@@ -176,7 +176,7 @@ permeability <- raster("maps/permeability.tif")
 quality <- raster("maps/quality.tif")
 
 ```
-
+#### Draw the extent of the new maps
 ```{r}
 plot(permeability)
 plot(quality)
@@ -191,7 +191,7 @@ plot(qu_crop)
 
 ```
 
-
+#### Make coarse maps for trying
 ```{r}
 
 p1 <- aggregate(permeability)
@@ -262,8 +262,8 @@ permeability <- raster("maps/permeability.tif")
 permeability2 <- raster("maps/p233_s.asc")
 p_courseTest <- raster("maps/permeability_coarse.tif")
 
-quality <- raster("maps/quality.tif")
-quality_2 <- raster("maps/q233_s.asc")
+quality <- raster("maps/quality3.tif")
+quality_2 <- raster("maps/q187_migratory3.asc")
 
 ```
 
@@ -274,23 +274,24 @@ str(p_coarse)
 
 res(quality2)
 str(quality)
-str(q_coarse)
+str(quality_2)
 
 ```
 
+#### Draw the extent of the new maps
 ```{r}
 plot(permeability)
 e <- drawExtent()
 
-p_crop_migratory2 <- crop(permeability, e)
-plot(p_crop_migratory2)
+p_crop_migratory3 <- crop(permeability, e)
+plot(p_crop_migratory3)
 
-qu_crop_migratory2 <- crop(quality, e)
-plot(qu_crop_migratory)
+qu_crop_migratory3 <- crop(quality, e)
+plot(qu_crop_migratory3)
 
 
-writeRaster(p_crop_migratory2, "maps/p_crop_migratory2.tif", overwrite = T)
-writeRaster(qu_crop_migratory2, "maps/qu_crop_migratory2.tif", overwrite = T)
+writeRaster(p_crop_migratory3, "maps/p_crop_migratory3.tif", overwrite = T)
+writeRaster(qu_crop_migratory3, "maps/qu_crop_migratory3.tif", overwrite = T)
 
 ```
 
@@ -301,11 +302,11 @@ p460 <- aggregate(permeability, fact = 20)
 p580 <- aggregate(permeability, fact = 25) 
 
 
-p187_s <- aggregate(p_crop_migratory2, fact = 8)
+p187_migratory3 <- aggregate(p_crop_migratory3, fact = 8)
 
 q460 <- aggregate(quality, fact = 20) 
 q580 <- aggregate(quality, fact = 25) 
-q187_s <- aggregate(qu_crop_migratory2, fact = 8)
+q187_migratory3 <- aggregate(qu_crop_migratory3, fact = 8)
 
 
 
@@ -319,7 +320,7 @@ res(p_s)
 
 str(p_s)
 str(permeability2)
-str(p187_s)
+str(q187_migratory3)
 
 res(p187_s)
 str(quality)
@@ -329,11 +330,8 @@ str(q460_s)
 
 ```{r}
 
-writeRaster(p187_s, "maps/p187_migratory2.asc", overwrite = T)
-writeRaster(q187_s, "maps/q187_migratory2.asc", overwrite = T)
-
-writeRaster(p233_s, "maps/p233_s.asc", overwrite = T)
-writeRaster(q233_s, "maps/q233_s.asc", overwrite = T)
+writeRaster(p187_migratory3, "maps/p187_migratory3.asc", overwrite = T)
+writeRaster(q187_migratory3, "maps/q187_migratory3.asc", overwrite = T)
 
 ```
 
