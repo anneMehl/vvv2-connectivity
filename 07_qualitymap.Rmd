@@ -259,11 +259,12 @@ writeRaster(q, "maps/quality_coarse.asc", overwrite = T)
 library(raster)
 
 permeability <- raster("maps/permeability.tif")
-permeability2 <- raster("maps/p233_s.asc")
-p_courseTest <- raster("maps/permeability_coarse.tif")
+permeability2 <- raster("maps/p93_stationary.asc")
+p_crop_migratory3 <- raster("maps/p_crop_migratory3.tif")
 
 quality <- raster("maps/quality3.tif")
 quality_2 <- raster("maps/q187_migratory3.asc")
+qu_crop_migratory3 <- raster("maps/qu_crop_migratory3.tif")
 
 ```
 
@@ -283,30 +284,28 @@ str(quality_2)
 plot(permeability)
 e <- drawExtent()
 
-p_crop_migratory3 <- crop(permeability, e)
-plot(p_crop_migratory3)
+p_crop_stationary <- crop(permeability, e)
+plot(p_crop_stationary)
 
-qu_crop_migratory3 <- crop(quality, e)
-plot(qu_crop_migratory3)
+qu_crop_stationary <- crop(quality, e)
+plot(qu_crop_stationary)
 
 
-writeRaster(p_crop_migratory3, "maps/p_crop_migratory3.tif", overwrite = T)
-writeRaster(qu_crop_migratory3, "maps/qu_crop_migratory3.tif", overwrite = T)
+writeRaster(p_crop_stationary, "maps/p_crop_stationary.tif", overwrite = T)
+writeRaster(qu_crop_stationary, "maps/qu_crop_stationary.tif", overwrite = T)
 
 ```
 
 ```{r}
 p1 <- aggregate(permeability, fact = 50)
-p2 <- aggregate(permeability, fact = 15)
-p460 <- aggregate(permeability, fact = 20)
-p580 <- aggregate(permeability, fact = 25) 
+
+p93_stationary <- aggregate(p_crop_stationary, fact = 4)
 
 
-p187_migratory3 <- aggregate(p_crop_migratory3, fact = 8)
 
-q460 <- aggregate(quality, fact = 20) 
-q580 <- aggregate(quality, fact = 25) 
-q187_migratory3 <- aggregate(qu_crop_migratory3, fact = 8)
+q1 <- aggregate(quality, fact = 50) 
+
+q93_stationary <- aggregate(qu_crop_stationary, fact = 4)
 
 
 
@@ -315,23 +314,21 @@ q187_migratory3 <- aggregate(qu_crop_migratory3, fact = 8)
 
 ```{r}
 res(permeability)
-
-res(p_s)
+res(p_stationary)
 
 str(p_s)
-str(permeability2)
 str(q187_migratory3)
 
 res(p187_s)
 str(quality)
-str(q460_s)
+
 
 ```
 
 ```{r}
 
-writeRaster(p187_migratory3, "maps/p187_migratory3.asc", overwrite = T)
-writeRaster(q187_migratory3, "maps/q187_migratory3.asc", overwrite = T)
+writeRaster(p93_stationary, "maps/p93_stationary.asc", overwrite = T)
+writeRaster(q93_stationary, "maps/q93_stationary.asc", overwrite = T)
 
 ```
 
