@@ -11,6 +11,15 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## change memory size  
+Maybe it is necessary to extend the memory limit, because the models are quite large.
+This is how it is done. It re-sets itself when the R-session is terminated.
+```{r}
+# To check the current memory limit
+memory.limit() #[1] 8062 -----> default
+# To check the current size (only when not changed) and to change the memory limit
+memory.size(30000) # Put the new memory size into the bracktes, e.g. 9000
+```
 
 ## Load models and packages
 ```{r}
@@ -53,41 +62,19 @@ mixforest_rs <- raster("maps/ar5_resampled/ar5_12_mix_forest.tif")
 
 
 ## permeability map
-log_dist_building <- raster("maps/dist_building.tif")
-values(log_dist_building) <- log10(values(log_dist_building) + 1)
-plot(log_dist_building)
-
-rail_cross <- raster("maps/crossed_rail.tif")
-summary(values(rail_cross))
-
-road_cross <- raster("maps/dist_roads.tif")
-values(road_cross) <- ifelse(values(road_cross)==0, 1, 0)
-plot(road_cross)
-
-dist_passage <- raster("maps/fence.tif")
-values(dist_passage) <- ifelse(values(dist_passage)==0, 0, 800) #at 800 any effect of the passage seems to be gone
-crossing <- raster("maps/crossings_grey.tif")
-values(dist_passage) <- ifelse(values(crossing)==1, 0, values(dist_passage))
-crossing <- raster("maps/crossings_high_use.tif")
-values(dist_passage) <- ifelse(values(crossing)==1, 0, values(dist_passage))
-crossing <- raster("maps/crossings_low_use.tif")
-values(dist_passage) <- ifelse(values(crossing)==1, 0, values(dist_passage))
-crossing <- raster("maps/crossings_green.tif")
-values(dist_passage) <- ifelse(values(crossing)==1, 0, values(dist_passage))
-plot(dist_passage)
-writeRaster(dist_passage, filename="maps/test.tif", overwrite=T)
-
-log_road_dist <- raster("maps/dist_roads.tif")
-values(log_road_dist) <- log10(values(log_road_dist)+1)
-
-dist_roads <- raster("maps/dist_roads.tif")
-road_traffic_high <- raster("maps/dist_road_traffic_high.tif")
-values(road_traffic_high) <- ifelse(values(dist_roads) < values(road_traffic_high),0,1)
-
-interaction1 <- interaction2 <- road_traffic_high
-values(interaction1) <- values(log_road_dist)*values(road_traffic_high)
-values(interaction2) <- values(road_cross)*values(road_traffic_high)
-
+prop_young_forest <- raster("maps/sspf/prop_young_forest.tif")
+slope <- raster("maps/sspf/slope.tif")
+prop_ar5_agri <- raster("maps/sspf/prop_ar5_agri.tif")
+prop_ar5_bog <- raster("maps/sspf/prop_ar5_bog.tif")
+prop_ar5_urban <- raster("maps/sspf/prop_ar5_urban.tif")
+prop_old_forest <- raster("maps/sspf/prop_old_forest.tif")
+prop_water <- raster("maps/sspf/prop_water.tif")
+crossings_grey <- raster("maps/sspf/crossings_grey.tif")
+crossings_high_use <- raster("maps/sspf/crossings_high_use.tif")
+crossings_low_use <- raster("maps/sspf/crossings_low_use.tif")
+crossings_green <- raster("maps/sspf/crossings_green.tif")
+rail_cross <- raster("maps/sspf/crossed_rail.tif")
+fence <- raster("maps/sspf/fence.tif")
 
 ```
 
@@ -95,6 +82,7 @@ values(interaction2) <- values(road_cross)*values(road_traffic_high)
 #### Transform layers 
 ```{r}
 
+## quality ---------------------------------
 log_dist_building <- raster("maps/dist_building.tif")
 values(log_dist_building) <- log10(values(log_dist_building) + 1)
 # plot(log_dist_building)
@@ -114,78 +102,92 @@ values(interaction) <- values(log_road_dist)*values(road_traffic_high)
 # plot(interaction)
 
 
+
+## permeability map --------------------
+log_dist_building <- raster("maps/sspf/dist_building.tif")
+values(log_dist_building) <- log10(values(log_dist_building) + 1)
+# plot(log_dist_building)
+
+rail_cross <- raster("maps/sspf/crossed_rail.tif")
+# summary(values(rail_cross))
+
+road_cross <- raster("maps/sspf/dist_roads.tif")
+values(road_cross) <- ifelse(values(road_cross)==0, 1, 0)
+# plot(road_cross)
+
+dist_passage <- raster("maps/sspf/fence.tif")
+values(dist_passage) <- ifelse(values(dist_passage)==0, 0, 800) #at 800 any effect of the passage seems to be gone
+crossing <- raster("maps/sspf/crossings_grey.tif")
+values(dist_passage) <- ifelse(values(crossing)==1, 0, values(dist_passage))
+crossing <- raster("maps/sspf/crossings_high_use.tif")
+values(dist_passage) <- ifelse(values(crossing)==1, 0, values(dist_passage))
+crossing <- raster("maps/sspf/crossings_low_use.tif")
+values(dist_passage) <- ifelse(values(crossing)==1, 0, values(dist_passage))
+crossing <- raster("maps/sspf/crossings_green.tif")
+values(dist_passage) <- ifelse(values(crossing)==1, 0, values(dist_passage))
+# plot(dist_passage)
+# writeRaster(dist_passage, filename="maps/test.tif", overwrite=T)
+
+log_road_dist <- raster("maps/sspf/dist_roads.tif")
+values(log_road_dist) <- log10(values(log_road_dist)+1)
+
+dist_roads <- raster("maps/sspf/dist_roads.tif")
+road_traffic_high <- raster("maps/sspf/dist_road_traffic_high.tif")
+values(road_traffic_high) <- ifelse(values(dist_roads) < values(road_traffic_high),0,1)
+
+interaction1 <- interaction2 <- road_traffic_high
+values(interaction1) <- values(log_road_dist)*values(road_traffic_high)
+values(interaction2) <- values(road_cross)*values(road_traffic_high)
+
 ```
 
 #### aggregate the layers to resolution I want to use
 ```{r}
 ## Example
-newLayer <- aggregate(currentLayer, fact = 4, fun = mean) # fun can be: mean, modal, min or max
+newLayer <- aggregate(currentLayer, fact = 4, fun = mean) # 4 = for stationary, fun can be: mean, modal, min or max
 
 ## quality
-log_road_dist <- aggregate(log_road_dist, fact = 4, fun = max) # max?
-road_traffic_high <- aggregate(road_traffic_high, fact = 4, fun = max) # max?
-log_dist_building <- aggregate(log_dist_building, fact = 4, fun = mean)
+log_road_dist <- aggregate(log_road_dist, fact = 5, fun = max) # max?
+road_traffic_high <- aggregate(road_traffic_high, fact = 5, fun = max) # max?
+log_dist_building <- aggregate(log_dist_building, fact = 5, fun = mean)
 
-young <- aggregate(young, fact = 4, fun = mean)
-old <- aggregate(old, fact = 4, fun = mean)
+young <- aggregate(young, fact = 5, fun = mean)
+old <- aggregate(old, fact = 5, fun = mean)
 
-interaction <- aggregate(interaction, fact = 4, fun = mean)
-water_rs <- aggregate(water_rs, fact = 4, fun = mean)
-agri_rs <- aggregate(agri_rs, fact = 4, fun = mean)
-ruderal_rs <- aggregate(ruderal_rs, fact = 4, fun = mean)
-bog_rs <- aggregate(bog_rs, fact = 4, fun = mean)
-urban_rs <- aggregate(urban_rs, fact = 4, fun = mean)
-mprodcon_rs <- aggregate(mprodcon_rs, fact = 4, fun = mean)
-lprodcon_rs <- aggregate(lprodcon_rs, fact = 4, fun = mean)
-decforest_rs <- aggregate(decforest_rs, fact = 4, fun = mean)
-mixforest_rs <- aggregate(mixforest_rs, fact = 4, fun = mean)
+interaction <- aggregate(interaction, fact = 5, fun = mean)
+water_rs <- aggregate(water_rs, fact = 5, fun = mean)
+agri_rs <- aggregate(agri_rs, fact = 5, fun = mean)
+ruderal_rs <- aggregate(ruderal_rs, fact = 5, fun = mean)
+bog_rs <- aggregate(bog_rs, fact = 5, fun = mean)
+urban_rs <- aggregate(urban_rs, fact = 5, fun = mean)
+mprodcon_rs <- aggregate(mprodcon_rs, fact = 5, fun = mean)
+lprodcon_rs <- aggregate(lprodcon_rs, fact = 5, fun = mean)
+decforest_rs <- aggregate(decforest_rs, fact = 5, fun = mean)
+mixforest_rs <- aggregate(mixforest_rs, fact = 5, fun = mean)
 
 
 ## permeability
-prop_young_forest <- aggregate(prop_young_forest, fact = 4, fun = mean)
-slope <- aggregate(slope, fact = 4, fun = mean)
-rail_cross <- aggregate(rail_cross, fact = 4, fun = mean)
-log_dist_building <- aggregate(log_dist_building, fact = 4, fun = mean)
-prop_ar5_agri <- aggregate(prop_ar5_agri, fact = 4, fun = mean)
-prop_ar5_bog <- aggregate(prop_ar5_bog, fact = 4, fun = mean)
-prop_ar5_urban <- aggregate(prop_ar5_urban, fact = 4, fun = mean)
-prop_old_forest <- aggregate(prop_old_forest, fact = 4, fun = mean)
-prop_water <- aggregate(prop_water, fact = 4, fun = mean)
-road_cross <- aggregate(road_cross, fact = 4, fun = mean)
-crossings_grey <- aggregate(crossings_grey, fact = 4, fun = mean)
-crossings_high_use <- aggregate(crossings_high_use, fact = 4, fun = mean)
-crossings_low_use <- aggregate(crossings_low_use, fact = 4, fun = mean)
-crossings_green <- aggregate(crossings_green, fact = 4, fun = mean)
-dist_passage <- aggregate(dist_passage, fact = 4, fun = mean)
-log_road_dist <- aggregate(log_road_dist, fact = 4, fun = mean)
-road_traffic_high <- aggregate(road_traffic_high, fact = 4, fun = mean)
-interaction1 <- aggregate(interaction1, fact = 4, fun = mean)
-interaction2 <- aggregate(interaction2, fact = 4, fun = mean)
+prop_young_forest <- aggregate(prop_young_forest, fact = 5, fun = mean)
+slope <- aggregate(slope, fact = 5, fun = mean)
+rail_cross <- aggregate(rail_cross, fact = 5, fun = mean)
+log_dist_building <- aggregate(log_dist_building, fact = 5, fun = mean)
+prop_ar5_agri <- aggregate(prop_ar5_agri, fact = 5, fun = mean)
+prop_ar5_bog <- aggregate(prop_ar5_bog, fact = 5, fun = mean)
+prop_ar5_urban <- aggregate(prop_ar5_urban, fact = 5, fun = mean)
+prop_old_forest <- aggregate(prop_old_forest, fact = 5, fun = mean)
+prop_water <- aggregate(prop_water, fact = 5, fun = mean)
+road_cross <- aggregate(road_cross, fact = 5, fun = mean)
+crossings_grey <- aggregate(crossings_grey, fact = 5, fun = mean)
+crossings_high_use <- aggregate(crossings_high_use, fact = 5, fun = mean)
+crossings_low_use <- aggregate(crossings_low_use, fact = 5, fun = mean)
+crossings_green <- aggregate(crossings_green, fact = 5, fun = mean)
+dist_passage <- aggregate(dist_passage, fact = 5, fun = mean)
+log_road_dist <- aggregate(log_road_dist, fact = 5, fun = mean)
+road_traffic_high <- aggregate(road_traffic_high, fact = 5, fun = mean)
+interaction1 <- aggregate(interaction1, fact = 5, fun = mean)
+interaction2 <- aggregate(interaction2, fact = 5, fun = mean)
 
 
-
-```
-
-
-#### change extent (or resample???)
-```{r}
-str(log_road_dist)
-# ncols   : int 5915
-#   ..@ nrows   : int 5329
-str(water_rs)
- # ..@ ncols   : int 1479
- #  ..@ nrows   : int 1333
-
-plot(roads_dist_min)
-plot(roads_dist_max)
-plot(roads_dist_mean)
-plot(water_rs)
-
-plot(permeability)
-e <- drawExtent()
-
-p_crop_stationary <- crop(permeability, e)
-plot(p_crop_stationary)
 
 ```
 
@@ -213,15 +215,21 @@ mybrick <- addLayer(mybrick, interaction)
 # airport <- raster("maps/prop_airport.tif") # for posthoc removal
 
 ## permeability
-mybrick <- raster("data/prop_young_forest.tif")
+mybrick <- prop_young_forest
 mybrick <- brick(mybrick)
-mybrick <- addLayer(mybrick, raster("data/slope.tif"))
+mybrick <- addLayer(mybrick, slope)
 mybrick <- addLayer(mybrick, rail_cross)
 mybrick <- addLayer(mybrick, log_dist_building)
-mybrick <- addLayer(mybrick, raster("data/prop_ar5_agri.tif"), raster("data/prop_ar5_bog.tif"), raster("data/prop_ar5_urban.tif"))
-mybrick <- addLayer(mybrick, raster("data/prop_old_forest.tif"), raster("data/prop_water.tif"))
+mybrick <- addLayer(mybrick, prop_ar5_agri)
+mybrick <- addLayer(mybrick, prop_ar5_bog)
+mybrick <- addLayer(mybrick, prop_ar5_urban)
+mybrick <- addLayer(mybrick, prop_old_forest)
+mybrick <- addLayer(mybrick, prop_water)
 mybrick <- addLayer(mybrick, road_cross)
-mybrick <- addLayer(mybrick, raster("maps/crossings_grey.tif"), raster("maps/crossings_high_use.tif"), raster("maps/crossings_low_use.tif"), raster("maps/crossings_green.tif"))
+mybrick <- addLayer(mybrick, crossings_grey)
+mybrick <- addLayer(mybrick, crossings_high_use)
+mybrick <- addLayer(mybrick, crossings_low_use)
+mybrick <- addLayer(mybrick, crossings_green)
 mybrick <- addLayer(mybrick, dist_passage)
 mybrick <- addLayer(mybrick, log_road_dist)
 mybrick <- addLayer(mybrick, road_traffic_high)
@@ -235,13 +243,19 @@ mybrick <- addLayer(mybrick, interaction1, interaction2)
 
 #### Load model
 ```{r}
-load("output/mod11c_rspf_99boot_new.rda")
+# load("output/mod11c_rspf_99boot_new.rda")
 rspf_mod <- mod11c_rspf_99boot_new
 coefs <- rspf_mod$coefficients
+
+
+rspf_mod <- mod_sspf_allyear
+coefs <- rspf_mod$coefficients
+
 ```
 
 #### Make newdat
 ```{r}
+## quality --------------------
 newdat <- as.data.frame(mybrick)
 newdat <- data.frame(intercept=1, newdat) # makes an intercept column
 str(newdat)
@@ -260,20 +274,63 @@ str(newdat)
 newdat <- as.matrix(newdat)
 head(newdat)
 
+
+## permeability --------------------
+newdat <- as.data.frame(mybrick)
+newdat <- data.frame(intercept=1, newdat) # makes an intercept column
+str(newdat)
+newdat[,3] <- as.numeric(newdat[,3])
+table(newdat[,3])
+newdat[,3] <- ifelse(newdat[,3]==1, 0, 1)
+str(newdat)
+
+tmp <- newdat[,15]
+sum(is.na(tmp)) #I don't get it, but it seems to correspond with the values of 800
+newdat[,15] <- as.numeric(newdat[,15])
+newdat[,15] <- ifelse(is.na(tmp), 800, 0)
+table(newdat[,15])
+str(newdat)
+
+newdat <- as.matrix(newdat)
+head(newdat)
+
 ```
 
-
-#### Make and write raster
+#### Predict
 ```{r}
+predvals <- (newdat %*% coefs)
+
+linpred <- predvals[,1]
+predprob <- inv.logit(linpred)
+
+```
+
+#### Make new raster map
+```{r}
+## quality
 young <- young # just use any layer, raster("maps/prop_young_forest.tif")
 
-quality3 <- young
-values(quality3) <- predprob
-plot(quality3)
-
-writeRaster(quality3, "maps/quality3.tif", overwrite = T)
-
-# permeability <- raster("maps/permeability.tif")
-# plot(permeability)
+quality4 <- young
+values(quality4) <- predprob
+plot(quality4)
+str(quality4)
+res(quality4)
 
 ```
+
+#### draw extent
+```{r}
+
+plot(quality4)
+e <- drawExtent()
+
+qu_crop_migratory4 <- crop(quality4, e)
+plot(qu_crop_migratory4)
+
+```
+
+## write raster
+```{r}
+writeRaster(qu_crop_migratory4, "maps/qu_crop_migratory4.asc", overwrite = T)
+```
+
