@@ -20,7 +20,7 @@ library(raster)
 
 # Load rasters 
 roads_dist <- raster("maps/dist_roads.tif")
-traffic_dist <- raster("maps/dist_road_traffic_high.tif")
+road_traffic_high <- raster("maps/dist_road_traffic_high.tif")
 building_dist <- raster("maps/dist_building.tif")
 young <- raster("maps/prop_young_forest.tif")
 old <- raster("maps/prop_old_forest.tif")
@@ -37,21 +37,46 @@ mixforest_rs <- raster("maps/ar5_resampled/ar5_12_mix_forest.tif")
 
 ```
 
+
+#### Aggrigate map layers to chosen resolution
+```{r}
+## Example
+newLayer <- aggregate(currentLayer, fact = 4, fun = mean) # 4 = for stationary, fun can be: mean, modal, min or max
+
+## quality
+log_road_dist <- aggregate(log_road_dist, fact = 5, fun = min) # min?
+road_traffic_high <- aggregate(road_traffic_high, fact = 5, fun = max) # max?
+log_dist_building <- aggregate(log_dist_building, fact = 5, fun = mean)
+
+young <- aggregate(young, fact = 5, fun = mean)
+old <- aggregate(old, fact = 5, fun = mean)
+
+# interaction <- aggregate(interaction, fact = 5, fun = mean)
+water_rs <- aggregate(water_rs, fact = 5, fun = mean)
+agri_rs <- aggregate(agri_rs, fact = 5, fun = mean)
+ruderal_rs <- aggregate(ruderal_rs, fact = 5, fun = mean)
+bog_rs <- aggregate(bog_rs, fact = 5, fun = mean)
+urban_rs <- aggregate(urban_rs, fact = 5, fun = mean)
+mprodcon_rs <- aggregate(mprodcon_rs, fact = 5, fun = mean)
+lprodcon_rs <- aggregate(lprodcon_rs, fact = 5, fun = mean)
+decforest_rs <- aggregate(decforest_rs, fact = 5, fun = mean)
+mixforest_rs <- aggregate(mixforest_rs, fact = 5, fun = mean)
+
+```
+
+
 #### Transform layers 
 ```{r}
 
-log_dist_building <- raster("maps/dist_building.tif")
+log_dist_building <- building_dist
 values(log_dist_building) <- log10(values(log_dist_building) + 1)
 # plot(log_dist_building)
 
-
-log_road_dist <- raster("maps/dist_roads.tif")
+log_road_dist <- roads_dist
 values(log_road_dist) <- log10(values(log_road_dist)+1)
 # plot(log_road_dist)
 
-dist_roads <- raster("maps/dist_roads.tif")
-road_traffic_high <- raster("maps/dist_road_traffic_high.tif")
-values(road_traffic_high) <- ifelse(values(dist_roads) < values(road_traffic_high),0,1)
+values(road_traffic_high) <- ifelse(values(roads_dist) < values(road_traffic_high),0,1)
 # plot(road_traffic_high)
 
 interaction <- road_traffic_high
@@ -110,17 +135,7 @@ coefs <- rspf_mod$coefficients
 newdat <- as.data.frame(mybrick)
 newdat <- data.frame(intercept=1, newdat) # makes an intercept column
 str(newdat)
-# newdat[,3] <- as.numeric(newdat[,3])
-# table(newdat[,3])
-# newdat[,3] <- ifelse(newdat[,3]==1, 0, 1)
-# str(newdat)
-# 
-# tmp <- newdat[,15]
-# sum(is.na(tmp)) #I don't get it, but it seems to correspond with the values of 800
-# newdat[,15] <- as.numeric(newdat[,15])
-# newdat[,15] <- ifelse(is.na(tmp), 800, 0)
-# table(newdat[,15])
-# str(newdat)
+
 
 newdat <- as.matrix(newdat)
 head(newdat)
