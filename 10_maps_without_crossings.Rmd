@@ -68,29 +68,29 @@ rail_cross <- raster("maps/sspf/crossed_rail.tif")
 ```
 
 
-#### aggregate the layers to resolution I want to use * or did I need to do the log stuff first because if not the layers have different extents or resolution or something? *
+#### aggregate the layers to resolution I want to use 
 ```{r}
 ## Example
-newLayer <- aggregate(currentLayer, fact = 4, fun = mean) # 4 = for stationary, fun can be: mean, modal, min or max
+# newLayer <- aggregate(currentLayer, fact = 4, fun = mean) # 4 = for stationary, 6 for migratory, fun can be: mean, modal, min or max
 
 ## permeability
-prop_young_forest <- aggregate(prop_young_forest, fact = 5, fun = mean)
-slope <- aggregate(slope, fact = 5, fun = mean)
-rail_cross <- aggregate(rail_cross, fact = 5, fun = max)
-dist_building <- aggregate(dist_building, fact = 5, fun = mean)
-prop_ar5_agri <- aggregate(prop_ar5_agri, fact = 5, fun = mean)
-prop_ar5_bog <- aggregate(prop_ar5_bog, fact = 5, fun = mean)
-prop_ar5_urban <- aggregate(prop_ar5_urban, fact = 5, fun = mean)
-prop_old_forest <- aggregate(prop_old_forest, fact = 5, fun = mean)
-prop_water <- aggregate(prop_water, fact = 5, fun = mean)
-road_cross <- aggregate(road_cross, fact = 5, fun = max)
-crossings_grey <- aggregate(crossings_grey, fact = 5, fun = max)
-crossings_high_use <- aggregate(crossings_high_use, fact = 5, fun = max)
-crossings_low_use <- aggregate(crossings_low_use, fact = 5, fun = max)
-crossings_green <- aggregate(crossings_green, fact = 5, fun = max)
-dist_passage <- aggregate(dist_passage, fact = 5, fun = min)
-dist_roads <- aggregate(dist_roads, fact = 5, fun = min)
-road_traffic_high <- aggregate(road_traffic_high, fact = 5, fun = max)
+prop_young_forest <- aggregate(prop_young_forest, fact = 6, fun = mean)
+slope <- aggregate(slope, fact = 6, fun = mean)
+rail_cross <- aggregate(rail_cross, fact = 6, fun = max)
+dist_building <- aggregate(dist_building, fact = 6, fun = mean)
+prop_ar5_agri <- aggregate(prop_ar5_agri, fact = 6, fun = mean)
+prop_ar5_bog <- aggregate(prop_ar5_bog, fact = 6, fun = mean)
+prop_ar5_urban <- aggregate(prop_ar5_urban, fact = 6, fun = mean)
+prop_old_forest <- aggregate(prop_old_forest, fact = 6, fun = mean)
+prop_water <- aggregate(prop_water, fact = 6, fun = mean)
+road_cross <- aggregate(road_cross, fact = 6, fun = max)
+crossings_grey <- aggregate(crossings_grey, fact = 6, fun = max)
+crossings_high_use <- aggregate(crossings_high_use, fact = 6, fun = max)
+crossings_low_use <- aggregate(crossings_low_use, fact = 6, fun = max)
+crossings_green <- aggregate(crossings_green, fact = 6, fun = max)
+dist_passage <- aggregate(dist_passage, fact = 6, fun = min)
+dist_roads <- aggregate(dist_roads, fact = 6, fun = min)
+road_traffic_high <- aggregate(road_traffic_high, fact = 6, fun = max)
 # interaction1 <- aggregate(interaction1, fact = 5, fun = mean)
 # interaction2 <- aggregate(interaction2, fact = 5, fun = mean)
 
@@ -187,8 +187,8 @@ tmp <- newdat[,15]
 sum(is.na(tmp)) #I don't get it, but it seems to correspond with the values of 800
 # newdat[,15] <- as.numeric(newdat[,15])
 # newdat[,15] <- ifelse(is.na(tmp), 800, 0)
-table(newdat[,15])
-str(newdat)
+# table(newdat[,15])
+# str(newdat)
 
 newdat <- data.frame(intercept=1, step_length=116, squareLS = 116^2, newdat)
 newdat <- as.matrix(newdat)
@@ -216,29 +216,31 @@ plot(permeability2)
 str(permeability2)
 res(permeability2)
 
+writeRaster(permeability2, "maps/permeability2.tif", overwrite = T)
+
 ```
 
 #### draw extent
 ```{r}
 # Use this...
-p_crop_stationary <- raster("maps/p_crop_stationary.tif")
+qu_crop_migratory4 <- raster("maps/qu_crop_migratory4.asc")
 
 # ... or this to crop
 plot(permeability2)
 e <- drawExtent()
 
-crop_permeability2_stationary <- crop(permeability2, p_crop_stationary)
+crop_permeability2_migratory <- crop(permeability2, qu_crop_migratory4)
 
 p_crop_permeability2 <- crop(permeability2, e)
 
-plot(crop_permeability2_stationary)
-str(crop_permeability2_stationary)
+plot(crop_permeability2_migratory)
+str(crop_permeability2_migratory)
 
 
 ```
 
 ## write raster
 ```{r}
-writeRaster(p_crop_permeability2, "maps/p_crop_permeability2.asc", overwrite = T)
+writeRaster(crop_permeability2_migratory, "maps/crop_permeability2_migratory.asc", overwrite = T)
 ```
 
