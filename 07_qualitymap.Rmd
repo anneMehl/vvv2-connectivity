@@ -59,23 +59,23 @@ mixforest_rs <- raster("maps/ar5_resampled/ar5_12_mix_forest.tif")
 # newLayer <- aggregate(currentLayer, fact = 4, fun = mean) # 4 = for stationary, 6 for migratory,  fun can be: mean, modal, min or max
 
 ## quality
-roads_dist <- aggregate(roads_dist, fact = 6, fun = min) # min?
-road_traffic_high <- aggregate(road_traffic_high, fact = 6, fun = max) # max?
-building_dist <- aggregate(building_dist, fact = 6, fun = mean)
+roads_dist <- aggregate(roads_dist, fact = 4, fun = min) # min?
+road_traffic_high <- aggregate(road_traffic_high, fact = 4, fun = max) # max?
+building_dist <- aggregate(building_dist, fact = 4, fun = mean)
 
-young <- aggregate(young, fact = 6, fun = mean)
-old <- aggregate(old, fact = 6, fun = mean)
+young <- aggregate(young, fact = 4, fun = mean)
+old <- aggregate(old, fact = 4, fun = mean)
 
 # interaction <- aggregate(interaction, fact = 5, fun = mean)
-water_rs <- aggregate(water_rs, fact = 6, fun = mean)
-agri_rs <- aggregate(agri_rs, fact = 6, fun = mean)
-ruderal_rs <- aggregate(ruderal_rs, fact = 6, fun = mean)
-bog_rs <- aggregate(bog_rs, fact = 6, fun = mean)
-urban_rs <- aggregate(urban_rs, fact = 6, fun = mean)
-mprodcon_rs <- aggregate(mprodcon_rs, fact = 6, fun = mean)
-lprodcon_rs <- aggregate(lprodcon_rs, fact = 6, fun = mean)
-decforest_rs <- aggregate(decforest_rs, fact = 6, fun = mean)
-mixforest_rs <- aggregate(mixforest_rs, fact = 6, fun = mean)
+water_rs <- aggregate(water_rs, fact = 4, fun = mean)
+agri_rs <- aggregate(agri_rs, fact = 4, fun = mean)
+ruderal_rs <- aggregate(ruderal_rs, fact = 4, fun = mean)
+bog_rs <- aggregate(bog_rs, fact = 4, fun = mean)
+urban_rs <- aggregate(urban_rs, fact = 4, fun = mean)
+mprodcon_rs <- aggregate(mprodcon_rs, fact = 4, fun = mean)
+lprodcon_rs <- aggregate(lprodcon_rs, fact = 4, fun = mean)
+decforest_rs <- aggregate(decforest_rs, fact = 4, fun = mean)
+mixforest_rs <- aggregate(mixforest_rs, fact = 4, fun = mean)
 
 ```
 
@@ -170,11 +170,11 @@ predprob <- inv.logit(linpred)
 #### Make and write raster
 ```{r}
 
-quality4 <- young # just use any layer, raster("maps/prop_young_forest.tif")
-values(quality4) <- predprob
-plot(quality4)
+quality5 <- young # just use any layer, raster("maps/prop_young_forest.tif")
+values(quality5) <- predprob
+plot(quality5)
 
-writeRaster(quality4, "maps/quality4.tif", overwrite = T)
+writeRaster(quality5, "maps/quality5.tif", overwrite = T)
 
 # permeability <- raster("maps/permeability.tif")
 # plot(permeability)
@@ -184,27 +184,32 @@ writeRaster(quality4, "maps/quality4.tif", overwrite = T)
 #### Draw the extent of the new maps
 ```{r}
 # Use this...
-qu_crop_migratory4 <- raster("maps/qu_crop_migratory4.asc")
+p93_stationary <- raster("maps/p93_stationary.asc")
 
 # ... or this to crop
-plot(quality4)
-e <- drawExtent()
+# plot(quality4)
+# e <- drawExtent()
 
-crop_quality4_migratory <- crop(quality4, qu_crop_migratory4)
+crop_quality5_stationary <- crop(quality5, p93_stationary)
 
-crop_quality4_migratory <- crop(quality4, e)
+# crop_quality4_migratory <- crop(quality4, e)
 
-plot(crop_quality4_migratory)
-res(crop_quality4_migratory)
+plot(crop_quality5_stationary)
+res(crop_quality5_stationary)
 
 ```
 
 
 ```{r}
 
-writeRaster(crop_quality4_migratory, "maps/crop_quality4_migratory.asc", overwrite = T)
+writeRaster(crop_quality5_stationary, "maps/crop_quality5_stationary.asc", overwrite = T)
 
 ```
+
+
+
+
+
 
 
 
