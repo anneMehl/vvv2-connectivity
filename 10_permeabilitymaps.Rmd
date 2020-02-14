@@ -59,9 +59,9 @@ crossings_grey <- raster("maps/sspf/crossings_grey.tif")
 crossings_high_use <- raster("maps/sspf/crossings_high_use.tif")
 # values(crossings_high_use) <- 0
 crossings_low_use <- raster("maps/sspf/crossings_low_use.tif")
-values(crossings_low_use) <- 0
+# values(crossings_low_use) <- 0
 crossings_green <- raster("maps/sspf/crossings_green.tif")
-values(crossings_low_use) <- 0
+# values(crossings_low_use) <- 0
 rail_cross <- raster("maps/sspf/crossed_rail.tif")
 
 
@@ -74,23 +74,23 @@ rail_cross <- raster("maps/sspf/crossed_rail.tif")
 # newLayer <- aggregate(currentLayer, fact = 4, fun = mean) # 4 = for stationary, 6 for migratory, fun can be: mean, modal, min or max
 
 ## permeability
-prop_young_forest <- aggregate(prop_young_forest, fact = 6, fun = mean)
-slope <- aggregate(slope, fact = 6, fun = mean)
-rail_cross <- aggregate(rail_cross, fact = 6, fun = max)
-dist_building <- aggregate(dist_building, fact = 6, fun = mean)
-prop_ar5_agri <- aggregate(prop_ar5_agri, fact = 6, fun = mean)
-prop_ar5_bog <- aggregate(prop_ar5_bog, fact = 6, fun = mean)
-prop_ar5_urban <- aggregate(prop_ar5_urban, fact = 6, fun = mean)
-prop_old_forest <- aggregate(prop_old_forest, fact = 6, fun = mean)
-prop_water <- aggregate(prop_water, fact = 6, fun = mean)
-road_cross <- aggregate(road_cross, fact = 6, fun = max)
-crossings_grey <- aggregate(crossings_grey, fact = 6, fun = max)
-crossings_high_use <- aggregate(crossings_high_use, fact = 6, fun = max)
-crossings_low_use <- aggregate(crossings_low_use, fact = 6, fun = max)
-crossings_green <- aggregate(crossings_green, fact = 6, fun = max)
-dist_passage <- aggregate(dist_passage, fact = 6, fun = min)
-dist_roads <- aggregate(dist_roads, fact = 6, fun = min)
-road_traffic_high <- aggregate(road_traffic_high, fact = 6, fun = max)
+prop_young_forest <- aggregate(prop_young_forest, fact = 4, fun = mean)
+slope <- aggregate(slope, fact = 4, fun = mean)
+rail_cross <- aggregate(rail_cross, fact = 4, fun = max)
+dist_building <- aggregate(dist_building, fact = 4, fun = mean)
+prop_ar5_agri <- aggregate(prop_ar5_agri, fact = 4, fun = mean)
+prop_ar5_bog <- aggregate(prop_ar5_bog, fact = 4, fun = mean)
+prop_ar5_urban <- aggregate(prop_ar5_urban, fact = 4, fun = mean)
+prop_old_forest <- aggregate(prop_old_forest, fact = 4, fun = mean)
+prop_water <- aggregate(prop_water, fact = 4, fun = mean)
+road_cross <- aggregate(road_cross, fact = 4, fun = max)
+crossings_grey <- aggregate(crossings_grey, fact = 4, fun = max)
+crossings_high_use <- aggregate(crossings_high_use, fact = 4, fun = max)
+crossings_low_use <- aggregate(crossings_low_use, fact = 4, fun = max)
+crossings_green <- aggregate(crossings_green, fact = 4, fun = max)
+dist_passage <- aggregate(dist_passage, fact = 4, fun = min)
+dist_roads <- aggregate(dist_roads, fact = 4, fun = min)
+road_traffic_high <- aggregate(road_traffic_high, fact = 4, fun = max)
 # interaction1 <- aggregate(interaction1, fact = 5, fun = mean)
 # interaction2 <- aggregate(interaction2, fact = 5, fun = mean)
 
@@ -190,7 +190,7 @@ sum(is.na(tmp)) #I don't get it, but it seems to correspond with the values of 8
 # table(newdat[,15])
 # str(newdat)
 
-newdat <- data.frame(intercept=1, step_length=116, squareLS = 116^2, newdat)
+newdat <- data.frame(intercept=1, step_length=93, squareLS = 93^2, newdat)
 newdat <- as.matrix(newdat)
 head(newdat)
 
@@ -209,38 +209,40 @@ predprob <- inv.logit(linpred)
 ```{r}
 ## permeability
 
-permeability2 <- slope # just use any layer
-values(permeability2) <- predprob
+permeability4 <- slope # just use any layer
+values(permeability4) <- predprob
 
-plot(permeability2)
-str(permeability2)
-res(permeability2)
+plot(permeability4)
+str(permeability4)
+res(permeability4)
 
-writeRaster(permeability2, "maps/permeability2.tif", overwrite = T)
+writeRaster(permeability4, "maps/permeability4.tif", overwrite = T)
 
 ```
 
 #### draw extent
 ```{r}
 # Use this...
-qu_crop_migratory4 <- raster("maps/qu_crop_migratory4.asc")
+p93_stationary <- raster("maps/p93_stationary.asc")
 
 # ... or this to crop
-plot(permeability2)
-e <- drawExtent()
 
-crop_permeability2_migratory <- crop(permeability2, qu_crop_migratory4)
+# plot(permeability3)
+# e <- drawExtent()
 
-p_crop_permeability2 <- crop(permeability2, e)
+crop_permeability4_stationary_with_cross <- crop(permeability4, p93_stationary)
 
-plot(crop_permeability2_migratory)
-str(crop_permeability2_migratory)
+# p_crop_permeability2 <- crop(permeability2, e)
+
+plot(crop_permeability4_stationary_with_cross)
+str(crop_permeability4_stationary_with_cross)
+res(crop_permeability4_stationary_with_cross)
 
 
 ```
 
 ## write raster
 ```{r}
-writeRaster(crop_permeability2_migratory, "maps/crop_permeability2_migratory.asc", overwrite = T)
+writeRaster(crop_permeability4_stationary_with_cross, "maps/crop_permeability4_stationary_with_cross.asc", overwrite = T)
 ```
 
