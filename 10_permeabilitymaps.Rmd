@@ -30,6 +30,7 @@ load("output/sspf/mod_sspf_allyear.rda")
 
 library(ResourceSelection)
 library(raster)
+library(rgdal)
 library(boot)
 
 ```
@@ -61,7 +62,7 @@ crossings_high_use <- raster("maps/sspf/crossings_high_use.tif")
 crossings_low_use <- raster("maps/sspf/crossings_low_use.tif")
 # values(crossings_low_use) <- 0
 crossings_green <- raster("maps/sspf/crossings_green.tif")
-# values(crossings_low_use) <- 0
+# values(crossings_green) <- 0
 rail_cross <- raster("maps/sspf/crossed_rail.tif")
 
 
@@ -209,40 +210,47 @@ predprob <- inv.logit(linpred)
 ```{r}
 ## permeability
 
-permeability4 <- slope # just use any layer
-values(permeability4) <- predprob
+permeability5 <- prop_young_forest # just use any layer
+values(permeability5) <- predprob
 
-plot(permeability4)
-str(permeability4)
-res(permeability4)
+plot(permeability5)
+str(permeability5)
+res(permeability5)
 
-writeRaster(permeability4, "maps/permeability4.tif", overwrite = T)
+writeRaster(permeability5, "maps/27-02-2020_p_stationary_with_cross.tif", overwrite = T)
+
+# permeability4_stationary_with_cross <- raster("maps/permeability4_stationary_with_cross.tif")
 
 ```
 
 #### draw extent
 ```{r}
 # Use this...
-p93_stationary <- raster("maps/p93_stationary.asc")
+# p93_stationary <- raster("maps/p93_stationary.asc")
+crop_quality5_stationary <- raster("maps/crop_quality5_stationary.asc")
+crop_quality4_migratory <- raster("maps/crop_quality4_migratory.asc")
 
 # ... or this to crop
 
 # plot(permeability3)
 # e <- drawExtent()
 
-crop_permeability4_stationary_with_cross <- crop(permeability4, p93_stationary)
+p_stationary_with_cross_2702 <- crop(permeability5, crop_quality5_stationary)
 
 # p_crop_permeability2 <- crop(permeability2, e)
 
-plot(crop_permeability4_stationary_with_cross)
-str(crop_permeability4_stationary_with_cross)
-res(crop_permeability4_stationary_with_cross)
+plot(p_stationary_with_cross_2702)
+str(p_stationary_without_cross_2702)
+res(p_stationary_without_cross_2702)
 
+e <- crop_permeability4_stationary_with_cross
+
+crop_quality5_stationary_NEW <- crop(crop_quality5_stationary, e)
 
 ```
 
 ## write raster
 ```{r}
-writeRaster(crop_permeability4_stationary_with_cross, "maps/crop_permeability4_stationary_with_cross.asc", overwrite = T)
+writeRaster(p_stationary_without_cross_2702, "maps/p_stationary_without_cross_2702.asc", overwrite = T)
 ```
 
