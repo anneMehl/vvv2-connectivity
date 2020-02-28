@@ -27,6 +27,7 @@ load("output/sspf/mod_sspf_allyear.rda")
 
 # mod_sspf_allyear <-  rspf_parallel(use~ step_length + I(step_length^2) + prop_young_forest + slope + crossed_rail + log_dist_building + prop_ar5_agri +  prop_ar5_bog + prop_ar5_urban + prop_old_forest + prop_water + road_cross + crossing + dist_passage + log_road_dist + road_traffic_high + log_road_dist:road_traffic_high + road_cross:road_traffic_high, data=dat, inits=ints, m=dat$strat, B=99, cl=10, method= "Nelder-Mead", link="logit")
 
+# summary(mod_sspf_allyear)
 
 library(ResourceSelection)
 library(raster)
@@ -75,23 +76,23 @@ rail_cross <- raster("maps/sspf/crossed_rail.tif")
 # newLayer <- aggregate(currentLayer, fact = 4, fun = mean) # 4 = for stationary, 6 for migratory, fun can be: mean, modal, min or max
 
 ## permeability
-prop_young_forest <- aggregate(prop_young_forest, fact = 4, fun = mean)
-slope <- aggregate(slope, fact = 4, fun = mean)
-rail_cross <- aggregate(rail_cross, fact = 4, fun = max)
-dist_building <- aggregate(dist_building, fact = 4, fun = mean)
-prop_ar5_agri <- aggregate(prop_ar5_agri, fact = 4, fun = mean)
-prop_ar5_bog <- aggregate(prop_ar5_bog, fact = 4, fun = mean)
-prop_ar5_urban <- aggregate(prop_ar5_urban, fact = 4, fun = mean)
-prop_old_forest <- aggregate(prop_old_forest, fact = 4, fun = mean)
-prop_water <- aggregate(prop_water, fact = 4, fun = mean)
-road_cross <- aggregate(road_cross, fact = 4, fun = max)
-crossings_grey <- aggregate(crossings_grey, fact = 4, fun = max)
-crossings_high_use <- aggregate(crossings_high_use, fact = 4, fun = max)
-crossings_low_use <- aggregate(crossings_low_use, fact = 4, fun = max)
-crossings_green <- aggregate(crossings_green, fact = 4, fun = max)
-dist_passage <- aggregate(dist_passage, fact = 4, fun = min)
-dist_roads <- aggregate(dist_roads, fact = 4, fun = min)
-road_traffic_high <- aggregate(road_traffic_high, fact = 4, fun = max)
+prop_young_forest <- aggregate(prop_young_forest, fact = 6, fun = mean)
+slope <- aggregate(slope, fact = 6, fun = mean)
+rail_cross <- aggregate(rail_cross, fact = 6, fun = max)
+dist_building <- aggregate(dist_building, fact = 6, fun = mean)
+prop_ar5_agri <- aggregate(prop_ar5_agri, fact = 6, fun = mean)
+prop_ar5_bog <- aggregate(prop_ar5_bog, fact = 6, fun = mean)
+prop_ar5_urban <- aggregate(prop_ar5_urban, fact = 6, fun = mean)
+prop_old_forest <- aggregate(prop_old_forest, fact = 6, fun = mean)
+prop_water <- aggregate(prop_water, fact = 6, fun = mean)
+road_cross <- aggregate(road_cross, fact = 6, fun = max)
+crossings_grey <- aggregate(crossings_grey, fact = 6, fun = max)
+crossings_high_use <- aggregate(crossings_high_use, fact = 6, fun = max)
+crossings_low_use <- aggregate(crossings_low_use, fact = 6, fun = max)
+crossings_green <- aggregate(crossings_green, fact = 6, fun = max)
+dist_passage <- aggregate(dist_passage, fact = 6, fun = min)
+dist_roads <- aggregate(dist_roads, fact = 6, fun = min)
+road_traffic_high <- aggregate(road_traffic_high, fact = 6, fun = max)
 # interaction1 <- aggregate(interaction1, fact = 5, fun = mean)
 # interaction2 <- aggregate(interaction2, fact = 5, fun = mean)
 
@@ -217,7 +218,7 @@ plot(permeability5)
 str(permeability5)
 res(permeability5)
 
-writeRaster(permeability5, "maps/27-02-2020_p_stationary_with_cross.tif", overwrite = T)
+writeRaster(permeability5, "maps/28_02_2020_p_migratory_with_cross.tif", overwrite = T)
 
 # permeability4_stationary_with_cross <- raster("maps/permeability4_stationary_with_cross.tif")
 
@@ -229,21 +230,22 @@ writeRaster(permeability5, "maps/27-02-2020_p_stationary_with_cross.tif", overwr
 # p93_stationary <- raster("maps/p93_stationary.asc")
 crop_quality5_stationary <- raster("maps/crop_quality5_stationary.asc")
 crop_quality4_migratory <- raster("maps/crop_quality4_migratory.asc")
+crop_quality5_stationary_NEW <- raster("maps/crop_quality5_stationary_NEW.asc")
 
 # ... or this to crop
 
 # plot(permeability3)
 # e <- drawExtent()
 
-p_stationary_with_cross_2702 <- crop(permeability5, crop_quality5_stationary)
+p_migratory_with_cross_2802 <- crop(permeability5, crop_quality4_migratory)
 
 # p_crop_permeability2 <- crop(permeability2, e)
 
-plot(p_stationary_with_cross_2702)
-str(p_stationary_without_cross_2702)
-res(p_stationary_without_cross_2702)
+plot(p_migratory_with_cross_2802)
+str(p_migratory_with_cross_2802)
+res(p_migratory_with_cross_2802)
 
-e <- crop_permeability4_stationary_with_cross
+e <- p_stationary_with_cross_2802
 
 crop_quality5_stationary_NEW <- crop(crop_quality5_stationary, e)
 
@@ -251,6 +253,7 @@ crop_quality5_stationary_NEW <- crop(crop_quality5_stationary, e)
 
 ## write raster
 ```{r}
-writeRaster(p_stationary_without_cross_2702, "maps/p_stationary_without_cross_2702.asc", overwrite = T)
+writeRaster(p_migratory_with_cross_2802, "maps/p_migratory_with_cross_2802.asc", overwrite = T)
+
 ```
 
