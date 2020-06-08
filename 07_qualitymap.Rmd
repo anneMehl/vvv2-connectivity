@@ -48,7 +48,7 @@ water_rs <- raster("maps/ar5_resampled/ar5_4_water.tif")
 agri_rs <- raster("maps/ar5_resampled/ar5_1_agri.tif")
 values(agri_rs) <- 0
 ruderal_rs <- raster("maps/ar5_resampled/ar5_2_ruderal.tif")
-values(ruderal_rs) <- 0
+# values(ruderal_rs) <- 0
 bog_rs <- raster("maps/ar5_resampled/ar5_3_bog.tif")
 urban_rs <- raster("maps/ar5_resampled/ar5_5_urban.tif")
 values(urban_rs) <- 0
@@ -180,26 +180,27 @@ predprob <- inv.logit(linpred)
 #### Make and write raster
 ```{r}
 
-quality6_without_humans_0806 <- young # just use any layer, raster("maps/prop_young_forest.tif")
-values(quality6_without_humans_0806) <- predprob
-plot(quality6_without_humans_0806)
-res(quality6_without_humans_0806)
+quality6_without_humans_2_0806 <- young # just use any layer, raster("maps/prop_young_forest.tif")
+values(quality6_without_humans_2_0806) <- predprob
+plot(quality6_without_humans_2_0806)
+res(quality6_without_humans_2_0806)
 
-writeRaster(quality6_without_humans_0806, "maps/quality6_without_humans_0806.tif", overwrite = F)
+writeRaster(quality6_without_humans_2_0806, "maps/quality6_without_humans_2_0806.tif", overwrite = F)
 
 # permeability <- raster("maps/permeability.tif")
 # plot(permeability)
 quality5 <- raster("maps/quality5.tif")
 quality6_0804 <- raster("maps/quality6_0804.tif")
 quality6_without_humans_0806 <- raster("maps/quality6_without_humans_0806.tif")
-quality6_without_humans_0806_asc <- raster("maps/quality6_without_humans_0806.asc")
+quality6_without_roads_0806 <- raster("maps/quality6_without_roads_0806.tif")
+quality6_without_humans_2_0806 <- raster("maps/quality6_without_humans_2_0806.tif")
 
 ```
 
 
 ```{r}
 
-writeRaster(quality6_without_humans_0806, "maps/quality6_without_humans_0806.asc", overwrite = F)
+writeRaster(quality6_without_humans_2_0806, "maps/quality6_without_humans_2_0806.asc", overwrite = F)
 
 ```
 
