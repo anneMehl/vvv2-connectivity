@@ -34,17 +34,24 @@ library(raster)
 #### load rasters
 ```{r}
 # Load rasters 
+## Try also remove roads here
 roads_dist <- raster("maps/dist_roads.tif")
+values(roads_dist) <- 12570
 road_traffic_high <- raster("maps/dist_road_traffic_high.tif")
+values(road_traffic_high) <- 0
 building_dist <- raster("maps/dist_building.tif")
+values(building_dist) <- 0
 young <- raster("maps/prop_young_forest.tif")
 old <- raster("maps/prop_old_forest.tif")
 
 water_rs <- raster("maps/ar5_resampled/ar5_4_water.tif")
 agri_rs <- raster("maps/ar5_resampled/ar5_1_agri.tif")
+values(agri_rs) <- 0
 ruderal_rs <- raster("maps/ar5_resampled/ar5_2_ruderal.tif")
+values(ruderal_rs) <- 0
 bog_rs <- raster("maps/ar5_resampled/ar5_3_bog.tif")
 urban_rs <- raster("maps/ar5_resampled/ar5_5_urban.tif")
+values(urban_rs) <- 0
 mprodcon_rs <- raster("maps/ar5_resampled/ar5_9_mprod_conifer.tif")
 lprodcon_rs <- raster("maps/ar5_resampled/ar5_10_lprod_conifer.tif")
 decforest_rs <- raster("maps/ar5_resampled/ar5_11_dec_forest.tif")
@@ -56,7 +63,7 @@ mixforest_rs <- raster("maps/ar5_resampled/ar5_12_mix_forest.tif")
 #### Aggrigate map layers to chosen resolution
 ```{r}
 ## Example
-# newLayer <- aggregate(currentLayer, fact = 4, fun = mean) # 4 = for stationary, 6 for migratory,  fun can be: mean, modal, min or max
+# newLayer <- aggregate(currentLayer, fact = 4, fun = mean) # 4 (93m), 3 (70m) = for stationary, 6 for migratory,  fun can be: mean, modal, min or max
 
 ## quality
 roads_dist <- aggregate(roads_dist, fact = 4, fun = min) # min?
@@ -84,6 +91,7 @@ mixforest_rs <- aggregate(mixforest_rs, fact = 4, fun = mean)
 ```{r}
 
 log_dist_building <- building_dist
+### When removing buildings, don't run this
 values(log_dist_building) <- log10(values(log_dist_building) + 1)
 # plot(log_dist_building)
 
@@ -91,10 +99,12 @@ log_road_dist <- roads_dist
 values(log_road_dist) <- log10(values(log_road_dist)+1)
 # plot(log_road_dist)
 
+### When removing roads, don't run this
 values(road_traffic_high) <- ifelse(values(roads_dist) < values(road_traffic_high),0,1)
 # plot(road_traffic_high)
 
 interaction <- road_traffic_high
+### When removing roads, don't run this
 values(interaction) <- values(log_road_dist)*values(road_traffic_high)
 # plot(interaction)
 
@@ -170,39 +180,55 @@ predprob <- inv.logit(linpred)
 #### Make and write raster
 ```{r}
 
-quality5 <- young # just use any layer, raster("maps/prop_young_forest.tif")
-values(quality5) <- predprob
-plot(quality5)
+quality6_without_humans_0806 <- young # just use any layer, raster("maps/prop_young_forest.tif")
+values(quality6_without_humans_0806) <- predprob
+plot(quality6_without_humans_0806)
+res(quality6_without_humans_0806)
 
-writeRaster(quality5, "maps/quality5.tif", overwrite = T)
+writeRaster(quality6_without_humans_0806, "maps/quality6_without_humans_0806.tif", overwrite = F)
 
 # permeability <- raster("maps/permeability.tif")
 # plot(permeability)
+quality5 <- raster("maps/quality5.tif")
+quality6_0804 <- raster("maps/quality6_0804.tif")
+quality6_without_humans_0806 <- raster("maps/quality6_without_humans_0806.tif")
+quality6_without_humans_0806_asc <- raster("maps/quality6_without_humans_0806.asc")
 
 ```
 
+
+```{r}
+
+writeRaster(quality6_without_humans_0806, "maps/quality6_without_humans_0806.asc", overwrite = F)
+
+```
+
+
+
+
+## ###################### OLD!! ################### Extent is drawn together with permeability in permeability script!
 #### Draw the extent of the new maps
 ```{r}
 # Use this...
-p93_stationary <- raster("maps/p93_stationary.asc")
+quality6_stationary_30_03_20 <- raster("maps/quality6_stationary_30_03_20.asc")
 
 # ... or this to crop
-# plot(quality4)
-# e <- drawExtent()
+plot(quality6_0804)
+e <- drawExtent()
 
-crop_quality5_stationary <- crop(quality5, p93_stationary)
+quality_stationary_test3 <- crop(quality_stationary_test2, e)
 
-# crop_quality4_migratory <- crop(quality4, e)
+# crop_quality6_stationary <- crop(crop_quality6_stationary, e)
 
-plot(crop_quality5_stationary)
-res(crop_quality5_stationary)
-
+plot(quality_stationary_test3)
+res(quality_stationary_test3)
+# ncols: 246, nrows: 164
 ```
 
 
 ```{r}
 
-writeRaster(crop_quality5_stationary, "maps/crop_quality5_stationary.asc", overwrite = T)
+writeRaster(quality_stationary_test3, "maps/quality_stationary_test3.asc", overwrite = F)
 
 ```
 

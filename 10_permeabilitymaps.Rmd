@@ -28,11 +28,31 @@ load("output/sspf/mod_sspf_allyear.rda")
 # mod_sspf_allyear <-  rspf_parallel(use~ step_length + I(step_length^2) + prop_young_forest + slope + crossed_rail + log_dist_building + prop_ar5_agri +  prop_ar5_bog + prop_ar5_urban + prop_old_forest + prop_water + road_cross + crossing + dist_passage + log_road_dist + road_traffic_high + log_road_dist:road_traffic_high + road_cross:road_traffic_high, data=dat, inits=ints, m=dat$strat, B=99, cl=10, method= "Nelder-Mead", link="logit")
 
 # summary(mod_sspf_allyear)
+# 
+# mod_sspf_allyear <- data.frame(Variable = rownames(summary(mod_sspf_allyear)$coef),
+#                             Coefficient = summary(mod_sspf_allyear)$coef[, 1],
+#                             SE = summary(mod_sspf_allyear)$coef[, 2],
+#                             modelname = "mod_sspf_allyear")
+# # allmodelframe <- data.frame(rbind(mod_sspf_allyear))
+# interval1 <- -qnorm((1-0.95)/2)  # 90% multiplier
+# interval2 <- -qnorm((1-0.95)/2)  # 95% multiplier
+# ggplot(mod_sspf_allyear, aes(colour = modelname)) + 
+#     geom_hline(yintercept = 0, colour = gray(1/2), lty = 2) + 
+#     geom_linerange(aes(x = Variable, ymin = Coefficient - SE*interval1,
+#                                   ymax = Coefficient + SE*interval1),
+#                               lwd = 1, position = position_dodge(width = 1/2)) + 
+#     geom_pointrange(aes(x = Variable, y = Coefficient, ymin = Coefficient - SE*interval2,
+#                                    ymax = Coefficient + SE*interval2),
+#                                lwd = 1/2, position = position_dodge(width = 1/2),
+#                                shape = 21, fill = "WHITE") + coord_flip() + theme_bw() + 
+#     ggtitle("sspf estimates and CI")
+
 
 library(ResourceSelection)
 library(raster)
 library(rgdal)
 library(boot)
+library(ggplot2)
 
 ```
 
@@ -44,28 +64,38 @@ library(boot)
 
 ## permeability map
 dist_building <- raster("maps/dist_building.tif")
+values(dist_building) <- 0
+####### to remove roads, put dist roads to max
 dist_roads <- raster("maps/dist_roads.tif")
+values(dist_roads) <- 12570
+####### To remove roads, put all road connected variables to 0
 road_traffic_high <- raster("maps/dist_road_traffic_high.tif")
+values(road_traffic_high) <- 0
 road_cross <- raster("maps/dist_roads.tif")
+values(road_cross) <- 0
+####### to remove the fence, set dist_passage to 0
 dist_passage <- raster("maps/sspf/fence.tif")
+values(dist_passage) <- 0
 prop_young_forest <- raster("maps/sspf/prop_young_forest.tif")
 slope <- raster("maps/sspf/slope.tif")
 prop_ar5_agri <- raster("maps/sspf/prop_ar5_agri.tif")
+values(prop_ar5_agri) <- 0
 prop_ar5_bog <- raster("maps/sspf/prop_ar5_bog.tif")
 prop_ar5_urban <- raster("maps/sspf/prop_ar5_urban.tif")
+values(prop_ar5_urban) <- 0
 prop_old_forest <- raster("maps/sspf/prop_old_forest.tif")
 prop_water <- raster("maps/sspf/prop_water.tif")
-# to remove the crossing structure, set the values of the crossing layers to 0
+####### to remove the crossing structure, set the values of the crossing layers to 0
 crossings_grey <- raster("maps/sspf/crossings_grey.tif")
-# values(crossings_grey) <- 0
+values(crossings_grey) <- 0
 crossings_high_use <- raster("maps/sspf/crossings_high_use.tif")
-# values(crossings_high_use) <- 0
+values(crossings_high_use) <- 0
 crossings_low_use <- raster("maps/sspf/crossings_low_use.tif")
-# values(crossings_low_use) <- 0
+values(crossings_low_use) <- 0
 crossings_green <- raster("maps/sspf/crossings_green.tif")
-# values(crossings_green) <- 0
+values(crossings_green) <- 0
 rail_cross <- raster("maps/sspf/crossed_rail.tif")
-
+values(rail_cross) <- 0
 
 ```
 
@@ -73,26 +103,26 @@ rail_cross <- raster("maps/sspf/crossed_rail.tif")
 #### aggregate the layers to resolution I want to use 
 ```{r}
 ## Example
-# newLayer <- aggregate(currentLayer, fact = 4, fun = mean) # 4 = for stationary, 6 for migratory, fun can be: mean, modal, min or max
+# newLayer <- aggregate(currentLayer, fact = 4, fun = mean) # 4 (93m), 3 (70m) = for stationary, 6 for migratory, fun can be: mean, modal, min or max
 
 ## permeability
-prop_young_forest <- aggregate(prop_young_forest, fact = 6, fun = mean)
-slope <- aggregate(slope, fact = 6, fun = mean)
-rail_cross <- aggregate(rail_cross, fact = 6, fun = max)
-dist_building <- aggregate(dist_building, fact = 6, fun = mean)
-prop_ar5_agri <- aggregate(prop_ar5_agri, fact = 6, fun = mean)
-prop_ar5_bog <- aggregate(prop_ar5_bog, fact = 6, fun = mean)
-prop_ar5_urban <- aggregate(prop_ar5_urban, fact = 6, fun = mean)
-prop_old_forest <- aggregate(prop_old_forest, fact = 6, fun = mean)
-prop_water <- aggregate(prop_water, fact = 6, fun = mean)
-road_cross <- aggregate(road_cross, fact = 6, fun = max)
-crossings_grey <- aggregate(crossings_grey, fact = 6, fun = max)
-crossings_high_use <- aggregate(crossings_high_use, fact = 6, fun = max)
-crossings_low_use <- aggregate(crossings_low_use, fact = 6, fun = max)
-crossings_green <- aggregate(crossings_green, fact = 6, fun = max)
-dist_passage <- aggregate(dist_passage, fact = 6, fun = min)
-dist_roads <- aggregate(dist_roads, fact = 6, fun = min)
-road_traffic_high <- aggregate(road_traffic_high, fact = 6, fun = max)
+prop_young_forest <- aggregate(prop_young_forest, fact = 4, fun = mean)
+slope <- aggregate(slope, fact = 4, fun = mean)
+rail_cross <- aggregate(rail_cross, fact = 4, fun = max)
+dist_building <- aggregate(dist_building, fact = 4, fun = mean)
+prop_ar5_agri <- aggregate(prop_ar5_agri, fact = 4, fun = mean)
+prop_ar5_bog <- aggregate(prop_ar5_bog, fact = 4, fun = mean)
+prop_ar5_urban <- aggregate(prop_ar5_urban, fact = 4, fun = mean)
+prop_old_forest <- aggregate(prop_old_forest, fact = 4, fun = mean)
+prop_water <- aggregate(prop_water, fact = 4, fun = mean)
+road_cross <- aggregate(road_cross, fact = 4, fun = max)
+crossings_grey <- aggregate(crossings_grey, fact = 4, fun = max)
+crossings_high_use <- aggregate(crossings_high_use, fact = 4, fun = max)
+crossings_low_use <- aggregate(crossings_low_use, fact = 4, fun = max)
+crossings_green <- aggregate(crossings_green, fact = 4, fun = max)
+dist_passage <- aggregate(dist_passage, fact = 4, fun = min)
+dist_roads <- aggregate(dist_roads, fact = 4, fun = min)
+road_traffic_high <- aggregate(road_traffic_high, fact = 4, fun = max)
 # interaction1 <- aggregate(interaction1, fact = 5, fun = mean)
 # interaction2 <- aggregate(interaction2, fact = 5, fun = mean)
 
@@ -106,28 +136,32 @@ road_traffic_high <- aggregate(road_traffic_high, fact = 6, fun = max)
 
 ## permeability map --------------------
 log_dist_building <- dist_building
+#### If removing the buildings, don't run this
 values(log_dist_building) <- log10(values(log_dist_building) + 1)
 # plot(log_dist_building)
 
+#### If removing the roads, don't run this
 values(road_cross) <- ifelse(values(road_cross)==0, 1, 0)
 # plot(road_cross)
 
-# to remove the fence, set dist_passage to 0
+########### If removing fences and roads, don't run next lines
 values(dist_passage) <- ifelse(values(dist_passage)==0, 0, 800) #at 800 any effect of the passage seems to be gone
-
 values(dist_passage) <- ifelse(values(crossings_grey)==1, 0, values(dist_passage))
 values(dist_passage) <- ifelse(values(crossings_high_use)==1, 0, values(dist_passage))
 values(dist_passage) <- ifelse(values(crossings_low_use)==1, 0, values(dist_passage))
 values(dist_passage) <- ifelse(values(crossings_green)==1, 0, values(dist_passage))
-# plot(dist_passage)
-# writeRaster(dist_passage, filename="maps/test.tif", overwrite=T)
 
+#### Run this though...
 log_road_dist <- dist_roads
 values(log_road_dist) <- log10(values(log_road_dist)+1)
 
+#### ...but not this
 values(road_traffic_high) <- ifelse(values(dist_roads) < values(road_traffic_high),0,1)
 
+#### ...run this...
 interaction1 <- interaction2 <- road_traffic_high
+
+#### ...but not this :)
 values(interaction1) <- values(log_road_dist)*values(road_traffic_high)
 values(interaction2) <- values(road_cross)*values(road_traffic_high)
 
@@ -192,7 +226,7 @@ sum(is.na(tmp)) #I don't get it, but it seems to correspond with the values of 8
 # table(newdat[,15])
 # str(newdat)
 
-newdat <- data.frame(intercept=1, step_length=93, squareLS = 93^2, newdat)
+newdat <- data.frame(intercept = 1, step_length = 93.43521, squareLS = 93.43521^2, newdat)
 newdat <- as.matrix(newdat)
 head(newdat)
 
@@ -209,51 +243,106 @@ predprob <- inv.logit(linpred)
 
 #### Make new raster map
 ```{r}
-## permeability
+permeability8_without_humans <- prop_young_forest # just use any layer
+values(permeability8_without_humans) <- predprob
 
-permeability5 <- prop_young_forest # just use any layer
-values(permeability5) <- predprob
+plot(permeability8_without_humans)
+str(permeability8_without_humans)
+res(permeability8_without_humans)
 
-plot(permeability5)
-str(permeability5)
-res(permeability5)
 
-writeRaster(permeability5, "maps/28_02_2020_p_migratory_with_cross.tif", overwrite = T)
+writeRaster(permeability8_without_humans, "maps/permeability8_without_humans.tif", overwrite = T)
 
-# permeability4_stationary_with_cross <- raster("maps/permeability4_stationary_with_cross.tif")
+
+
+# Raster the other maps (quality and permeability)
+permeability8_with <- raster("maps/permeability8_with.tif")
+permeability8_without <- raster("maps/permeability8_without.tif")
+permeability8_without_all <- raster("maps/permeability8_without_all.tif") # all mean all crossings
+# permeability8_without_fence <- raster("maps/permeability8_without_fence.tif")
+permeability8_without_buildings <- raster("maps/permeability8_without_buildings.tif")
+permeability8_without_roads <- raster("maps/permeability8_without_roads.tif")
+permeability8_without_humans <- raster("maps/permeability8_without_humans.tif")
+quality6_0804 <- raster("maps/quality6_0804.tif")
+quality6_without_humans_0806 <- raster("maps/quality6_without_humans_0806.tif")
 
 ```
 
-#### draw extent
+
+## Draw extent and crop all (quality, permeability with and without crossings) maps
+```{r}
+# rast <- stack(raster(q_name), raster(f_name))
+rast <- stack(quality6_without_humans_0806, permeability8_with, permeability8_without_humans)
+
+ext <- extent(601484, 632825, 6667439, 6703616)
+rast <- crop(rast, ext)
+rast
+plot(rast)
+
+#### Not sure if I run this...
+rast <- aggregate(rast, fact=round(resol/xres(rast))) # Don't know what resol and xres are, or rather which values they should represent - resolution? 
+rast
+
+#some plots for checking
+plot(rast)
+plot(rast[[1]])
+plot(rast[[2]])
+plot(rast[[3]])
+plot(extent(rast), add = T) # Don't know what the add = TRUE does...
+rast
+
+```
+
+
+## Write raster
+```{r}
+writeRaster(rast[[1]], file="maps/quality_crop_1905.asc", overwrite = F)
+writeRaster(rast[[1]], file="maps/quality6_without_humans_0806.asc", overwrite = T)
+writeRaster(rast[[2]], file="maps/permeability_with_crop_1905.asc", overwrite = F)
+writeRaster(rast[[3]], file="maps/permeability_without_humans_crop_0506.asc", overwrite = T)
+
+```
+
+
+
+
+
+
+## (OLD!!!) draw extent (OLD!!!)
 ```{r}
 # Use this...
-# p93_stationary <- raster("maps/p93_stationary.asc")
+# q93_stationary <- raster("maps/q93_stationary.asc")
 crop_quality5_stationary <- raster("maps/crop_quality5_stationary.asc")
-crop_quality4_migratory <- raster("maps/crop_quality4_migratory.asc")
-crop_quality5_stationary_NEW <- raster("maps/crop_quality5_stationary_NEW.asc")
+# crop_quality4_migratory <- raster("maps/crop_quality4_migratory.asc")
+crop_quality5_stationary_NEW2 <- raster("maps/crop_quality5_stationary_NEW2.asc")
+quality_stationary_test3 <- raster("maps/quality_stationary_test3.asc")
 
 # ... or this to crop
 
 # plot(permeability3)
-# e <- drawExtent()
+e <- drawExtent()
 
-p_migratory_with_cross_2802 <- crop(permeability5, crop_quality4_migratory)
+permeability7_with_1704 <- crop(permeability7_with_1704, crop_quality5_stationary_NEW2)
 
 # p_crop_permeability2 <- crop(permeability2, e)
 
-plot(p_migratory_with_cross_2802)
-str(p_migratory_with_cross_2802)
-res(p_migratory_with_cross_2802)
+plot(p_stationary_with_cross_1704)
+str(p_stationary_with_cross_0804)
+res(p_stationary_with_cross_0804)
 
 e <- p_stationary_with_cross_2802
 
-crop_quality5_stationary_NEW <- crop(crop_quality5_stationary, e)
+quality_stationary_test4 <- crop(quality_stationary_test3, e)
+
+p_stationary_with_cross_2802_2 <- crop(p_stationary_with_cross_2802, p_stationary_without_cross_2802)
+
+
+
+writeRaster(permeability7_without_1704, "maps/permeability7_without_1704.asc", overwrite = F)
+
+p_stationary_with_cross_2802 <- raster("maps/p_stationary_with_cross_2802.asc")
 
 ```
 
-## write raster
-```{r}
-writeRaster(p_migratory_with_cross_2802, "maps/p_migratory_with_cross_2802.asc", overwrite = T)
 
-```
 
