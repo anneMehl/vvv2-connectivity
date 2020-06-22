@@ -272,7 +272,7 @@ quality6_without_roads_0806 <- raster("maps/quality6_without_roads_0806.tif")
 ## Draw extent and crop all (quality, permeability with and without crossings) maps
 ```{r}
 # rast <- stack(raster(q_name), raster(f_name))
-rast <- stack(quality6_without_humans_2_0806, permeability8_with, permeability8_without_humans)
+rast <- stack(quality6_without_roads_0806, permeability8_with, permeability8_without_all)
 
 ext <- extent(601484, 632825, 6667439, 6703616)
 rast <- crop(rast, ext)
@@ -297,7 +297,7 @@ rast
 ## Write raster
 ```{r}
 writeRaster(rast[[1]], file="maps/quality_crop_1905.asc", overwrite = F)
-writeRaster(rast[[1]], file="maps/quality6_without_humans_2_crop_0806.asc", overwrite = F)
+writeRaster(rast[[1]], file="maps/quality6_without_roads_crop_0806.asc", overwrite = F)
 writeRaster(rast[[2]], file="maps/permeability_with_crop_1905.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_without_roads_crop_0806.asc", overwrite = F)
 

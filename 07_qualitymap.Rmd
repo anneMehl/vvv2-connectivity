@@ -40,18 +40,18 @@ values(roads_dist) <- 12570
 road_traffic_high <- raster("maps/dist_road_traffic_high.tif")
 values(road_traffic_high) <- 0
 building_dist <- raster("maps/dist_building.tif")
-values(building_dist) <- 0
+# values(building_dist) <- 0
 young <- raster("maps/prop_young_forest.tif")
 old <- raster("maps/prop_old_forest.tif")
 
 water_rs <- raster("maps/ar5_resampled/ar5_4_water.tif")
 agri_rs <- raster("maps/ar5_resampled/ar5_1_agri.tif")
-values(agri_rs) <- 0
+# values(agri_rs) <- 0
 ruderal_rs <- raster("maps/ar5_resampled/ar5_2_ruderal.tif")
 # values(ruderal_rs) <- 0
 bog_rs <- raster("maps/ar5_resampled/ar5_3_bog.tif")
 urban_rs <- raster("maps/ar5_resampled/ar5_5_urban.tif")
-values(urban_rs) <- 0
+# values(urban_rs) <- 0
 mprodcon_rs <- raster("maps/ar5_resampled/ar5_9_mprod_conifer.tif")
 lprodcon_rs <- raster("maps/ar5_resampled/ar5_10_lprod_conifer.tif")
 decforest_rs <- raster("maps/ar5_resampled/ar5_11_dec_forest.tif")
