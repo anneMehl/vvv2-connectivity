@@ -4,7 +4,7 @@ library(rgdal)
 
 
 ## load maps -----
-permeability_without_crop_1905 <- raster("maps/permeability_without_crop_1905.asc")
+func_diff_all_1905 <- raster("maps/func_diff_all_1905.asc")
 
 permeability_without_all_crop_1905 <- raster("maps/permeability_without_all_crop_1905.asc")
 
@@ -30,7 +30,6 @@ cellStats(quality6_0804, sum) - cellStats(quality6_without_humans_0506, sum)
 # and green crossing structures
 
 # Just as a comparison: 4.53738097807044% change when removing buildings
-
 
 
 

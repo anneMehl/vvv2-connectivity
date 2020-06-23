@@ -64,7 +64,7 @@ library(ggplot2)
 
 ## permeability map
 dist_building <- raster("maps/dist_building.tif")
-values(dist_building) <- 0
+# values(dist_building) <- 0
 ####### to remove roads, put dist roads to max
 dist_roads <- raster("maps/dist_roads.tif")
 values(dist_roads) <- 12570
@@ -79,10 +79,10 @@ values(dist_passage) <- 0
 prop_young_forest <- raster("maps/sspf/prop_young_forest.tif")
 slope <- raster("maps/sspf/slope.tif")
 prop_ar5_agri <- raster("maps/sspf/prop_ar5_agri.tif")
-values(prop_ar5_agri) <- 0
+# values(prop_ar5_agri) <- 0
 prop_ar5_bog <- raster("maps/sspf/prop_ar5_bog.tif")
 prop_ar5_urban <- raster("maps/sspf/prop_ar5_urban.tif")
-values(prop_ar5_urban) <- 0
+# values(prop_ar5_urban) <- 0
 prop_old_forest <- raster("maps/sspf/prop_old_forest.tif")
 prop_water <- raster("maps/sspf/prop_water.tif")
 ####### to remove the crossing structure, set the values of the crossing layers to 0
@@ -243,15 +243,15 @@ predprob <- inv.logit(linpred)
 
 #### Make new raster map
 ```{r}
-permeability8_without_humans <- prop_young_forest # just use any layer
-values(permeability8_without_humans) <- predprob
+permeability8_without_roads_and_crossings <- prop_young_forest # just use any layer
+values(permeability8_without_roads_and_crossings) <- predprob
 
-plot(permeability8_without_humans)
-str(permeability8_without_humans)
-res(permeability8_without_humans)
+plot(permeability8_without_roads_and_crossings)
+str(permeability8_without_roads_and_crossings)
+res(permeability8_without_roads_and_crossings)
 
 
-writeRaster(permeability8_without_humans, "maps/permeability8_without_humans.tif", overwrite = T)
+writeRaster(permeability8_without_roads_and_crossings, "maps/permeability8_without_roads_and_crossings.tif", overwrite = T)
 
 
 
@@ -262,6 +262,7 @@ permeability8_without_all <- raster("maps/permeability8_without_all.tif") # all 
 # permeability8_without_fence <- raster("maps/permeability8_without_fence.tif")
 permeability8_without_buildings <- raster("maps/permeability8_without_buildings.tif")
 permeability8_without_roads <- raster("maps/permeability8_without_roads.tif")
+permeability8_without_roads_and_crossings <- raster("maps/permeability8_without_roads_and_crossings.tif")
 permeability8_without_humans <- raster("maps/permeability8_without_humans.tif")
 quality6_0804 <- raster("maps/quality6_0804.tif")
 quality6_without_humans_0806 <- raster("maps/quality6_without_humans_0806.tif")
@@ -272,7 +273,7 @@ quality6_without_roads_0806 <- raster("maps/quality6_without_roads_0806.tif")
 ## Draw extent and crop all (quality, permeability with and without crossings) maps
 ```{r}
 # rast <- stack(raster(q_name), raster(f_name))
-rast <- stack(quality6_without_roads_0806, permeability8_with, permeability8_without_all)
+rast <- stack(quality6_without_roads_0806, permeability8_with, permeability8_without_roads_and_crossings)
 
 ext <- extent(601484, 632825, 6667439, 6703616)
 rast <- crop(rast, ext)
@@ -299,7 +300,7 @@ rast
 writeRaster(rast[[1]], file="maps/quality_crop_1905.asc", overwrite = F)
 writeRaster(rast[[1]], file="maps/quality6_without_roads_crop_0806.asc", overwrite = F)
 writeRaster(rast[[2]], file="maps/permeability_with_crop_1905.asc", overwrite = F)
-writeRaster(rast[[3]], file="maps/permeability_without_roads_crop_0806.asc", overwrite = F)
+writeRaster(rast[[3]], file="maps/permeability_without_roads and crossings_crop_2306.asc", overwrite = F)
 
 ```
 
