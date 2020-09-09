@@ -59,13 +59,25 @@ library(ggplot2)
 
 ## Make raster stack 
 
+#### Choose what raster to produce
+```{r}
+name_raster <- "no_road_barrier"
+
+name_raster <- "no_crossings_full_barrier"
+
+```
+
+
 #### load raster layers
 ```{r}
 
 ## permeability map
 dist_building <- raster("maps/dist_building.tif")
 # values(dist_building) <- 0
-####### to remove roads, put dist roads to max
+
+
+if (name_raster=="no_road_barrier"){
+  ####### to remove roads, put dist roads to max
 dist_roads <- raster("maps/dist_roads.tif")
 values(dist_roads) <- 12570
 ####### To remove roads, put all road connected variables to 0
@@ -76,6 +88,10 @@ values(road_cross) <- 0
 ####### to remove the fence, set dist_passage to 0
 dist_passage <- raster("maps/sspf/fence.tif")
 values(dist_passage) <- 0
+}
+
+
+
 prop_young_forest <- raster("maps/sspf/prop_young_forest.tif")
 slope <- raster("maps/sspf/slope.tif")
 prop_ar5_agri <- raster("maps/sspf/prop_ar5_agri.tif")
@@ -85,7 +101,11 @@ prop_ar5_urban <- raster("maps/sspf/prop_ar5_urban.tif")
 # values(prop_ar5_urban) <- 0
 prop_old_forest <- raster("maps/sspf/prop_old_forest.tif")
 prop_water <- raster("maps/sspf/prop_water.tif")
-####### to remove the crossing structure, set the values of the crossing layers to 0
+
+
+
+if(name_raster=="no_crossings_full_barrier" | name_raster=="no_road_barrier"){
+  ####### to remove the crossing structure, set the values of the crossing layers to 0
 crossings_grey <- raster("maps/sspf/crossings_grey.tif")
 values(crossings_grey) <- 0
 crossings_high_use <- raster("maps/sspf/crossings_high_use.tif")
@@ -96,6 +116,18 @@ crossings_green <- raster("maps/sspf/crossings_green.tif")
 values(crossings_green) <- 0
 rail_cross <- raster("maps/sspf/crossed_rail.tif")
 values(rail_cross) <- 0
+####### to remove the crossings, set dist_passage to a high value
+dist_passage <- raster("maps/sspf/fence.tif")
+values(dist_passage) <- 12570
+}
+
+
+
+
+
+
+# random_cross <- raster("maps/random_points.tif")
+# writeRaster(random_cross, "maps/random_cross.tif", overwrite = T)
 
 ```
 
@@ -140,30 +172,42 @@ log_dist_building <- dist_building
 values(log_dist_building) <- log10(values(log_dist_building) + 1)
 # plot(log_dist_building)
 
+
+if (name_raster!="no_road_barrier"){
 #### If removing the roads, don't run this
 values(road_cross) <- ifelse(values(road_cross)==0, 1, 0)
 # plot(road_cross)
 
-########### If removing fences and roads, don't run next lines
+##### If removing fences and roads, don't run next lines
 values(dist_passage) <- ifelse(values(dist_passage)==0, 0, 800) #at 800 any effect of the passage seems to be gone
 values(dist_passage) <- ifelse(values(crossings_grey)==1, 0, values(dist_passage))
 values(dist_passage) <- ifelse(values(crossings_high_use)==1, 0, values(dist_passage))
 values(dist_passage) <- ifelse(values(crossings_low_use)==1, 0, values(dist_passage))
 values(dist_passage) <- ifelse(values(crossings_green)==1, 0, values(dist_passage))
+}
+
 
 #### Run this though...
 log_road_dist <- dist_roads
 values(log_road_dist) <- log10(values(log_road_dist)+1)
 
+
+if (name_raster!="no_road_barrier"){
 #### ...but not this
 values(road_traffic_high) <- ifelse(values(dist_roads) < values(road_traffic_high),0,1)
+}
+
 
 #### ...run this...
 interaction1 <- interaction2 <- road_traffic_high
 
+
+if (name_raster!="no_road_barrier"){
 #### ...but not this :)
 values(interaction1) <- values(log_road_dist)*values(road_traffic_high)
 values(interaction2) <- values(road_cross)*values(road_traffic_high)
+}
+
 
 ```
 
@@ -243,15 +287,15 @@ predprob <- inv.logit(linpred)
 
 #### Make new raster map
 ```{r}
-permeability8_without_roads_and_crossings <- prop_young_forest # just use any layer
-values(permeability8_without_roads_and_crossings) <- predprob
+permeability_no_road_barrier <- prop_young_forest # just use any layer
+values(permeability_no_road_barrier) <- predprob
 
-plot(permeability8_without_roads_and_crossings)
-str(permeability8_without_roads_and_crossings)
-res(permeability8_without_roads_and_crossings)
+plot(permeability_no_road_barrier)
+str(permeability_no_road_barrier)
+res(permeability_no_road_barrier)
 
 
-writeRaster(permeability8_without_roads_and_crossings, "maps/permeability8_without_roads_and_crossings.tif", overwrite = T)
+writeRaster(permeability_no_road_barrier, "maps/permeability_no_road_barrier.tif", overwrite = F)
 
 
 
@@ -273,7 +317,7 @@ quality6_without_roads_0806 <- raster("maps/quality6_without_roads_0806.tif")
 ## Draw extent and crop all (quality, permeability with and without crossings) maps
 ```{r}
 # rast <- stack(raster(q_name), raster(f_name))
-rast <- stack(quality6_without_roads_0806, permeability8_with, permeability8_without_roads_and_crossings)
+rast <- stack(quality6_0804, permeability8_with, permeability_no_road_barrier)
 
 ext <- extent(601484, 632825, 6667439, 6703616)
 rast <- crop(rast, ext)
@@ -300,7 +344,9 @@ rast
 writeRaster(rast[[1]], file="maps/quality_crop_1905.asc", overwrite = F)
 writeRaster(rast[[1]], file="maps/quality6_without_roads_crop_0806.asc", overwrite = F)
 writeRaster(rast[[2]], file="maps/permeability_with_crop_1905.asc", overwrite = F)
-writeRaster(rast[[3]], file="maps/permeability_without_roads and crossings_crop_2306.asc", overwrite = F)
+
+writeRaster(rast[[3]], file="maps/permeability_no_road_barrier_crop_0909.asc", overwrite = F)
+writeRaster(rast[[3]], file="maps/permeability_no_crossings_full_barrier_crop_0909.asc", overwrite = F)
 
 ```
 
