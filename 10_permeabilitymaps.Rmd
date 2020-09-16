@@ -77,7 +77,7 @@ dist_building <- raster("maps/dist_building.tif")
 
 
 if (name_raster=="no_road_barrier"){
-  ####### to remove roads, put dist roads to max
+####### to remove roads, put dist roads to max
 dist_roads <- raster("maps/dist_roads.tif")
 values(dist_roads) <- 12570
 ####### To remove roads, put all road connected variables to 0
@@ -90,6 +90,14 @@ dist_passage <- raster("maps/sspf/fence.tif")
 values(dist_passage) <- 0
 }
 
+if (name_raster=="no_crossings_full_barrier"){
+dist_roads <- raster("maps/dist_roads.tif")
+road_traffic_high <- raster("maps/dist_road_traffic_high.tif")
+road_cross <- raster("maps/dist_roads.tif")
+####### to close the fence/ remove crossings, set dist_passage to a high value
+dist_passage <- raster("maps/sspf/fence.tif")
+values(dist_passage) <- 12570
+}
 
 
 prop_young_forest <- raster("maps/sspf/prop_young_forest.tif")
@@ -116,20 +124,50 @@ crossings_green <- raster("maps/sspf/crossings_green.tif")
 values(crossings_green) <- 0
 rail_cross <- raster("maps/sspf/crossed_rail.tif")
 values(rail_cross) <- 0
-####### to remove the crossings, set dist_passage to a high value
-dist_passage <- raster("maps/sspf/fence.tif")
-values(dist_passage) <- 12570
 }
 
 
+```
 
 
 
+#### Only run to compare placement of crossings with random points
+```{r}
+library(raster)
+permeability8_with <- raster("maps/permeability8_with.tif") # mask.raster
 
-# random_cross <- raster("maps/random_points.tif")
-# writeRaster(random_cross, "maps/random_cross.tif", overwrite = T)
+
+library(rgdal)
+my_spdf <- readOGR( 
+  dsn= paste0(getwd(),"/maps/") , 
+  layer="Random_points",
+  verbose=FALSE
+)
+
+
+# convert the shapefile to a raster based on a standardised background
+    # raster
+    r <- rasterize(shp, mask.raster)
+    # set the cells associated with the shapfile to the specified value
+    r[!is.na(r)] <- value
+    # merge the new raster with the mask raster and export to the working
+    # directory as a tif file
+    r <- mask(merge(r, mask.raster), mask.raster, filename = label, format = "GTiff",
+        overwrite = T)
+
+    # plot map of new raster
+    if (map == TRUE) {
+        plot(r, main = label, axes = F, box = F)
+    }
+
+    names(r) <- label
+    return(r)
+}
+
 
 ```
+
+
 
 
 #### aggregate the layers to resolution I want to use 
@@ -173,7 +211,7 @@ values(log_dist_building) <- log10(values(log_dist_building) + 1)
 # plot(log_dist_building)
 
 
-if (name_raster!="no_road_barrier"){
+if (name_raster!="no_road_barrier" | name_raster!="no_crossings_full_barrier"){
 #### If removing the roads, don't run this
 values(road_cross) <- ifelse(values(road_cross)==0, 1, 0)
 # plot(road_cross)
@@ -187,26 +225,46 @@ values(dist_passage) <- ifelse(values(crossings_green)==1, 0, values(dist_passag
 }
 
 
+if (name_raster=="no_crossings_full_barrier" | name_raster!="no_road_barrier"){
+#### If removing the roads, don't run this
+values(road_cross) <- ifelse(values(road_cross)==0, 1, 0)
+}
+
+if (name_raster!="no_crossings_full_barrier" | name_raster!="no_road_barrier"){
+##### If removing fences and roads, don't run next lines
+values(dist_passage) <- ifelse(values(dist_passage)==0, 0, 800) #at 800 any effect of the passage seems to be gone
+values(dist_passage) <- ifelse(values(crossings_grey)==1, 0, values(dist_passage))
+values(dist_passage) <- ifelse(values(crossings_high_use)==1, 0, values(dist_passage))
+values(dist_passage) <- ifelse(values(crossings_low_use)==1, 0, values(dist_passage))
+values(dist_passage) <- ifelse(values(crossings_green)==1, 0, values(dist_passage))
+}
+
+
+
+if (name_raster=="no_road_barrier" | name_raster=="no_crossings_full_barrier"){
 #### Run this though...
 log_road_dist <- dist_roads
 values(log_road_dist) <- log10(values(log_road_dist)+1)
+}
 
 
-if (name_raster!="no_road_barrier"){
+if (name_raster!="no_road_barrier" | name_raster=="no_crossings_full_barrier"){
 #### ...but not this
 values(road_traffic_high) <- ifelse(values(dist_roads) < values(road_traffic_high),0,1)
 }
 
 
+if (name_raster=="no_road_barrier" | name_raster=="no_crossings_full_barrier"){
 #### ...run this...
 interaction1 <- interaction2 <- road_traffic_high
+}
 
-
-if (name_raster!="no_road_barrier"){
+if (name_raster!="no_road_barrier" | name_raster=="no_crossings_full_barrier"){
 #### ...but not this :)
 values(interaction1) <- values(log_road_dist)*values(road_traffic_high)
 values(interaction2) <- values(road_cross)*values(road_traffic_high)
 }
+
 
 
 ```
@@ -287,15 +345,15 @@ predprob <- inv.logit(linpred)
 
 #### Make new raster map
 ```{r}
-permeability_no_road_barrier <- prop_young_forest # just use any layer
-values(permeability_no_road_barrier) <- predprob
+permeability_full_barrier <- prop_young_forest # just use any layer
+values(permeability_full_barrier) <- predprob
 
-plot(permeability_no_road_barrier)
-str(permeability_no_road_barrier)
-res(permeability_no_road_barrier)
+plot(permeability_full_barrier)
+str(permeability_full_barrier)
+res(permeability_full_barrier)
 
 
-writeRaster(permeability_no_road_barrier, "maps/permeability_no_road_barrier.tif", overwrite = F)
+writeRaster(permeability_full_barrier, "maps/permeability_full_barrier.tif", overwrite = F)
 
 
 
@@ -317,7 +375,7 @@ quality6_without_roads_0806 <- raster("maps/quality6_without_roads_0806.tif")
 ## Draw extent and crop all (quality, permeability with and without crossings) maps
 ```{r}
 # rast <- stack(raster(q_name), raster(f_name))
-rast <- stack(quality6_0804, permeability8_with, permeability_no_road_barrier)
+rast <- stack(quality6_0804, permeability8_with, permeability_full_barrier)
 
 ext <- extent(601484, 632825, 6667439, 6703616)
 rast <- crop(rast, ext)
@@ -346,7 +404,7 @@ writeRaster(rast[[1]], file="maps/quality6_without_roads_crop_0806.asc", overwri
 writeRaster(rast[[2]], file="maps/permeability_with_crop_1905.asc", overwrite = F)
 
 writeRaster(rast[[3]], file="maps/permeability_no_road_barrier_crop_0909.asc", overwrite = F)
-writeRaster(rast[[3]], file="maps/permeability_no_crossings_full_barrier_crop_0909.asc", overwrite = F)
+writeRaster(rast[[3]], file="maps/permeability_no_crossings_full_barrier_crop_0916.asc", overwrite = F)
 
 ```
 
