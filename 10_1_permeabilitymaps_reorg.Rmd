@@ -65,68 +65,52 @@ name_raster <- "no_road_barrier"
 
 name_raster <- "no_crossings_full_barrier"
 
+name_raster <- "current"
+
 ```
 
 
 #### load raster layers
 ```{r}
 
-## permeability map
 dist_building <- raster("maps/dist_building.tif")
-
-
-values(road_cross) <- ifelse(values(road_cross)==0, 1, 0)
+dist_roads <- raster("maps/dist_roads.tif")
+road_traffic_high <- raster("maps/dist_road_traffic_high.tif")
+road_cross <- raster("maps/dist_roads.tif")
+dist_passage <- raster("maps/sspf/fence.tif")
+prop_young_forest <- raster("maps/sspf/prop_young_forest.tif")
+slope <- raster("maps/sspf/slope.tif")
+prop_ar5_agri <- raster("maps/sspf/prop_ar5_agri.tif")
+prop_ar5_bog <- raster("maps/sspf/prop_ar5_bog.tif")
+prop_ar5_urban <- raster("maps/sspf/prop_ar5_urban.tif")
+prop_old_forest <- raster("maps/sspf/prop_old_forest.tif")
+prop_water <- raster("maps/sspf/prop_water.tif")
+rail_cross <- raster("maps/sspf/crossed_rail.tif")
+crossings_grey <- raster("maps/sspf/crossings_grey.tif")
+crossings_high_use <- raster("maps/sspf/crossings_high_use.tif")
+crossings_low_use <- raster("maps/sspf/crossings_low_use.tif")
+crossings_green <- raster("maps/sspf/crossings_green.tif")
 
 
 if (name_raster=="no_road_barrier"){
-####### to remove roads, put dist roads to max
-dist_roads <- raster("maps/dist_roads.tif")
-values(dist_roads) <- 12570
-####### To remove roads, put all road connected variables to 0
-road_traffic_high <- raster("maps/dist_road_traffic_high.tif")
+values(dist_roads) <- 900 # 900 = quantile 99% road_dist
 values(road_traffic_high) <- 0
-road_cross <- raster("maps/dist_roads.tif")
 values(road_cross) <- 0
-####### to remove the fence, set dist_passage to 0
-dist_passage <- raster("maps/sspf/fence.tif")
 values(dist_passage) <- 0
 }
 
 if (name_raster=="no_crossings_full_barrier"){
-dist_roads <- raster("maps/dist_roads.tif")
-road_traffic_high <- raster("maps/dist_road_traffic_high.tif")
-road_cross <- raster("maps/dist_roads.tif")
-####### to close the fence/ remove crossings, set dist_passage to a high value
-dist_passage <- raster("maps/sspf/fence.tif")
 values(dist_passage) <- ifelse(values(dist_passage) == 1, 3000, 0) # 3000 = quantile 95% dist_passage
 }
 
-
-prop_young_forest <- raster("maps/sspf/prop_young_forest.tif")
-slope <- raster("maps/sspf/slope.tif")
-prop_ar5_agri <- raster("maps/sspf/prop_ar5_agri.tif")
-# values(prop_ar5_agri) <- 0
-prop_ar5_bog <- raster("maps/sspf/prop_ar5_bog.tif")
-prop_ar5_urban <- raster("maps/sspf/prop_ar5_urban.tif")
-# values(prop_ar5_urban) <- 0
-prop_old_forest <- raster("maps/sspf/prop_old_forest.tif")
-prop_water <- raster("maps/sspf/prop_water.tif")
-
-
-
-if(name_raster=="no_crossings_full_barrier" | name_raster=="no_road_barrier"){
-  ####### to remove the crossing structure, set the values of the crossing layers to 0
-crossings_grey <- raster("maps/sspf/crossings_grey.tif")
+if(name_raster!="current"){
 values(crossings_grey) <- 0
-crossings_high_use <- raster("maps/sspf/crossings_high_use.tif")
 values(crossings_high_use) <- 0
-crossings_low_use <- raster("maps/sspf/crossings_low_use.tif")
 values(crossings_low_use) <- 0
-crossings_green <- raster("maps/sspf/crossings_green.tif")
 values(crossings_green) <- 0
 }
 
-rail_cross <- raster("maps/sspf/crossed_rail.tif")
+
 
 
 ```
@@ -167,6 +151,7 @@ plot(rr)
 
 
 
+
 #### aggregate the layers to resolution I want to use 
 ```{r}
 ## Example
@@ -201,64 +186,37 @@ road_traffic_high <- aggregate(road_traffic_high, fact = 4, fun = max)
 #### Transform layers 
 ```{r}
 
-## permeability map --------------------
 log_dist_building <- dist_building
-#### If removing the buildings, don't run this
 values(log_dist_building) <- log10(values(log_dist_building) + 1)
-# plot(log_dist_building)
 
-
-if (name_raster=="no_road_barrier"){
-#### If removing the roads, don't run this
-values(road_cross) <- 0
-# plot(road_cross)
-}
-
-
-##### If we have roads and fences, run next lines
-values(dist_passage) <- ifelse(values(dist_passage)==0, 0, 800) #at 800 any effect of the passage seems to be gone
-values(dist_passage) <- ifelse(values(crossings_grey)==1, 0, values(dist_passage))
-values(dist_passage) <- ifelse(values(crossings_high_use)==1, 0, values(dist_passage))
-values(dist_passage) <- ifelse(values(crossings_low_use)==1, 0, values(dist_passage))
-values(dist_passage) <- ifelse(values(crossings_green)==1, 0, values(dist_passage))
-
-
-if (name_raster=="no_crossings_full_barrier" | name_raster!="no_road_barrier"){
-#### If removing the roads, don't run this
-values(road_cross) <- ifelse(values(road_cross)==0, 1, 0)
-}
-
-if (name_raster!="no_crossings_full_barrier" | name_raster!="no_road_barrier"){
-##### If removing fences and roads, don't run next lines
-values(dist_passage) <- ifelse(values(dist_passage)==0, 0, 800) #at 800 any effect of the passage seems to be gone
-values(dist_passage) <- ifelse(values(crossings_grey)==1, 0, values(dist_passage))
-values(dist_passage) <- ifelse(values(crossings_high_use)==1, 0, values(dist_passage))
-values(dist_passage) <- ifelse(values(crossings_low_use)==1, 0, values(dist_passage))
-values(dist_passage) <- ifelse(values(crossings_green)==1, 0, values(dist_passage))
-}
-
-
-
-if (name_raster=="no_road_barrier" | name_raster=="no_crossings_full_barrier"){
-#### Run this though...
 log_road_dist <- dist_roads
 values(log_road_dist) <- log10(values(log_road_dist)+1)
+
+interaction1 <- interaction2 <- road_traffic_high
+
+values(road_cross) <- ifelse(values(road_cross)==0, 1, 0)
+
+
+if (name_raster!="current"){
+values(road_cross) <- 0
 }
 
 
-if (name_raster!="no_road_barrier" | name_raster=="no_crossings_full_barrier"){
-#### ...but not this
+if (name_raster=="current"){
+values(dist_passage) <- ifelse(values(dist_passage)==0, 0, 800) #at 800 any effect of the passage seems to be gone
+values(dist_passage) <- ifelse(values(crossings_grey)==1, 0, values(dist_passage))
+values(dist_passage) <- ifelse(values(crossings_high_use)==1, 0, values(dist_passage))
+values(dist_passage) <- ifelse(values(crossings_low_use)==1, 0, values(dist_passage))
+values(dist_passage) <- ifelse(values(crossings_green)==1, 0, values(dist_passage))
+}
+
+
+if (name_raster!="no_road_barrier"){
 values(road_traffic_high) <- ifelse(values(dist_roads) < values(road_traffic_high),0,1)
 }
 
 
-if (name_raster=="no_road_barrier" | name_raster=="no_crossings_full_barrier"){
-#### ...run this...
-interaction1 <- interaction2 <- road_traffic_high
-}
-
-if (name_raster!="no_road_barrier" | name_raster=="no_crossings_full_barrier"){
-#### ...but not this :)
+if (name_raster!="no_road_barrier"){
 values(interaction1) <- values(log_road_dist)*values(road_traffic_high)
 values(interaction2) <- values(road_cross)*values(road_traffic_high)
 }
@@ -351,30 +309,29 @@ str(permeability_full_barrier)
 res(permeability_full_barrier)
 
 
-writeRaster(permeability_full_barrier, "maps/permeability_full_barrier.tif", overwrite = F)
+writeRaster(permeability_full_barrier, "maps/permeability_full_barrier.tif", overwrite = T)
 
 
 
 # Raster the other maps (quality and permeability)
-permeability8_with <- raster("maps/permeability8_with.tif")
+permeability8_with <- raster("maps/permeability8_with.tif") # current situation
 permeability8_without <- raster("maps/permeability8_without.tif")
-permeability8_without_all <- raster("maps/permeability8_without_all.tif") # all mean all crossings
+permeability8_without_all <- raster("maps/permeability8_without_all.tif") # all means all crossings
 # permeability8_without_fence <- raster("maps/permeability8_without_fence.tif")
 permeability8_without_buildings <- raster("maps/permeability8_without_buildings.tif")
 permeability8_without_roads <- raster("maps/permeability8_without_roads.tif")
 permeability8_without_roads_and_crossings <- raster("maps/permeability8_without_roads_and_crossings.tif")
 permeability8_without_humans <- raster("maps/permeability8_without_humans.tif")
-quality6_0804 <- raster("maps/quality6_0804.tif")
+
+quality6_0804 <- raster("maps/quality6_0804.tif") # current situation
 quality6_without_humans_0806 <- raster("maps/quality6_without_humans_0806.tif")
 quality6_without_roads_0806 <- raster("maps/quality6_without_roads_0806.tif")
 
  
-permeability_no_crossings_full_barrier <- raster("maps/permeability_no_crossings_full_barrier_crop_0916.asc")
-plot(permeability_no_crossings_full_barrier)
 ```
 
 
-## Draw extent and crop all (quality, permeability with and without crossings) maps
+## Draw extent and crop all maps
 ```{r}
 # rast <- stack(raster(q_name), raster(f_name))
 rast <- stack(quality6_0804, permeability8_with, permeability_full_barrier)
@@ -402,11 +359,11 @@ rast
 ## Write raster
 ```{r}
 writeRaster(rast[[1]], file="maps/quality_crop_1905.asc", overwrite = F)
-writeRaster(rast[[1]], file="maps/quality6_without_roads_crop_0806.asc", overwrite = F)
 writeRaster(rast[[2]], file="maps/permeability_with_crop_1905.asc", overwrite = F)
 
-writeRaster(rast[[3]], file="maps/permeability_no_road_barrier_crop_0909.asc", overwrite = F)
-writeRaster(rast[[3]], file="maps/permeability_no_crossings_full_barrier_crop_0916.asc", overwrite = F)
+writeRaster(rast[[3]], file="maps/permeability_current_crop_0810.asc", overwrite = F)
+writeRaster(rast[[3]], file="maps/permeability_no_barrier_crop_0810.asc", overwrite = F)
+writeRaster(rast[[3]], file="maps/permeability_full_barrier_crop_0810.asc", overwrite = F)
 
 ```
 
