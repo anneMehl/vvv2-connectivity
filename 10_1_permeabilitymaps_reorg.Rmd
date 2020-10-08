@@ -194,6 +194,7 @@ values(log_road_dist) <- log10(values(log_road_dist)+1)
 
 interaction1 <- interaction2 <- road_traffic_high
 
+
 values(road_cross) <- ifelse(values(road_cross)==0, 1, 0)
 
 
@@ -313,6 +314,7 @@ writeRaster(permeability_full_barrier, "maps/permeability_full_barrier.tif", ove
 
 
 
+
 # Raster the other maps (quality and permeability)
 permeability8_with <- raster("maps/permeability8_with.tif") # current situation
 permeability8_without <- raster("maps/permeability8_without.tif")
@@ -331,6 +333,7 @@ quality6_without_roads_0806 <- raster("maps/quality6_without_roads_0806.tif")
 ```
 
 
+<<<<<<< HEAD
 ## Draw extent and crop all maps
 ```{r}
 # rast <- stack(raster(q_name), raster(f_name))
@@ -364,6 +367,7 @@ writeRaster(rast[[2]], file="maps/permeability_with_crop_1905.asc", overwrite = 
 writeRaster(rast[[3]], file="maps/permeability_current_crop_0810.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_no_barrier_crop_0810.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_full_barrier_crop_0810.asc", overwrite = F)
+
 
 ```
 
