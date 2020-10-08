@@ -333,7 +333,7 @@ quality6_without_roads_0806 <- raster("maps/quality6_without_roads_0806.tif")
 ```
 
 
-<<<<<<< HEAD
+
 ## Draw extent and crop all maps
 ```{r}
 # rast <- stack(raster(q_name), raster(f_name))
