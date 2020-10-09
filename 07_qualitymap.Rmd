@@ -93,20 +93,18 @@ mixforest_rs <- aggregate(mixforest_rs, fact = 4, fun = mean)
 log_dist_building <- building_dist
 ### When removing buildings, don't run this
 values(log_dist_building) <- log10(values(log_dist_building) + 1)
-# plot(log_dist_building)
+
 
 log_road_dist <- roads_dist
 values(log_road_dist) <- log10(values(log_road_dist)+1)
-# plot(log_road_dist)
+
+interaction <- road_traffic_high
+
 
 ### When removing roads, don't run this
 values(road_traffic_high) <- ifelse(values(roads_dist) < values(road_traffic_high),0,1)
-# plot(road_traffic_high)
-
-interaction <- road_traffic_high
-### When removing roads, don't run this
 values(interaction) <- values(log_road_dist)*values(road_traffic_high)
-# plot(interaction)
+
 
 
 ```
