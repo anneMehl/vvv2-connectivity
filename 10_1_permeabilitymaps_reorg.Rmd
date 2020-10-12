@@ -119,7 +119,7 @@ values(road_traffic_high) <- 0
 values(road_cross) <- 0
 values(dist_passage) <- 0
 values(prop_ar5_urban) <- 0
-values(prop_ar5_agri) <- 0
+# values(prop_ar5_agri) <- 0
 values(dist_building) <- 0
 }
 
@@ -313,10 +313,10 @@ predprob <- inv.logit(linpred)
 
 #### Make new raster map
 ```{r}
-permeability_no_barrier <- prop_young_forest # just use any layer
-values(permeability_no_barrier) <- predprob
+permeability_no_humans <- prop_young_forest # just use any layer
+values(permeability_no_humans) <- predprob
 
-plot(permeability_no_barrier)
+plot(permeability_no_humans)
 str(permeability_no_humans)
 res(permeability_no_humans)
 
@@ -328,7 +328,7 @@ writeRaster(permeability_no_humans, "maps/permeability_no_humans.tif", overwrite
 
 # Raster the other maps (quality and permeability)
 permeability8_with <- raster("maps/permeability8_with.tif") # current situation
-permeability_current <- raster("maps/permeability_current.tif")
+permeability_current <- raster("maps/permeability_current.tif") # current situation
 permeability8_without <- raster("maps/permeability8_without.tif")
 permeability8_without_all <- raster("maps/permeability8_without_all.tif") # all means all crossings
 # permeability8_without_fence <- raster("maps/permeability8_without_fence.tif")
@@ -349,7 +349,7 @@ quality6_without_roads_0806 <- raster("maps/quality6_without_roads_0806.tif")
 ## Draw extent and crop all maps
 ```{r}
 # rast <- stack(raster(q_name), raster(f_name))
-rast <- stack(quality6_0804, permeability_current, permeability_no_barrier)
+rast <- stack(quality6_0804, permeability_current, permeability_no_humans)
 
 ext <- extent(601484, 632825, 6667439, 6703616)
 rast <- crop(rast, ext)
@@ -379,7 +379,7 @@ writeRaster(rast[[2]], file="maps/permeability_with_crop_1905.asc", overwrite = 
 writeRaster(rast[[3]], file="maps/permeability_current_crop_0810.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_no_barrierTEST_crop_0910.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_full_barrier_crop_0810.asc", overwrite = F)
-writeRaster(rast[[3]], file="maps/permeability_no_humans_crop_0910.asc", overwrite = T)
+writeRaster(rast[[3]], file="maps/permeability_no_humans_crop_1210.asc", overwrite = T)
 
 ```
 
