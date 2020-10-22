@@ -18,6 +18,7 @@ This analysis Christer has been doing for the project.
 #### MCP
 ```{r}
   load("processdata/gpsdata2.rda")
+library(adehabitatHR)
   head(gpsdata2)
   points <- gpsdata2[gpsdata2$use==1, ]
   head(points)
