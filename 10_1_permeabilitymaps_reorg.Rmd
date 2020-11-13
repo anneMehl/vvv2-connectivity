@@ -57,6 +57,65 @@ library(ggplot2)
 ```
 
 
+## Make random points layer
+```{r}
+library(sf)
+library(spatialEco)
+library(tidyverse)
+library(stars)
+
+roads <- st_read("maps/Vbase_Public_roads_Gardermoen_clipped.shp")
+roads <- st_transform(roads, crs = "+proj=utm +zone=32 +datum=WGS84 +units=m +no_defs")
+
+
+random_points <- st_line_sample(roads, n = 2, density = 1/200, type = "random") %>% 
+  st_as_sf()# one per 200 m
+
+
+random_points2 <-  st_cast(random_points, 'POINT') %>% 
+  sample_n(., 21) %>%
+  mutate(points = 1) %>% 
+  dplyr::select(points)
+
+plot(random_points2)
+
+grid <- st_make_grid(random_points2, cellsize = 23.3588) %>% 
+  st_as_sf() %>% 
+  mutate(id = 1:nrow(.))
+
+plot(grid)
+
+crossings_green_sf <- st_as_sf(crossings_green_stars)
+
+int <- st_intersection(random_points2, grid) %>% st_drop_geometry()
+
+grid_int <- full_join(int, grid, by = 'id') %>% 
+  replace_na(list(points = 0)) %>% 
+  st_as_sf()
+
+
+bbox <- st_bbox(grid) %>% st_as_stars
+random_points_r <- st_rasterize(grid_int, bbox)
+
+crossings_green_stars <- st_as_stars(crossings_green)
+random_points_r <- st_rasterize(grid_int, crossings_green_stars)
+
+plot(random_points_r)
+
+plot(crossings_green)
+plot(roads, add=T)
+plot(random_points_r, add=T)
+
+
+
+write_stars(random_points_r, "maps/random_points_rast.tif")
+
+
+
+```
+
+
+
 ## Make raster stack 
 
 #### Choose what raster to produce
@@ -96,9 +155,8 @@ crossings_low_use <- raster("maps/sspf/crossings_low_use.tif")
 crossings_green <- raster("maps/sspf/crossings_green.tif")
 
 
-
 if (name_raster=="random_points"){
-  random_points <- raster("maps/ptoraster.ovr")
+  crossings_green <- raster("maps/random_points_rast.tif")
 }
 
 
@@ -113,7 +171,7 @@ if (name_raster=="no_crossings_full_barrier"){
 values(dist_passage) <- ifelse(values(dist_passage) == 1, 3000, 0) # 3000 = quantile 95% dist_passage
 }
 
-if(name_raster!="current"){
+if(name_raster!="current" & name_raster!="random_points"){
 values(crossings_grey) <- 0
 values(crossings_high_use) <- 0
 values(crossings_low_use) <- 0
@@ -184,12 +242,12 @@ interaction1 <- interaction2 <- road_traffic_high
 values(road_cross) <- ifelse(values(road_cross)==0, 1, 0)
 
 
-if (name_raster!="current"){
+if (name_raster!="current" & name_raster!="random_points"){
 values(road_cross) <- 0
 }
 
 
-if (name_raster=="current"){
+if (name_raster=="current" & name_raster=="random_points"){
 values(dist_passage) <- ifelse(values(dist_passage)==0, 0, 800) #at 800 any effect of the passage seems to be gone
 values(dist_passage) <- ifelse(values(crossings_grey)==1, 0, values(dist_passage))
 values(dist_passage) <- ifelse(values(crossings_high_use)==1, 0, values(dist_passage))
@@ -237,6 +295,7 @@ mybrick <- addLayer(mybrick, dist_passage)
 mybrick <- addLayer(mybrick, log_road_dist)
 mybrick <- addLayer(mybrick, road_traffic_high)
 mybrick <- addLayer(mybrick, interaction1, interaction2)
+
 
 ```
 
@@ -287,21 +346,21 @@ predprob <- inv.logit(linpred)
 
 #### Make new raster map
 ```{r}
-permeability_no_humans <- prop_young_forest # just use any layer
-values(permeability_no_humans) <- predprob
+permeability_random_points <- prop_young_forest # just use any layer
+values(permeability_random_points) <- predprob
 
-plot(permeability_no_humans)
-str(permeability_no_humans)
-res(permeability_no_humans)
+plot(permeability_random_points)
+str(permeability_random_points)
+res(permeability_random_points)
 
 
-writeRaster(permeability_no_humans, "maps/permeability_no_humans.tif", overwrite = T)
+writeRaster(permeability_random_points, "maps/permeability_random_points.tif", overwrite = T)
 
 
 
 
 # Raster the other maps (quality and permeability)
-permeability8_with <- raster("maps/permeability8_with.tif") # current situation
+permeability8_with <- raster("maps/permeability8_with.tif") # old current situation 
 permeability_current <- raster("maps/permeability_current.tif") # current situation
 permeability8_without <- raster("maps/permeability8_without.tif")
 permeability8_without_all <- raster("maps/permeability8_without_all.tif") # all means all crossings
@@ -323,7 +382,7 @@ quality6_without_roads_0806 <- raster("maps/quality6_without_roads_0806.tif")
 ## Draw extent and crop all maps
 ```{r}
 # rast <- stack(raster(q_name), raster(f_name))
-rast <- stack(quality6_0804, permeability_current, permeability_no_humans)
+rast <- stack(quality6_0804, permeability_current, permeability_random_points)
 
 ext <- extent(601484, 632825, 6667439, 6703616)
 rast <- crop(rast, ext)
@@ -354,6 +413,7 @@ writeRaster(rast[[3]], file="maps/permeability_current_crop_0810.asc", overwrite
 writeRaster(rast[[3]], file="maps/permeability_no_barrierTEST_crop_0910.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_full_barrier_crop_0810.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_no_humans_crop_1210.asc", overwrite = T)
+writeRaster(rast[[3]], file="maps/permeability_random_points_crop_1711.asc", overwrite = T)
 
 ```
 
