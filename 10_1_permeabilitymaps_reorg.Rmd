@@ -56,6 +56,57 @@ library(ggplot2)
 
 ```
 
+```{r}
+library(sp) # maybe sf library
+library(sf)
+library(maptools)
+library(spatialEco)
+
+
+# SpatialPoints() # loads an existing shape file
+
+
+## With maptool
+# roads <- readShapeLines("maps/Vbase_Public_roads_Gardermoen_clipped")
+## With sf
+roads <- st_read("maps/Vbase_Public_roads_Gardermoen_clipped.shp")
+crs(roads) <- CRS("+proj=utm +zone=33 +datum=WGS84 +units=m +no_defs")
+roads <- spTransform(roads, CRS("+proj=utm +zone=32 +datum=WGS84 +units=m +no_defs"))
+
+# random_points <- spsample(roads, n = 21, type = "random", cellsize = 23.3588)
+random_points <- sample.line(roads, n = 21, type = "random", longlat = TRUE)
+plot(crossings_green)
+plot(roads, add=T)
+plot(random_points, add=T)
+
+random_points1 <- rasterize(x = random_points, y = crossings_green)
+random_points_rast <- random_points1[[1]]
+values(random_points_rast) <- ifelse(is.na(values(random_points_rast)), 0, 1)
+plot(random_points_rast)
+plot(random_points, add=T)
+
+
+writeRaster(random_points_rast, "maps/random_points_rast.tif", overwrite = T)
+
+
+
+sp.lines <- SpatialLines(list(Lines(list(Line(cbind(c(1,2,3),c(3,2,2)))), 
+               ID="2")))
+ sp.lines <- SpatialLinesDataFrame( sp.lines, data.frame(ID=1:2, 
+                                    row.names=c(1,2)) )
+
+# Create fixed size (n = 20) random sample 
+ rand.sample <- sample.line(sp.lines, n = 20, type = "random", 
+                            longlat = TRUE)  
+   plot(sp.lines)
+     plot(rand.sample, pch = 20, add = TRUE)
+     box()	  
+     title("rand n = 20")
+
+
+```
+
+
 
 ## Make random points layer
 ```{r}
@@ -157,6 +208,7 @@ crossings_green <- raster("maps/sspf/crossings_green.tif")
 
 if (name_raster=="random_points"){
   crossings_green <- raster("maps/random_points_rast.tif")
+
 }
 
 
@@ -219,6 +271,7 @@ crossings_green <- aggregate(crossings_green, fact = 4, fun = max)
 dist_passage <- aggregate(dist_passage, fact = 4, fun = min)
 dist_roads <- aggregate(dist_roads, fact = 4, fun = min)
 road_traffic_high <- aggregate(road_traffic_high, fact = 4, fun = max)
+random_points <- aggregate(random_points, fact = 4, fun = max)
 # interaction1 <- aggregate(interaction1, fact = 5, fun = mean)
 # interaction2 <- aggregate(interaction2, fact = 5, fun = mean)
 
@@ -295,6 +348,7 @@ mybrick <- addLayer(mybrick, dist_passage)
 mybrick <- addLayer(mybrick, log_road_dist)
 mybrick <- addLayer(mybrick, road_traffic_high)
 mybrick <- addLayer(mybrick, interaction1, interaction2)
+
 
 
 ```
