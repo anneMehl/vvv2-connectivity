@@ -56,58 +56,6 @@ library(ggplot2)
 
 ```
 
-```{r}
-library(sp) # maybe sf library
-library(sf)
-library(maptools)
-library(spatialEco)
-
-
-# SpatialPoints() # loads an existing shape file
-
-
-## With maptool
-# roads <- readShapeLines("maps/Vbase_Public_roads_Gardermoen_clipped")
-## With sf
-roads <- st_read("maps/Vbase_Public_roads_Gardermoen_clipped.shp")
-crs(roads) <- CRS("+proj=utm +zone=33 +datum=WGS84 +units=m +no_defs")
-roads <- spTransform(roads, CRS("+proj=utm +zone=32 +datum=WGS84 +units=m +no_defs"))
-
-# random_points <- spsample(roads, n = 21, type = "random", cellsize = 23.3588)
-random_points <- sample.line(roads, n = 21, type = "random", longlat = TRUE)
-plot(crossings_green)
-plot(roads, add=T)
-plot(random_points, add=T)
-
-random_points1 <- rasterize(x = random_points, y = crossings_green)
-random_points_rast <- random_points1[[1]]
-values(random_points_rast) <- ifelse(is.na(values(random_points_rast)), 0, 1)
-plot(random_points_rast)
-plot(random_points, add=T)
-
-
-writeRaster(random_points_rast, "maps/random_points_rast.tif", overwrite = T)
-
-
-
-sp.lines <- SpatialLines(list(Lines(list(Line(cbind(c(1,2,3),c(3,2,2)))), 
-               ID="2")))
- sp.lines <- SpatialLinesDataFrame( sp.lines, data.frame(ID=1:2, 
-                                    row.names=c(1,2)) )
-
-# Create fixed size (n = 20) random sample 
- rand.sample <- sample.line(sp.lines, n = 20, type = "random", 
-                            longlat = TRUE)  
-   plot(sp.lines)
-     plot(rand.sample, pch = 20, add = TRUE)
-     box()	  
-     title("rand n = 20")
-
-
-```
-
-
-
 ## Make random points layer
 ```{r}
 library(sf)
@@ -118,12 +66,18 @@ library(stars)
 roads <- st_read("maps/Vbase_Public_roads_Gardermoen_clipped.shp")
 roads <- st_transform(roads, crs = "+proj=utm +zone=32 +datum=WGS84 +units=m +no_defs")
 
+# i=1  to test your loop
+for (i in c(1:100)){
+tmp <- st_line_sample(roads, n = 1, density = 1/200, type = "random") %>% 
+  st_as_sf()  
+}
 
-random_points <- st_line_sample(roads, n = 2, density = 1/200, type = "random") %>% 
-  st_as_sf()# one per 200 m
+
+# random_points <- st_line_sample(roads, n = 2, density = 1/200, type = "random") %>% 
+#   st_as_sf() # one per 200m
 
 
-random_points2 <-  st_cast(random_points, 'POINT') %>% 
+random_points2 <-  st_cast(tmp, 'POINT') %>% 
   sample_n(., 21) %>%
   mutate(points = 1) %>% 
   dplyr::select(points)
@@ -134,9 +88,8 @@ grid <- st_make_grid(random_points2, cellsize = 23.3588) %>%
   st_as_sf() %>% 
   mutate(id = 1:nrow(.))
 
-plot(grid)
+# plot(grid)
 
-crossings_green_sf <- st_as_sf(crossings_green_stars)
 
 int <- st_intersection(random_points2, grid) %>% st_drop_geometry()
 
@@ -146,12 +99,13 @@ grid_int <- full_join(int, grid, by = 'id') %>%
 
 
 bbox <- st_bbox(grid) %>% st_as_stars
-random_points_r <- st_rasterize(grid_int, bbox)
 
+random_points_r <- st_rasterize(grid_int, bbox)
+crossings_green <- raster("maps/sspf/crossings_green.tif")
 crossings_green_stars <- st_as_stars(crossings_green)
 random_points_r <- st_rasterize(grid_int, crossings_green_stars)
 
-plot(random_points_r)
+# plot(random_points_r)
 
 plot(crossings_green)
 plot(roads, add=T)
@@ -159,7 +113,7 @@ plot(random_points_r, add=T)
 
 
 
-write_stars(random_points_r, "maps/random_points_rast.tif")
+write_stars(random_points_r, "maps/random_points_rast.tif", update = T)
 
 
 
@@ -411,8 +365,13 @@ res(permeability_random_points)
 writeRaster(permeability_random_points, "maps/permeability_random_points.tif", overwrite = T)
 
 
+ 
+```
 
 
+
+## Draw extent and crop all maps
+```{r}
 # Raster the other maps (quality and permeability)
 permeability8_with <- raster("maps/permeability8_with.tif") # old current situation 
 permeability_current <- raster("maps/permeability_current.tif") # current situation
@@ -428,13 +387,8 @@ quality6_0804 <- raster("maps/quality6_0804.tif") # current situation
 quality6_without_humans_0806 <- raster("maps/quality6_without_humans_0806.tif")
 quality6_without_roads_0806 <- raster("maps/quality6_without_roads_0806.tif")
 
- 
-```
 
 
-
-## Draw extent and crop all maps
-```{r}
 # rast <- stack(raster(q_name), raster(f_name))
 rast <- stack(quality6_0804, permeability_current, permeability_random_points)
 
@@ -444,16 +398,16 @@ rast
 plot(rast)
 
 #### Not sure if I run this...
-rast <- aggregate(rast, fact=round(resol/xres(rast))) # Don't know what resol and xres are, or rather which values they should represent - resolution? 
-rast
+# rast <- aggregate(rast, fact=round(resol/xres(rast))) # Don't know what resol and xres are, or rather which values they should represent - resolution? 
+# rast
 
 #some plots for checking
-plot(rast)
-plot(rast[[1]])
-plot(rast[[2]])
-plot(rast[[3]])
-plot(extent(rast), add = T) # Don't know what the add = TRUE does...
-rast
+# plot(rast)
+# plot(rast[[1]])
+# plot(rast[[2]])
+# plot(rast[[3]])
+# plot(extent(rast), add = T) # Don't know what the add = TRUE does...
+# rast
 
 ```
 
@@ -467,7 +421,7 @@ writeRaster(rast[[3]], file="maps/permeability_current_crop_0810.asc", overwrite
 writeRaster(rast[[3]], file="maps/permeability_no_barrierTEST_crop_0910.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_full_barrier_crop_0810.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_no_humans_crop_1210.asc", overwrite = T)
-writeRaster(rast[[3]], file="maps/permeability_random_points_crop_1711.asc", overwrite = T)
+writeRaster(rast[[3]], file="maps/permeability_random_points_crop_1811.asc", overwrite = T)
 
 ```
 
