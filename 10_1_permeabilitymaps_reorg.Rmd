@@ -382,6 +382,7 @@ permeability8_without_buildings <- raster("maps/permeability8_without_buildings.
 permeability8_without_roads <- raster("maps/permeability8_without_roads.tif")
 permeability8_without_roads_and_crossings <- raster("maps/permeability8_without_roads_and_crossings.tif")
 permeability8_without_humans <- raster("maps/permeability8_without_humans.tif")
+permeability_random_points <- raster("maps/permeability_random_points.tif")
 
 quality6_0804 <- raster("maps/quality6_0804.tif") # current situation
 quality6_without_humans_0806 <- raster("maps/quality6_without_humans_0806.tif")
@@ -396,6 +397,13 @@ ext <- extent(601484, 632825, 6667439, 6703616)
 rast <- crop(rast, ext)
 rast
 plot(rast)
+
+## To test julia loop
+plot(quality6_0804)
+e <- drawExtent()
+rast <- crop(rast, e)
+plot(rast)
+rast
 
 #### Not sure if I run this...
 # rast <- aggregate(rast, fact=round(resol/xres(rast))) # Don't know what resol and xres are, or rather which values they should represent - resolution? 
@@ -420,9 +428,12 @@ writeRaster(rast[[2]], file="maps/permeability_with_crop_1905.asc", overwrite = 
 writeRaster(rast[[3]], file="maps/permeability_current_crop_0810.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_no_barrierTEST_crop_0910.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_full_barrier_crop_0810.asc", overwrite = F)
-writeRaster(rast[[3]], file="maps/permeability_no_humans_crop_1210.asc", overwrite = T)
-writeRaster(rast[[3]], file="maps/permeability_random_points_crop_1811.asc", overwrite = T)
+writeRaster(rast[[3]], file="maps/permeability_no_humans_crop_1210.asc", overwrite = F)
+writeRaster(rast[[3]], file="maps/permeability_random_points_crop_1811.asc", overwrite = F)
 
+## To test julia loop
+writeRaster(rast[[3]], file="maps/permeability_random_points_test_loopXXX.asc", overwrite = F)
+writeRaster(rast[[1]], file="maps/quality_test_loopXXX.asc", overwrite = F)
 ```
 
 
