@@ -56,68 +56,167 @@ library(ggplot2)
 
 ```
 
-## Make random points layer
+
+
+
+
+
+## To produce random points layers
 ```{r}
 library(sf)
 library(spatialEco)
 library(tidyverse)
 library(stars)
 
+## Load map layers
 roads <- st_read("maps/Vbase_Public_roads_Gardermoen_clipped.shp")
 roads <- st_transform(roads, crs = "+proj=utm +zone=32 +datum=WGS84 +units=m +no_defs")
 
-# i=1  to test your loop
+dist_building <- raster("maps/dist_building.tif")
+dist_roads <- raster("maps/dist_roads.tif")
+road_traffic_high <- raster("maps/dist_road_traffic_high.tif")
+road_cross <- raster("maps/dist_roads.tif")
+dist_passage <- raster("maps/sspf/fence.tif")
+prop_young_forest <- raster("maps/sspf/prop_young_forest.tif")
+slope <- raster("maps/sspf/slope.tif")
+prop_ar5_agri <- raster("maps/sspf/prop_ar5_agri.tif")
+prop_ar5_bog <- raster("maps/sspf/prop_ar5_bog.tif")
+prop_ar5_urban <- raster("maps/sspf/prop_ar5_urban.tif")
+prop_old_forest <- raster("maps/sspf/prop_old_forest.tif")
+prop_water <- raster("maps/sspf/prop_water.tif")
+rail_cross <- raster("maps/sspf/crossed_rail.tif")
+crossings_grey <- raster("maps/sspf/crossings_grey.tif")
+crossings_high_use <- raster("maps/sspf/crossings_high_use.tif")
+crossings_low_use <- raster("maps/sspf/crossings_low_use.tif")
+# crossings_green <- raster("maps/sspf/crossings_green.tif")
+
+
+## Aggregate map layers
+prop_young_forest <- aggregate(prop_young_forest, fact = 4, fun = mean)
+slope <- aggregate(slope, fact = 4, fun = mean)
+rail_cross <- aggregate(rail_cross, fact = 4, fun = max)
+dist_building <- aggregate(dist_building, fact = 4, fun = mean)
+prop_ar5_agri <- aggregate(prop_ar5_agri, fact = 4, fun = mean)
+prop_ar5_bog <- aggregate(prop_ar5_bog, fact = 4, fun = mean)
+prop_ar5_urban <- aggregate(prop_ar5_urban, fact = 4, fun = mean)
+prop_old_forest <- aggregate(prop_old_forest, fact = 4, fun = mean)
+prop_water <- aggregate(prop_water, fact = 4, fun = mean)
+road_cross <- aggregate(road_cross, fact = 4, fun = max)
+crossings_grey <- aggregate(crossings_grey, fact = 4, fun = max)
+crossings_high_use <- aggregate(crossings_high_use, fact = 4, fun = max)
+crossings_low_use <- aggregate(crossings_low_use, fact = 4, fun = max)
+dist_passage <- aggregate(dist_passage, fact = 4, fun = min)
+dist_roads <- aggregate(dist_roads, fact = 4, fun = min)
+road_traffic_high <- aggregate(road_traffic_high, fact = 4, fun = max)
+
+## Transform layers
+log_dist_building <- dist_building
+values(log_dist_building) <- log10(values(log_dist_building) + 1)
+log_road_dist <- dist_roads
+values(log_road_dist) <- log10(values(log_road_dist)+1)
+interaction1 <- interaction2 <- road_traffic_high
+values(road_cross) <- ifelse(values(road_cross)==0, 1, 0)
+values(dist_passage) <- ifelse(values(dist_passage)==0, 0, 800) #at 800 any effect of the passage seems to be gone 
+values(dist_passage) <- ifelse(values(crossings_grey)==1, 0, values(dist_passage))
+values(dist_passage) <- ifelse(values(crossings_high_use)==1, 0, values(dist_passage))
+values(dist_passage) <- ifelse(values(crossings_low_use)==1, 0, values(dist_passage))
+values(road_traffic_high) <- ifelse(values(dist_roads) < values(road_traffic_high),0,1)
+values(interaction1) <- values(log_road_dist)*values(road_traffic_high)
+values(interaction2) <- values(road_cross)*values(road_traffic_high)
+
+
+## Extent
+ext <- extent(601484, 632825, 6667439, 6703616)
+prop_young_forest <- crop(prop_young_forest, ext)
+slope <- crop(slope, ext)
+rail_cross <- crop(rail_cross, ext)
+log_dist_building <- crop(log_dist_building, ext)
+prop_ar5_agri <- crop(prop_ar5_agri, ext)
+prop_ar5_bog <- crop(prop_ar5_bog, ext)
+prop_ar5_urban <- crop(prop_ar5_urban, ext)
+prop_old_forest <- crop(prop_old_forest, ext)
+prop_water <- crop(prop_water, ext)
+road_cross <- crop(road_cross, ext)
+crossings_grey <- crop(crossings_grey, ext)
+crossings_high_use <- crop(crossings_high_use, ext)
+crossings_low_use <- crop(crossings_low_use, ext)
+dist_passage <- crop(dist_passage, ext)
+log_road_dist <- crop(log_road_dist, ext)
+road_traffic_high <- crop(road_traffic_high, ext)
+interaction1 <- crop(interaction1, ext)
+interaction2 <- crop(interaction2, ext)
+
+crossings_high_use_stars <- st_as_stars(crossings_high_use)
+
+
+## Load model
+rspf_mod <- mod_sspf_allyear
+coefs <- rspf_mod$coefficients
+
+
+# i=1 # to test your loop
 for (i in c(1:100)){
-tmp <- st_line_sample(roads, n = 1, density = 1/200, type = "random") %>% 
-  st_as_sf()  
+  tmp <- st_line_sample(roads, n = 2, density = 1/200, type = "random") %>%
+  st_as_sf() 
+  random_points2 <-  st_cast(tmp, 'POINT') %>% 
+  sample_n(., 21) %>% # maybe change to 20, to get 21 points in the end
+  mutate(points = 1) %>% 
+  dplyr::select(points)
+  grid <- st_make_grid(random_points2, cellsize = 93.43521) %>%  # maybe change back to 23.3588
+  st_as_sf() %>% 
+  mutate(id = 1:nrow(.))
+  int <- st_intersection(random_points2, grid) %>% st_drop_geometry()
+  grid_int <- full_join(int, grid, by = 'id') %>% 
+  replace_na(list(points = 0)) %>% 
+  st_as_sf()
+  bbox <- st_bbox(grid) %>% st_as_stars
+  random_points_r <- st_rasterize(grid_int, bbox)
+  random_points_r <- st_rasterize(grid_int, crossings_high_use_stars)
+
+  crossings_green <- random_points_r
+  crossings_green <- as(crossings_green, "Raster")
+  # crossings_green <- aggregate(crossings_green, fact = 4, fun = max) # maybe delete
+  values(dist_passage) <- ifelse(values(crossings_green) == 1, 0, values(dist_passage))
+  
+  mybrick <- prop_young_forest
+  mybrick <- brick(mybrick)
+  mybrick <- addLayer(mybrick, slope)
+  mybrick <- addLayer(mybrick, rail_cross)
+  mybrick <- addLayer(mybrick, log_dist_building)
+  mybrick <- addLayer(mybrick, prop_ar5_agri)
+  mybrick <- addLayer(mybrick, prop_ar5_bog)
+  mybrick <- addLayer(mybrick, prop_ar5_urban)
+  mybrick <- addLayer(mybrick, prop_old_forest)
+  mybrick <- addLayer(mybrick, prop_water)
+  mybrick <- addLayer(mybrick, road_cross)
+  mybrick <- addLayer(mybrick, crossings_grey)
+  mybrick <- addLayer(mybrick, crossings_high_use)
+  mybrick <- addLayer(mybrick, crossings_low_use)
+  mybrick <- addLayer(mybrick, crossings_green)
+  mybrick <- addLayer(mybrick, dist_passage)
+  mybrick <- addLayer(mybrick, log_road_dist)
+  mybrick <- addLayer(mybrick, road_traffic_high)
+  mybrick <- addLayer(mybrick, interaction1, interaction2)
+  newdat <- as.data.frame(mybrick)
+  newdat <- data.frame(intercept = 1, step_length = 93.43521, squareLS = 93.43521^2, newdat)
+  newdat <- as.matrix(newdat)
+  predvals <- (newdat %*% coefs)
+  linpred <- predvals[,1]
+  predprob <- inv.logit(linpred)
+  permeability_random_points <- prop_young_forest # just use any layer
+  values(permeability_random_points) <- predprob
+
+  writeRaster(permeability_random_points, file=paste0("maps/rep_random_points/permeability_random_points",i,".asc"), overwrite=T)
 }
 
 
-# random_points <- st_line_sample(roads, n = 2, density = 1/200, type = "random") %>% 
-#   st_as_sf() # one per 200m
-
-
-random_points2 <-  st_cast(tmp, 'POINT') %>% 
-  sample_n(., 21) %>%
-  mutate(points = 1) %>% 
-  dplyr::select(points)
-
-plot(random_points2)
-
-grid <- st_make_grid(random_points2, cellsize = 23.3588) %>% 
-  st_as_sf() %>% 
-  mutate(id = 1:nrow(.))
-
-# plot(grid)
-
-
-int <- st_intersection(random_points2, grid) %>% st_drop_geometry()
-
-grid_int <- full_join(int, grid, by = 'id') %>% 
-  replace_na(list(points = 0)) %>% 
-  st_as_sf()
-
-
-bbox <- st_bbox(grid) %>% st_as_stars
-
-random_points_r <- st_rasterize(grid_int, bbox)
-crossings_green <- raster("maps/sspf/crossings_green.tif")
-crossings_green_stars <- st_as_stars(crossings_green)
-random_points_r <- st_rasterize(grid_int, crossings_green_stars)
-
-# plot(random_points_r)
-
-plot(crossings_green)
-plot(roads, add=T)
-plot(random_points_r, add=T)
-
-
-
-write_stars(random_points_r, "maps/random_points_rast.tif", update = T)
-
+# permeability_random_points1 <- raster("maps/rep_random_points/permeability_random_points1.asc")
+# plot(permeability_random_points1)
 
 
 ```
+
+
 
 
 
@@ -133,7 +232,7 @@ name_raster <- "current"
 
 name_raster <- "no_humans"
 
-name_raster <- "random_points"
+# name_raster <- "random_points"
 
 ```
 
@@ -160,11 +259,6 @@ crossings_low_use <- raster("maps/sspf/crossings_low_use.tif")
 crossings_green <- raster("maps/sspf/crossings_green.tif")
 
 
-if (name_raster=="random_points"){
-  crossings_green <- raster("maps/random_points_rast.tif")
-
-}
-
 
 if (name_raster=="no_road_barrier"){
 values(dist_roads) <- 900 # 900 = quantile 99% road_dist
@@ -177,7 +271,7 @@ if (name_raster=="no_crossings_full_barrier"){
 values(dist_passage) <- ifelse(values(dist_passage) == 1, 3000, 0) # 3000 = quantile 95% dist_passage
 }
 
-if(name_raster!="current" & name_raster!="random_points"){
+if(name_raster!="current"){
 values(crossings_grey) <- 0
 values(crossings_high_use) <- 0
 values(crossings_low_use) <- 0
@@ -225,7 +319,7 @@ crossings_green <- aggregate(crossings_green, fact = 4, fun = max)
 dist_passage <- aggregate(dist_passage, fact = 4, fun = min)
 dist_roads <- aggregate(dist_roads, fact = 4, fun = min)
 road_traffic_high <- aggregate(road_traffic_high, fact = 4, fun = max)
-random_points <- aggregate(random_points, fact = 4, fun = max)
+# random_points <- aggregate(random_points, fact = 4, fun = max)
 # interaction1 <- aggregate(interaction1, fact = 5, fun = mean)
 # interaction2 <- aggregate(interaction2, fact = 5, fun = mean)
 
@@ -249,12 +343,12 @@ interaction1 <- interaction2 <- road_traffic_high
 values(road_cross) <- ifelse(values(road_cross)==0, 1, 0)
 
 
-if (name_raster!="current" & name_raster!="random_points"){
+if (name_raster!="current"){
 values(road_cross) <- 0
 }
 
 
-if (name_raster=="current" & name_raster=="random_points"){
+if (name_raster=="current"){
 values(dist_passage) <- ifelse(values(dist_passage)==0, 0, 800) #at 800 any effect of the passage seems to be gone
 values(dist_passage) <- ifelse(values(crossings_grey)==1, 0, values(dist_passage))
 values(dist_passage) <- ifelse(values(crossings_high_use)==1, 0, values(dist_passage))
