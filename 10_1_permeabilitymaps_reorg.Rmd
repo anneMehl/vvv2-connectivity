@@ -525,9 +525,9 @@ writeRaster(rast[[3]], file="maps/permeability_full_barrier_crop_0810.asc", over
 writeRaster(rast[[3]], file="maps/permeability_no_humans_crop_1210.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_random_points_crop_1811.asc", overwrite = F)
 
-## To test julia loop
-writeRaster(rast[[3]], file="maps/permeability_random_points_test_loopXXX.asc", overwrite = F)
-writeRaster(rast[[1]], file="maps/quality_test_loopXXX.asc", overwrite = F)
+# ## To test julia loop
+# writeRaster(rast[[3]], file="maps/permeability_random_points_test_loopXXX.asc", overwrite = F)
+# writeRaster(rast[[1]], file="maps/quality_test_loopXXX.asc", overwrite = F)
 ```
 
 
