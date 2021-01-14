@@ -523,12 +523,78 @@ writeRaster(rast[[3]], file="maps/permeability_current_crop_0810.asc", overwrite
 writeRaster(rast[[3]], file="maps/permeability_no_barrierTEST_crop_0910.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_full_barrier_crop_0810.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_no_humans_crop_1210.asc", overwrite = F)
-writeRaster(rast[[3]], file="maps/permeability_random_points_crop_1811.asc", overwrite = F)
+# writeRaster(rast[[3]], file="maps/permeability_random_points_crop_1811.asc", overwrite = F)
 
-# ## To test julia loop
-# writeRaster(rast[[3]], file="maps/permeability_random_points_test_loopXXX.asc", overwrite = F)
-# writeRaster(rast[[1]], file="maps/quality_test_loopXXX.asc", overwrite = F)
+
 ```
+
+
+
+
+## sum of function
+```{r}
+library(raster)
+
+## Permeabilities and qualities ----
+permeability_current_crop_0810 <- raster("maps/final_permability_and_quality/permeability_current_crop_0810.asc")
+cellStats(permeability_current_crop_0810, "sum")
+
+permeability_full_barrier_crop_0810 <- raster("maps/final_permability_and_quality/permeability_full_barrier_crop_0810.asc")
+cellStats(permeability_full_barrier_crop_0810, "sum")
+
+permeability_no_barrier_crop_0810 <- raster("maps/final_permability_and_quality/permeability_no_barrier_crop_0810.asc")
+cellStats(permeability_no_barrier_crop_0810, "sum")
+
+permeability_no_humans_crop_0910 <- raster("maps/final_permability_and_quality/permeability_no_humans_crop_0910.asc")
+cellStats(permeability_no_humans_crop_0910, "sum")
+
+quality_crop_1905 <- raster("maps/final_permability_and_quality/quality_crop_1905.asc")
+cellStats(quality_crop_1905, "sum")
+
+
+
+## Function outputs ----
+func_current_1210 <- raster("maps/func_julia_outputs/func_current_1210.asc")
+cellStats(func_current_1210, "sum")
+
+func_diff_full_barrier_1210 <- raster("maps/func_julia_outputs/func_diff_full_barrier_1210.asc")
+cellStats(func_diff_full_barrier_1210, "sum")
+
+func_diff_no_barrier_1210 <- raster("maps/func_julia_outputs/func_diff_no_barrier_1210.asc")
+cellStats(func_diff_no_barrier_1210, "sum")
+
+func_diff_no_humans_1210 <- raster("maps/func_julia_outputs/func_diff_no_humans_1210.asc")
+cellStats(func_diff_no_humans_1210, "sum")
+
+func_full_barrier_1210 <- raster("maps/func_julia_outputs/func_full_barrier_1210.asc")
+cellStats(func_full_barrier_1210, "sum")
+
+func_no_barrier_1210 <- raster("maps/func_julia_outputs/func_no_barrier_1210.asc")
+cellStats(func_no_barrier_1210, "sum")
+
+func_no_humans_1210 <- raster("maps/func_julia_outputs/func_no_humans_1210.asc")
+cellStats(func_no_humans_1210, "sum")
+
+
+
+## Function outputs random points ----
+for (i in 1:10) {
+  print(cellStats(raster(paste0("maps/rep_random_points_julia/permeability_random_points",i,".asc")),"sum"))
+}
+
+# [1] 41618778
+# [1] 41618289
+# [1] 41619981
+# [1] 41620720
+# [1] 41619005
+# [1] 41619600
+# [1] 41619713
+# [1] 41620721
+# [1] 41618451
+# [1] 41617791
+
+```
+
 
 
 
