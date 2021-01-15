@@ -18,7 +18,7 @@ This is how it is done. It re-sets itself when the R-session is terminated.
 # To check the current memory limit
 memory.limit() #[1] 8062 -----> default
 # To check the current size (only when not changed) and to change the memory limit
-memory.size(30000) # Put the new memory size into the bracktes, e.g. 9000
+memory.size(20000) # Put the new memory size into the bracktes, e.g. 9000
 ```
 
 ## Load models and packages
@@ -232,7 +232,6 @@ name_raster <- "current"
 
 name_raster <- "no_humans"
 
-# name_raster <- "random_points"
 
 ```
 
@@ -285,7 +284,7 @@ values(road_traffic_high) <- 0
 values(road_cross) <- 0
 values(dist_passage) <- 0
 values(prop_ar5_urban) <- 0
-# values(prop_ar5_agri) <- 0
+values(prop_ar5_agri) <- 0
 values(dist_building) <- 0
 }
 
@@ -448,15 +447,15 @@ predprob <- inv.logit(linpred)
 
 #### Make new raster map
 ```{r}
-permeability_random_points <- prop_young_forest # just use any layer
-values(permeability_random_points) <- predprob
+permeability_without_roads_1501 <- prop_young_forest # just use any layer
+values(permeability_without_roads_1501) <- predprob
 
-plot(permeability_random_points)
-str(permeability_random_points)
-res(permeability_random_points)
+# plot(permeability_without_humans_1501)
+# str(permeability_without_humans_1501)
+# res(permeability_without_humans_1501)
 
 
-writeRaster(permeability_random_points, "maps/permeability_random_points.tif", overwrite = T)
+# writeRaster(permeability_without_humans_1501, "maps/permeability_without_humans_1501.tif", overwrite = T)
 
 
  
@@ -485,7 +484,7 @@ quality6_without_roads_0806 <- raster("maps/quality6_without_roads_0806.tif")
 
 
 # rast <- stack(raster(q_name), raster(f_name))
-rast <- stack(quality6_0804, permeability_current, permeability_random_points)
+rast <- stack(quality_without_roads_1501, permeability_current)
 
 ext <- extent(601484, 632825, 6667439, 6703616)
 rast <- crop(rast, ext)
@@ -516,13 +515,15 @@ rast
 
 ## Write raster
 ```{r}
-writeRaster(rast[[1]], file="maps/quality_crop_1905.asc", overwrite = F)
+writeRaster(rast[[1]], file="maps/quality_without_roads_crop_1501.asc", overwrite = F)
 writeRaster(rast[[2]], file="maps/permeability_with_crop_1905.asc", overwrite = F)
 
 writeRaster(rast[[3]], file="maps/permeability_current_crop_0810.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_no_barrierTEST_crop_0910.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_full_barrier_crop_0810.asc", overwrite = F)
 writeRaster(rast[[3]], file="maps/permeability_no_humans_crop_1210.asc", overwrite = F)
+writeRaster(rast[[3]], file="maps/permeability_without_humans_crop_1501.asc", overwrite = F)
+writeRaster(rast[[3]], file="maps/permeability_without_roads_crop_1501.asc", overwrite = F)
 # writeRaster(rast[[3]], file="maps/permeability_random_points_crop_1811.asc", overwrite = F)
 
 
