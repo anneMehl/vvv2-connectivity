@@ -36,7 +36,7 @@ library(raster)
 # Load rasters 
 ## Try also remove roads here
 roads_dist <- raster("maps/dist_roads.tif")
-values(roads_dist) <- 12570
+values(roads_dist) <- 900 # 900 = quantile 99% road_dist
 road_traffic_high <- raster("maps/dist_road_traffic_high.tif")
 values(road_traffic_high) <- 0
 building_dist <- raster("maps/dist_building.tif")
@@ -102,8 +102,8 @@ interaction <- road_traffic_high
 
 
 ### When removing roads, don't run this
-values(road_traffic_high) <- ifelse(values(roads_dist) < values(road_traffic_high),0,1)
-values(interaction) <- values(log_road_dist)*values(road_traffic_high)
+# values(road_traffic_high) <- ifelse(values(roads_dist) < values(road_traffic_high),0,1)
+# values(interaction) <- values(log_road_dist)*values(road_traffic_high)
 
 
 
@@ -178,12 +178,13 @@ predprob <- inv.logit(linpred)
 #### Make and write raster
 ```{r}
 
-quality6_without_humans_2_0806 <- young # just use any layer, raster("maps/prop_young_forest.tif")
-values(quality6_without_humans_2_0806) <- predprob
-plot(quality6_without_humans_2_0806)
-res(quality6_without_humans_2_0806)
+quality_without_roads_1501 <- young # just use any layer, raster("maps/prop_young_forest.tif")
+values(quality_without_roads_1501) <- predprob
 
-writeRaster(quality6_without_humans_2_0806, "maps/quality6_without_humans_2_0806.tif", overwrite = F)
+# plot(quality_without_humans_1501)
+# res(quality_without_humans_1501)
+
+# writeRaster(quality_without_humans_1501, "maps/quality_without_humans_1501.tif", overwrite = F)
 
 # permeability <- raster("maps/permeability.tif")
 # plot(permeability)
@@ -193,14 +194,21 @@ quality6_without_humans_0806 <- raster("maps/quality6_without_humans_0806.tif")
 quality6_without_roads_0806 <- raster("maps/quality6_without_roads_0806.tif")
 quality6_without_humans_2_0806 <- raster("maps/quality6_without_humans_2_0806.tif")
 
+quality_without_humans_1501 <- raster("maps/quality_without_humans_1501.tif")
+
 ```
 
 
 ```{r}
 
-writeRaster(quality6_without_humans_2_0806, "maps/quality6_without_humans_2_0806.asc", overwrite = F)
+writeRaster(quality_without_roads_1501, "maps/quality_without_roads_1501.asc", overwrite = F)
 
 ```
+
+
+
+
+
 
 
 
