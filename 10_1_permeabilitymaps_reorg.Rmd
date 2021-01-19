@@ -537,27 +537,71 @@ writeRaster(rast[[3]], file="maps/permeability_without_roads_crop_1501.asc", ove
 library(raster)
 
 ## Permeabilities and qualities ----
+# For both Habitat Functionality and road barrier effect
 permeability_current_crop_0810 <- raster("maps/final_permability_and_quality/permeability_current_crop_0810.asc")
 cellStats(permeability_current_crop_0810, "sum")
 
-permeability_full_barrier_crop_0810 <- raster("maps/final_permability_and_quality/permeability_full_barrier_crop_0810.asc")
-cellStats(permeability_full_barrier_crop_0810, "sum")
+quality_crop_1905 <- raster("maps/final_permability_and_quality/quality_crop_1905.asc")
+cellStats(quality_crop_1905, "sum")
 
+permeability_full_barrier_crop_0810 <- raster("maps/final_permability_and_quality/permeability_full_barrier_crop_0810.asc") 
+cellStats(permeability_full_barrier_crop_0810, "sum") # both for road barrier effect and Habitat Functionality no WCS
+
+
+# Habitat functionality
+quality_without_humans_crop_1501 <- raster("maps/final_permability_and_quality/quality_without_humans_crop_1501.asc")
+cellStats(quality_without_humans_crop_1501, "sum")
+
+quality_without_roads_1501 <- raster("maps/final_permability_and_quality/quality_without_roads_1501.asc")
+cellStats(quality_without_roads_1501, "sum")
+
+
+permeability_hf_without_roads_crop_1501 <- raster("maps/final_permability_and_quality/permeability_hf_without_roads_crop_1501.asc")
+cellStats(permeability_hf_without_roads_crop_1501, "sum")
+
+permeability_hf_without_humans_crop_1501 <- raster("maps/final_permability_and_quality/permeability_hf_without_humans_crop_1501.asc")
+cellStats(permeability_hf_without_humans_crop_1501, "sum")
+
+
+# Road barrier effect
 permeability_no_barrier_crop_0810 <- raster("maps/final_permability_and_quality/permeability_no_barrier_crop_0810.asc")
 cellStats(permeability_no_barrier_crop_0810, "sum")
 
 permeability_no_humans_crop_0910 <- raster("maps/final_permability_and_quality/permeability_no_humans_crop_0910.asc")
 cellStats(permeability_no_humans_crop_0910, "sum")
 
-quality_crop_1905 <- raster("maps/final_permability_and_quality/quality_crop_1905.asc")
-cellStats(quality_crop_1905, "sum")
+
 
 
 
 ## Function outputs ----
+# For both Habitat Functionality and road barrier effect
 func_current_1210 <- raster("maps/func_julia_outputs/func_current_1210.asc")
 cellStats(func_current_1210, "sum")
 
+func_no_crossings_and_full_barrier_1210 <- raster("maps/func_julia_outputs/func_no_crossings_and_full_barrier_1210.asc")
+cellStats(func_no_crossings_and_full_barrier_1210, "sum") # both for road barrier effect and Habitat Functionality no WCS
+
+func_diff_no_crossings_and_full_barrier_1210 <- raster("maps/func_julia_outputs/func_diff_no_crossings_and_full_barrier_1210.asc")
+cellStats(func_diff_no_crossings_and_full_barrier_1210, "sum") # both for road barrier effect and Habitat Functionality no WCS
+
+
+# Habitat Functionality
+habitat_func_diff_without_humans_1501 <- raster("maps/func_julia_outputs/habitat_func_diff_without_humans_1501.asc")
+cellStats(habitat_func_diff_without_humans_1501, "sum")
+
+habitat_func_diff_without_roads_1501 <- raster("maps/func_julia_outputs/habitat_func_diff_without_roads_1501.asc")
+cellStats(habitat_func_diff_without_roads_1501, "sum")
+
+
+habitat_func_without_roads_1501 <- raster("maps/func_julia_outputs/habitat_func_without_roads_1501.asc")
+cellStats(habitat_func_without_roads_1501, "sum")
+
+habitat_func_without_humans_1501 <- raster("maps/func_julia_outputs/habitat_func_without_humans_1501.asc")
+cellStats(habitat_func_without_humans_1501, "sum")
+
+
+# Road barrier effects
 func_diff_full_barrier_1210 <- raster("maps/func_julia_outputs/func_diff_full_barrier_1210.asc")
 cellStats(func_diff_full_barrier_1210, "sum")
 
@@ -567,14 +611,14 @@ cellStats(func_diff_no_barrier_1210, "sum")
 func_diff_no_humans_1210 <- raster("maps/func_julia_outputs/func_diff_no_humans_1210.asc")
 cellStats(func_diff_no_humans_1210, "sum")
 
-func_full_barrier_1210 <- raster("maps/func_julia_outputs/func_full_barrier_1210.asc")
-cellStats(func_full_barrier_1210, "sum")
+
 
 func_no_barrier_1210 <- raster("maps/func_julia_outputs/func_no_barrier_1210.asc")
 cellStats(func_no_barrier_1210, "sum")
 
 func_no_humans_1210 <- raster("maps/func_julia_outputs/func_no_humans_1210.asc")
 cellStats(func_no_humans_1210, "sum")
+
 
 
 
