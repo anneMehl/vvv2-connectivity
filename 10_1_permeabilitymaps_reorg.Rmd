@@ -541,8 +541,8 @@ library(raster)
 permeability_current_crop_0810 <- raster("maps/final_permability_and_quality/permeability_current_crop_0810.asc")
 cellStats(permeability_current_crop_0810, "sum")
 
-quality_crop_1905 <- raster("maps/final_permability_and_quality/quality_crop_1905.asc")
-cellStats(quality_crop_1905, "sum")
+quality_current_crop_1905 <- raster("maps/final_permability_and_quality/quality_current_crop_1905.asc")
+cellStats(quality_current_crop_1905, "sum")
 
 permeability_full_barrier_crop_0810 <- raster("maps/final_permability_and_quality/permeability_full_barrier_crop_0810.asc") 
 cellStats(permeability_full_barrier_crop_0810, "sum") # both for road barrier effect and Habitat Functionality no WCS
@@ -582,41 +582,37 @@ cellStats(func_current_1210, "sum")
 func_no_crossings_and_full_barrier_1210 <- raster("maps/func_julia_outputs/func_no_crossings_and_full_barrier_1210.asc")
 cellStats(func_no_crossings_and_full_barrier_1210, "sum") # both for road barrier effect and Habitat Functionality no WCS
 
-func_diff_no_crossings_and_full_barrier_1210 <- raster("maps/func_julia_outputs/func_diff_no_crossings_and_full_barrier_1210.asc")
-cellStats(func_diff_no_crossings_and_full_barrier_1210, "sum") # both for road barrier effect and Habitat Functionality no WCS
+# func_diff_no_crossings_and_full_barrier_1210 <- raster("maps/func_julia_outputs/func_diff_no_crossings_and_full_barrier_1210.asc")
+# cellStats(func_diff_no_crossings_and_full_barrier_1210, "sum") # both for road barrier effect and Habitat Functionality no WCS
 
 
 # Habitat Functionality
-habitat_func_diff_without_humans_1501 <- raster("maps/func_julia_outputs/habitat_func_diff_without_humans_1501.asc")
-cellStats(habitat_func_diff_without_humans_1501, "sum")
+# habitat_func_diff_without_humans_1501 <- raster("maps/func_julia_outputs/habitat_func_diff_without_humans_1501.asc")
+# cellStats(habitat_func_diff_without_humans_1501, "sum")
+# 
+# habitat_func_diff_without_roads_1501 <- raster("maps/func_julia_outputs/habitat_func_diff_without_roads_1501.asc")
+# cellStats(habitat_func_diff_without_roads_1501, "sum")
 
-habitat_func_diff_without_roads_1501 <- raster("maps/func_julia_outputs/habitat_func_diff_without_roads_1501.asc")
-cellStats(habitat_func_diff_without_roads_1501, "sum")
 
-
-habitat_func_without_roads_1501 <- raster("maps/func_julia_outputs/habitat_func_without_roads_1501.asc")
+habitat_func_without_roads_1501 <- raster("maps/func_julia_outputs/habitat_functionality/habitat_func_without_roads_1501.asc")
 cellStats(habitat_func_without_roads_1501, "sum")
 
-habitat_func_without_humans_1501 <- raster("maps/func_julia_outputs/habitat_func_without_humans_1501.asc")
+habitat_func_without_humans_1501 <- raster("maps/func_julia_outputs/habitat_functionality/habitat_func_without_humans_1501.asc")
 cellStats(habitat_func_without_humans_1501, "sum")
 
 
 # Road barrier effects
-func_diff_full_barrier_1210 <- raster("maps/func_julia_outputs/func_diff_full_barrier_1210.asc")
-cellStats(func_diff_full_barrier_1210, "sum")
-
-func_diff_no_barrier_1210 <- raster("maps/func_julia_outputs/func_diff_no_barrier_1210.asc")
-cellStats(func_diff_no_barrier_1210, "sum")
-
-func_diff_no_humans_1210 <- raster("maps/func_julia_outputs/func_diff_no_humans_1210.asc")
-cellStats(func_diff_no_humans_1210, "sum")
+# func_diff_no_barrier_2001 <- raster("maps/func_julia_outputs/road_barrier/func_diff_no_barrier_2001.asc")
+# cellStats(func_diff_no_barrier_2001, "sum")
+# 
+# func_diff_no_humans_1210 <- raster("maps/func_julia_outputs/road_barrier/func_diff_no_humans_1210.asc")
+# cellStats(func_diff_no_humans_1210, "sum")
 
 
+func_no_barrier_2001 <- raster("maps/func_julia_outputs/road_barrier/func_no_barrier_2001.asc")
+cellStats(func_no_barrier_2001, "sum")
 
-func_no_barrier_1210 <- raster("maps/func_julia_outputs/func_no_barrier_1210.asc")
-cellStats(func_no_barrier_1210, "sum")
-
-func_no_humans_1210 <- raster("maps/func_julia_outputs/func_no_humans_1210.asc")
+func_no_humans_1210 <- raster("maps/func_julia_outputs/road_barrier/func_no_humans_1210.asc")
 cellStats(func_no_humans_1210, "sum")
 
 
@@ -627,16 +623,16 @@ for (i in 1:10) {
   print(cellStats(raster(paste0("maps/rep_random_points_julia/permeability_random_points",i,".asc")),"sum"))
 }
 
-# [1] 41618778
-# [1] 41618289
-# [1] 41619981
-# [1] 41620720
-# [1] 41619005
-# [1] 41619600
-# [1] 41619713
-# [1] 41620721
-# [1] 41618451
-# [1] 41617791
+# 41618778
+# 41618289
+# 41619981
+# 41620720
+# 41619005
+# 41619600
+# 41619713
+# 41620721
+# 41618451
+# 41617791
 
 ```
 
