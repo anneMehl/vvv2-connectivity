@@ -238,6 +238,8 @@ name_raster <- "no_humans"
 
 #### load raster layers
 ```{r}
+library(raster)
+
 
 dist_building <- raster("maps/dist_building.tif")
 dist_roads <- raster("maps/dist_roads.tif")
@@ -532,7 +534,7 @@ writeRaster(rast[[3]], file="maps/permeability_without_roads_crop_1501.asc", ove
 
 
 
-## sum of function
+## sum of functions
 ```{r}
 library(raster)
 
