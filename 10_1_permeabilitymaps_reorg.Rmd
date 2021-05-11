@@ -550,6 +550,58 @@ permeability_full_barrier_crop_0810 <- raster("maps/final_permability_and_qualit
 cellStats(permeability_full_barrier_crop_0810, "sum") # both for road barrier effect and Habitat Functionality no WCS
 
 
+# Small scale buffer around crossings structures
+crossings_grey <- raster("maps/sspf/crossings_grey.tif")
+crossings_high_use <- raster("maps/sspf/crossings_high_use.tif")
+crossings_low_use <- raster("maps/sspf/crossings_low_use.tif")
+crossings_green <- raster("maps/sspf/crossings_green.tif")
+
+cross_green_sp <- rasterToPoints(crossings_green, fun=function(x){x>0}, spatial = T)
+perm_full_barrier_crgr <- extract(permeability_full_barrier_crop_0810, cross_green_sp, buffer = 500)
+perm_full_barrier_crgr_1km <- extract(permeability_full_barrier_crop_0810, cross_green_sp, buffer = 1000)
+perm_full_barrier_crgr_sums <- lapply(perm_full_barrier_crgr, sum)
+perm_full_barrier_crgr_1km_sums <- lapply(perm_full_barrier_crgr_1km, sum)
+# func_current_crgr_means <- lapply(func_current_crgr, mean)
+perm_full_barrier_crgr_sums_df <- ldply (perm_full_barrier_crgr_sums, data.frame)
+colSums(perm_full_barrier_crgr_sums_df, na.rm = T) # 1.388732
+perm_full_barrier_crgr_1km_sums_df <- ldply (perm_full_barrier_crgr_1km_sums, data.frame)
+colSums(perm_full_barrier_crgr_1km_sums_df, na.rm = T) # 5.720438 
+
+cross_high_use_sp <- rasterToPoints(crossings_high_use, fun=function(x){x>0}, spatial = T)
+perm_full_barrier_crhu <- extract(permeability_full_barrier_crop_0810, cross_high_use_sp, buffer = 500)
+perm_full_barrier_crhu_1km <- extract(permeability_full_barrier_crop_0810, cross_high_use_sp, buffer = 1000)
+perm_full_barrier_crhu_sums <- lapply(perm_full_barrier_crhu, sum)
+perm_full_barrier_crhu_1km_sums <- lapply(perm_full_barrier_crhu_1km, sum)
+# func_current_crhu_means <- lapply(func_current_crhu, mean)
+perm_full_barrier_crhu_sums_df <- ldply (perm_full_barrier_crhu_sums, data.frame)
+colSums(perm_full_barrier_crhu_sums_df, na.rm = T) # 1.871142  
+perm_full_barrier_crhu_1km_sums_df <- ldply (perm_full_barrier_crhu_1km_sums, data.frame)
+colSums(perm_full_barrier_crhu_1km_sums_df, na.rm = T) # 8.029333  
+
+cross_lowh_use_sp <- rasterToPoints(crossings_low_use, fun=function(x){x>0}, spatial = T)
+perm_full_barrier_crlu <- extract(permeability_full_barrier_crop_0810, cross_lowh_use_sp, buffer = 500)
+perm_full_barrier_crlu_1km <- extract(permeability_full_barrier_crop_0810, cross_lowh_use_sp, buffer = 1000)
+perm_full_barrier_crlu_sums <- lapply(perm_full_barrier_crlu, sum)
+perm_full_barrier_crlu_1km_sums <- lapply(perm_full_barrier_crlu_1km, sum)
+# func_current_crlu_means <- lapply(func_current_crlu, mean)
+perm_full_barrier_crlu_sums_df <- ldply (perm_full_barrier_crlu_sums, data.frame)
+colSums(perm_full_barrier_crlu_sums_df, na.rm = T) # 1.149725  
+perm_full_barrier_crlu_1km_sums_df <- ldply (perm_full_barrier_crlu_1km_sums, data.frame)
+colSums(perm_full_barrier_crlu_1km_sums_df, na.rm = T) # 5.322778   
+
+cross_grey_sp <- rasterToPoints(crossings_grey, fun=function(x){x>0}, spatial = T)
+perm_full_barrier_crg <- extract(permeability_full_barrier_crop_0810, cross_grey_sp, buffer = 500)
+perm_full_barrier_crg_1km <- extract(permeability_full_barrier_crop_0810, cross_grey_sp, buffer = 1000)
+perm_full_barrier_crg_sums <- lapply(perm_full_barrier_crg, sum)
+perm_full_barrier_crg_1km_sums <- lapply(perm_full_barrier_crg_1km, sum)
+# func_current_crg_means <- lapply(func_current_crg, mean)
+perm_full_barrier_crg_sums_df <- ldply (perm_full_barrier_crg_sums, data.frame)
+colSums(perm_full_barrier_crg_sums_df, na.rm = T) # 1.801265 
+perm_full_barrier_crg_1km_sums_df <- ldply (perm_full_barrier_crg_1km_sums, data.frame)
+colSums(perm_full_barrier_crg_1km_sums_df, na.rm = T) # 7.881406  
+
+
+
 # Habitat functionality
 quality_without_humans_crop_1501 <- raster("maps/final_permability_and_quality/quality_without_humans_crop_1501.asc")
 cellStats(quality_without_humans_crop_1501, "sum")
@@ -578,11 +630,67 @@ cellStats(permeability_no_humans_crop_0910, "sum")
 
 ## Function outputs ----
 # For both Habitat Functionality and road barrier effect
+library(raster)
+library (plyr)
+
 func_current_1210 <- raster("maps/func_julia_outputs/func_current_1210.asc")
 cellStats(func_current_1210, "sum")
 
 func_no_crossings_and_full_barrier_1210 <- raster("maps/func_julia_outputs/func_no_crossings_and_full_barrier_1210.asc")
 cellStats(func_no_crossings_and_full_barrier_1210, "sum") # both for road barrier effect and Habitat Functionality no WCS
+
+
+# Small scale buffer around crossings structures
+crossings_grey <- raster("maps/sspf/crossings_grey.tif")
+crossings_high_use <- raster("maps/sspf/crossings_high_use.tif")
+crossings_low_use <- raster("maps/sspf/crossings_low_use.tif")
+crossings_green <- raster("maps/sspf/crossings_green.tif")
+
+cross_green_sp <- rasterToPoints(crossings_green, fun=function(x){x>0}, spatial = T)
+func_current_crgr <- extract(func_current_1210, cross_green_sp, buffer = 500)
+func_current_crgr_1km <- extract(func_current_1210, cross_green_sp, buffer = 1000)
+func_current_crgr_sums <- lapply(func_current_crgr, sum)
+func_current_crgr_1km_sums <- lapply(func_current_crgr_1km, sum)
+# func_current_crgr_means <- lapply(func_current_crgr, mean)
+func_current_crgr_sums_df <- ldply (func_current_crgr_sums, data.frame)
+colSums(func_current_crgr_sums_df, na.rm = T) # 272828.4
+func_current_crgr_1km_sums_df <- ldply (func_current_crgr_1km_sums, data.frame)
+colSums(func_current_crgr_1km_sums_df, na.rm = T) # 1148142 
+
+cross_high_use_sp <- rasterToPoints(crossings_high_use, fun=function(x){x>0}, spatial = T)
+func_current_crhu <- extract(func_current_1210, cross_high_use_sp, buffer = 500)
+func_current_crhu_1km <- extract(func_current_1210, cross_high_use_sp, buffer = 1000)
+func_current_crhu_sums <- lapply(func_current_crhu, sum)
+func_current_crhu_1km_sums <- lapply(func_current_crhu_1km, sum)
+# func_current_crhu_means <- lapply(func_current_crhu, mean)
+func_current_crhu_sums_df <- ldply (func_current_crhu_sums, data.frame)
+colSums(func_current_crhu_sums_df, na.rm = T) # 351448.9 
+func_current_crhu_1km_sums_df <- ldply (func_current_crhu_1km_sums, data.frame)
+colSums(func_current_crhu_1km_sums_df, na.rm = T) # 1573421 
+
+cross_lowh_use_sp <- rasterToPoints(crossings_low_use, fun=function(x){x>0}, spatial = T)
+func_current_crlu <- extract(func_current_1210, cross_lowh_use_sp, buffer = 500)
+func_current_crlu_1km <- extract(func_current_1210, cross_lowh_use_sp, buffer = 1000)
+func_current_crlu_sums <- lapply(func_current_crlu, sum)
+func_current_crlu_1km_sums <- lapply(func_current_crlu_1km, sum)
+# func_current_crlu_means <- lapply(func_current_crlu, mean)
+func_current_crlu_sums_df <- ldply (func_current_crlu_sums, data.frame)
+colSums(func_current_crlu_sums_df, na.rm = T) # 244955.7 
+func_current_crlu_1km_sums_df <- ldply (func_current_crlu_1km_sums, data.frame)
+colSums(func_current_crlu_1km_sums_df, na.rm = T) # 1270661  
+
+cross_grey_sp <- rasterToPoints(crossings_grey, fun=function(x){x>0}, spatial = T)
+func_current_crg <- extract(func_current_1210, cross_grey_sp, buffer = 500)
+func_current_crg_1km <- extract(func_current_1210, cross_grey_sp, buffer = 1000)
+func_current_crg_sums <- lapply(func_current_crg, sum)
+func_current_crg_1km_sums <- lapply(func_current_crg_1km, sum)
+# func_current_crg_means <- lapply(func_current_crg, mean)
+func_current_crg_sums_df <- ldply (func_current_crg_sums, data.frame)
+colSums(func_current_crg_sums_df, na.rm = T) # 292606.1
+func_current_crg_1km_sums_df <- ldply (func_current_crg_1km_sums, data.frame)
+colSums(func_current_crg_1km_sums_df, na.rm = T) # 1335134 
+
+
 
 # func_diff_no_crossings_and_full_barrier_1210 <- raster("maps/func_julia_outputs/func_diff_no_crossings_and_full_barrier_1210.asc")
 # cellStats(func_diff_no_crossings_and_full_barrier_1210, "sum") # both for road barrier effect and Habitat Functionality no WCS
@@ -598,6 +706,59 @@ cellStats(func_no_crossings_and_full_barrier_1210, "sum") # both for road barrie
 
 habitat_func_without_roads_1501 <- raster("maps/func_julia_outputs/habitat_functionality/habitat_func_without_roads_1501.asc")
 cellStats(habitat_func_without_roads_1501, "sum")
+
+
+# Small scale buffer around crossings structures
+crossings_grey <- raster("maps/sspf/crossings_grey.tif")
+crossings_high_use <- raster("maps/sspf/crossings_high_use.tif")
+crossings_low_use <- raster("maps/sspf/crossings_low_use.tif")
+crossings_green <- raster("maps/sspf/crossings_green.tif")
+
+cross_green_sp <- rasterToPoints(crossings_green, fun=function(x){x>0}, spatial = T)
+func_roads_crgr <- extract(habitat_func_without_roads_1501, cross_green_sp, buffer = 500)
+func_roads_crgr_1km <- extract(habitat_func_without_roads_1501, cross_green_sp, buffer = 1000)
+func_roads_crgr_sums <- lapply(func_roads_crgr, sum)
+func_roads_crgr_1km_sums <- lapply(func_roads_crgr_1km, sum)
+# func_current_crgr_means <- lapply(func_current_crgr, mean)
+func_roads_crgr_sums_df <- ldply (func_roads_crgr_sums, data.frame)
+colSums(func_roads_crgr_sums_df, na.rm = T) # 2198257 
+func_roads_crgr_1km_sums_df <- ldply (func_roads_crgr_1km_sums, data.frame)
+colSums(func_roads_crgr_1km_sums_df, na.rm = T) # 8602736  
+
+cross_high_use_sp <- rasterToPoints(crossings_high_use, fun=function(x){x>0}, spatial = T)
+func_current_crhu <- extract(habitat_func_without_roads_1501, cross_high_use_sp, buffer = 500)
+func_current_crhu_1km <- extract(habitat_func_without_roads_1501, cross_high_use_sp, buffer = 1000)
+func_current_crhu_sums <- lapply(func_current_crhu, sum)
+func_current_crhu_1km_sums <- lapply(func_current_crhu_1km, sum)
+# func_current_crhu_means <- lapply(func_current_crhu, mean)
+func_current_crhu_sums_df <- ldply (func_current_crhu_sums, data.frame)
+colSums(func_current_crhu_sums_df, na.rm = T) # 351448.9 
+func_current_crhu_1km_sums_df <- ldply (func_current_crhu_1km_sums, data.frame)
+colSums(func_current_crhu_1km_sums_df, na.rm = T) # 1573421 
+
+cross_lowh_use_sp <- rasterToPoints(crossings_low_use, fun=function(x){x>0}, spatial = T)
+func_current_crlu <- extract(habitat_func_without_roads_1501, cross_lowh_use_sp, buffer = 500)
+func_current_crlu_1km <- extract(habitat_func_without_roads_1501, cross_lowh_use_sp, buffer = 1000)
+func_current_crlu_sums <- lapply(func_current_crlu, sum)
+func_current_crlu_1km_sums <- lapply(func_current_crlu_1km, sum)
+# func_current_crlu_means <- lapply(func_current_crlu, mean)
+func_current_crlu_sums_df <- ldply (func_current_crlu_sums, data.frame)
+colSums(func_current_crlu_sums_df, na.rm = T) # 244955.7 
+func_current_crlu_1km_sums_df <- ldply (func_current_crlu_1km_sums, data.frame)
+colSums(func_current_crlu_1km_sums_df, na.rm = T) # 1270661  
+
+cross_grey_sp <- rasterToPoints(crossings_grey, fun=function(x){x>0}, spatial = T)
+func_current_crg <- extract(habitat_func_without_roads_1501, cross_grey_sp, buffer = 500)
+func_current_crg_1km <- extract(habitat_func_without_roads_1501, cross_grey_sp, buffer = 1000)
+func_current_crg_sums <- lapply(func_current_crg, sum)
+func_current_crg_1km_sums <- lapply(func_current_crg_1km, sum)
+# func_current_crg_means <- lapply(func_current_crg, mean)
+func_current_crg_sums_df <- ldply (func_current_crg_sums, data.frame)
+colSums(func_current_crg_sums_df, na.rm = T) # 292606.1
+func_current_crg_1km_sums_df <- ldply (func_current_crg_1km_sums, data.frame)
+colSums(func_current_crg_1km_sums_df, na.rm = T) # 1335134 
+
+
 
 habitat_func_without_humans_1501 <- raster("maps/func_julia_outputs/habitat_functionality/habitat_func_without_humans_1501.asc")
 cellStats(habitat_func_without_humans_1501, "sum")
